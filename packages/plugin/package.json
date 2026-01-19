@@ -1,0 +1,28 @@
+{
+  "name": "@sqlc-effect/plugin",
+  "version": "0.0.0",
+  "description": "sqlc.dev WASM plugin for generating Effect.ts code",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist",
+    "test": "echo \"No tests yet\""
+  },
+  "keywords": [
+    "sqlc",
+    "effect",
+    "effect-ts",
+    "codegen",
+    "sql"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "effect": "^2.0.0"
+  }
+}

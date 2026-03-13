@@ -29,6 +29,12 @@ Run in development mode:
 npm run dev
 ```
 
+## Generate protobuf code
+```shell
+buf generate --template buf.gen.yaml buf.build/sqlc/sqlc --path plugin/
+```
+
+
 ## Development
 
 This monorepo uses:

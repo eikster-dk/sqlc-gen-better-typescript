@@ -16,5 +16,6 @@ type Builder interface {
 	// The catalog contains all schema information (tables, enums)
 	// The queries contain all the SQL queries with their params and results
 	// The logger is used for structured logging during generation
-	Build(catalog *models.Catalog, queries []models.Query, log *logger.Logger) ([]File, error)
+	// The sqlcVersion is the version of sqlc that invoked this plugin
+	Build(catalog *models.Catalog, queries []models.Query, log *logger.Logger, sqlcVersion string) ([]File, error)
 }

@@ -50,7 +50,7 @@ func Generate(ctx context.Context, req *plugin.GenerateRequest) (*plugin.Generat
 	}
 	log.Info("Builder created", logger.F("type", cfg.Builder))
 
-	files, err := builder.Build(catalog, queries, log)
+	files, err := builder.Build(catalog, queries, log, req.SqlcVersion)
 	if err != nil {
 		log.Error("Build failed", err)
 		return nil, err

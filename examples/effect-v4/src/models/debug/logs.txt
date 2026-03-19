@@ -1,0 +1,23 @@
+2022-01-01 00:00:00 [INFO] Starting code generation - builder=effect-v4-unstable, debug=true
+2022-01-01 00:00:00 [INFO] Config validated successfully
+2022-01-01 00:00:00 [INFO] Mapping sqlc types to internal models
+2022-01-01 00:00:00 [DEBUG] Mapped catalog - composite_types=0, tables=2, enums=0
+2022-01-01 00:00:00 [DEBUG] Mapped table - name=sms_stories, columns=3
+2022-01-01 00:00:00 [DEBUG] Mapped table - name=sms_episodes, columns=4
+2022-01-01 00:00:00 [INFO] Mapped queries - count=5, tables=2, enums=0
+2022-01-01 00:00:00 [INFO] Builder created - type=effect-v4-unstable
+2022-01-01 00:00:00 [INFO] Starting Effect4 code generation - builder=effect-v4-unstable
+2022-01-01 00:00:00 [DEBUG] Catalog info - tables=2, enums=0
+2022-01-01 00:00:00 [INFO] Generating query - index=0, name=GetSMSProducts, cmd=:many, params=0, results=2
+2022-01-01 00:00:00 [INFO] Generated file - name=GetSMSProducts.ts, size=145
+2022-01-01 00:00:00 [INFO] Generating query - params=1, results=2, index=1, name=GetByIds, cmd=:many
+2022-01-01 00:00:00 [INFO] Generated file - name=GetByIds.ts, size=209
+2022-01-01 00:00:00 [INFO] Generating query - cmd=:one, params=1, results=2, index=2, name=GetStory
+2022-01-01 00:00:00 [INFO] Generated file - name=GetStory.ts, size=204
+2022-01-01 00:00:00 [INFO] Generating query - name=AddStory, cmd=:exec, params=2, results=0, index=3
+2022-01-01 00:00:00 [INFO] Generated file - name=AddStory.ts, size=186
+2022-01-01 00:00:00 [INFO] Generating query - name=GetStories, cmd=:many, params=0, results=7, index=4
+2022-01-01 00:00:00 [INFO] Generated file - size=423, name=GetStories.ts
+2022-01-01 00:00:00 [INFO] Effect4 code generation complete - files=5
+2022-01-01 00:00:00 [INFO] Files generated - count=5
+2022-01-01 00:00:00 [INFO] Generating debug artifacts

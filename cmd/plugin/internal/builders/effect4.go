@@ -2,106 +2,211 @@ package builders
 
 import (
 	"embed"
+	"fmt"
 	"strings"
+
+	"github.com/eikster-dk/sqlc-effect/cmd/plugin/internal/config"
+	"github.com/eikster-dk/sqlc-effect/cmd/plugin/internal/logger"
+	"github.com/eikster-dk/sqlc-effect/cmd/plugin/internal/models"
 )
 
 //go:embed templates/**/*.gotmpl
 var templates embed.FS
 
 type Effect4 struct {
+	cfg config.Config
 }
 
-func newEffect4() *Effect4 {
-	return &Effect4{}
+// NewEffect4 creates a new Effect4 builder
+func NewEffect4(cfg config.Config) *Effect4 {
+	return &Effect4{cfg: cfg}
 }
 
-// Build implements builders.Builder.
-func (e *Effect4) Build() ([]File, error) {
-	panic("unimplemented")
+// Build implements builders.Builder
+func (e *Effect4) Build(catalog *models.Catalog, queries []models.Query, log *logger.Logger) ([]File, error) {
+	log.Info("Starting Effect4 code generation", logger.F("builder", "effect-v4-unstable"))
+	log.Debug("Catalog info", logger.F("tables", len(catalog.Tables)), logger.F("enums", len(catalog.Enums)))
+
+	var files []File
+
+	for i, query := range queries {
+		log.Info("Generating query",
+			logger.F("index", i),
+			logger.F("name", query.Name),
+			logger.F("cmd", query.Command),
+			logger.F("params", len(query.Params)),
+			logger.F("results", len(query.Results)))
+
+		// Log type mapping for complex types
+		for _, param := range query.Params {
+			if param.Type.IsEnum || param.Type.IsArray {
+				log.Debug("Param type mapping",
+					logger.F("param", param.Name),
+					logger.F("sql_type", param.Type.Name),
+					logger.F("is_array", param.Type.IsArray),
+					logger.F("is_enum", param.Type.IsEnum))
+			}
+		}
+
+		for _, result := range query.Results {
+			if result.Type.IsEnum || result.Type.IsArray {
+				log.Debug("Result type mapping",
+					logger.F("field", result.Name),
+					logger.F("sql_type", result.Type.Name),
+					logger.F("is_array", result.Type.IsArray),
+					logger.F("is_enum", result.Type.IsEnum))
+			}
+		}
+
+		// Generate code for each query
+		content := e.generateQueryCode(query, catalog, log)
+
+		file := File{
+			Name:    fmt.Sprintf("%s.ts", query.Name),
+			Content: []byte(content),
+		}
+		files = append(files, file)
+
+		log.Info("Generated file",
+			logger.F("name", file.Name),
+			logger.F("size", len(file.Content)))
+	}
+
+	log.Info("Effect4 code generation complete", logger.F("files", len(files)))
+
+	return files, nil
 }
 
-// postgresqlTypeToEffectSchema maps PostgreSQL type names to Effect Schema expressions (TypeScript-side),
-// returned as strings (e.g. "Schema.String", "Schema.BigInt").
-//
-// Notes:
-// - bigint/int8 is mapped to Schema.BigInt (safer than Schema.Number).
-// - numeric/money are mapped to Schema.String (common driver behavior to preserve precision).
-// - json/jsonb are mapped to Schema.Unknown.
-// - timestamp/timestamptz/date are mapped to Schema.Date (if you prefer strings, change accordingly).
-func (e *Effect4) postgresqlTypeToEffectSchema(dbType string) string {
-	switch strings.ToLower(dbType) {
+func (e *Effect4) generateQueryCode(query models.Query, catalog *models.Catalog, log *logger.Logger) string {
+	// This is a placeholder implementation
+	// In the real implementation, this would:
+	// 1. Generate Effect Schema types for params
+	// 2. Generate Effect Schema types for results
+	// 3. Generate the query function with proper Effect types
+
+	var builder strings.Builder
+
+	builder.WriteString(fmt.Sprintf("// Query: %s\n", query.Name))
+	builder.WriteString(fmt.Sprintf("// Command: %s\n", query.Command))
+	builder.WriteString(fmt.Sprintf("// SQL: %s\n\n", query.SQL))
+
+	// Generate param schemas
+	if len(query.Params) > 0 {
+		builder.WriteString("// Parameters:\n")
+		for _, param := range query.Params {
+			schema := e.sqlTypeToEffectSchema(param.Type, log)
+			builder.WriteString(fmt.Sprintf("//   %s: %s (position %d)\n",
+				param.Name, schema, param.Position))
+		}
+		builder.WriteString("\n")
+	}
+
+	// Generate result schemas
+	if len(query.Results) > 0 {
+		builder.WriteString("// Results:\n")
+		for _, result := range query.Results {
+			schema := e.sqlTypeToEffectSchema(result.Type, log)
+			builder.WriteString(fmt.Sprintf("//   %s: %s\n",
+				result.Name, schema))
+		}
+	}
+
+	return builder.String()
+}
+
+// sqlTypeToEffectSchema converts internal SqlType to Effect Schema expression
+func (e *Effect4) sqlTypeToEffectSchema(t models.SqlType, log *logger.Logger) string {
+	var baseSchema string
+
+	switch strings.ToLower(t.Name) {
 	// serials
-	case "serial", "serial4", "pg_catalog.serial":
-		return "Schema.Int"
-	case "bigserial", "serial8", "pg_catalog.serial8":
-		return "Schema.BigInt"
-	case "smallserial", "serial2", "pg_catalog.serial2":
-		return "Schema.Int"
+	case "serial", "serial4":
+		baseSchema = "Schema.Int"
+	case "bigserial", "serial8":
+		baseSchema = "Schema.BigInt"
+	case "smallserial", "serial2":
+		baseSchema = "Schema.Int"
 
 	// ints
-	case "integer", "int", "int4", "pg_catalog.int4":
-		return "Schema.Int"
-	case "bigint", "int8", "pg_catalog.int8":
-		return "Schema.BigInt"
-	case "smallint", "int2", "pg_catalog.int2":
-		return "Schema.Int"
+	case "integer", "int", "int4":
+		baseSchema = "Schema.Int"
+	case "bigint", "int8":
+		baseSchema = "Schema.BigInt"
+	case "smallint", "int2":
+		baseSchema = "Schema.Int"
 
 	// floats
-	case "float", "double precision", "float8", "pg_catalog.float8":
-		return "Schema.Number"
-	case "real", "float4", "pg_catalog.float4":
-		return "Schema.Number"
+	case "float", "double precision", "float8":
+		baseSchema = "Schema.Number"
+	case "real", "float4":
+		baseSchema = "Schema.Number"
 
 	// numeric / money
-	case "numeric", "pg_catalog.numeric":
-		return "Schema.String"
+	case "numeric":
+		baseSchema = "Schema.String"
 	case "money":
-		return "Schema.String"
+		baseSchema = "Schema.String"
 
 	// boolean
-	case "boolean", "bool", "pg_catalog.bool":
-		return "Schema.Boolean"
+	case "boolean", "bool":
+		baseSchema = "Schema.Boolean"
 
 	// json
 	case "json", "jsonb":
-		return "Schema.Unknown"
+		baseSchema = "Schema.Unknown"
 
-	// bytes (depends on your JS runtime/driver)
-	case "bytea", "blob", "pg_catalog.bytea":
-		return "Schema.Uint8Array"
+	// bytes
+	case "bytea", "blob":
+		baseSchema = "Schema.Uint8Array"
 
 	// dates/times
 	case "date":
-		return "Schema.Date"
-	case "pg_catalog.time", "pg_catalog.timetz":
-		return "Schema.String"
-	case "pg_catalog.timestamp", "pg_catalog.timestamptz", "timestamptz":
-		return "Schema.Date"
-	case "interval", "pg_catalog.interval":
-		return "Schema.String"
+		baseSchema = "Schema.Date"
+	case "time", "timetz":
+		baseSchema = "Schema.String"
+	case "timestamp", "timestamptz":
+		baseSchema = "Schema.Date"
+	case "interval":
+		baseSchema = "Schema.String"
 
 	// strings
-	case "text", "pg_catalog.varchar", "pg_catalog.bpchar", "string", "citext":
-		return "Schema.String"
+	case "text", "varchar", "bpchar", "string", "citext":
+		baseSchema = "Schema.String"
 
 	// uuid
 	case "uuid":
-		// If you want a check: `Schema.String.check(Schema.isUUID())`
-		return "Schema.String"
+		baseSchema = "Schema.String"
 
 	// network-ish
-	case "inet", "cidr":
-		return "Schema.String"
-	case "macaddr", "macaddr8":
-		return "Schema.String"
+	case "inet", "cidr", "macaddr", "macaddr8":
+		baseSchema = "Schema.String"
 
 	// ltree family
 	case "ltree", "lquery", "ltxtquery":
-		return "Schema.String"
+		baseSchema = "Schema.String"
 
+	// Enums
 	default:
-		return "Schema.Unknown"
+		if t.IsEnum {
+			baseSchema = fmt.Sprintf("%sSchema", t.Name) // Reference to generated enum schema
+			log.Debug("Using enum schema", logger.F("enum", t.Name))
+		} else {
+			log.Warn("Unknown SQL type, using Schema.Unknown", logger.F("type", t.Name))
+			baseSchema = "Schema.Unknown"
+		}
 	}
+
+	// Handle arrays
+	if t.IsArray {
+		baseSchema = fmt.Sprintf("Schema.Array(%s)", baseSchema)
+	}
+
+	// Handle nullability
+	if t.IsNullable {
+		baseSchema = fmt.Sprintf("Schema.optional(%s)", baseSchema)
+	}
+
+	return baseSchema
 }
 
 var _ Builder = (*Effect4)(nil)

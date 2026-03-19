@@ -1,0 +1,346 @@
+{
+  "generated_at": "2022-01-01T00:00:00Z",
+  "catalog": {
+    "Tables": [
+      {
+        "Name": "sms_stories",
+        "Columns": [
+          {
+            "Name": "id",
+            "Type": {
+              "Name": "text",
+              "Schema": "",
+              "IsNullable": false,
+              "IsArray": false,
+              "IsEnum": false
+            },
+            "Nullable": false
+          },
+          {
+            "Name": "name",
+            "Type": {
+              "Name": "text",
+              "Schema": "",
+              "IsNullable": false,
+              "IsArray": false,
+              "IsEnum": false
+            },
+            "Nullable": false
+          },
+          {
+            "Name": "sender",
+            "Type": {
+              "Name": "text",
+              "Schema": "",
+              "IsNullable": false,
+              "IsArray": false,
+              "IsEnum": false
+            },
+            "Nullable": false
+          }
+        ]
+      },
+      {
+        "Name": "sms_episodes",
+        "Columns": [
+          {
+            "Name": "id",
+            "Type": {
+              "Name": "text",
+              "Schema": "",
+              "IsNullable": false,
+              "IsArray": false,
+              "IsEnum": false
+            },
+            "Nullable": false
+          },
+          {
+            "Name": "story_id",
+            "Type": {
+              "Name": "text",
+              "Schema": "",
+              "IsNullable": false,
+              "IsArray": false,
+              "IsEnum": false
+            },
+            "Nullable": false
+          },
+          {
+            "Name": "send_date",
+            "Type": {
+              "Name": "date",
+              "Schema": "",
+              "IsNullable": false,
+              "IsArray": false,
+              "IsEnum": false
+            },
+            "Nullable": false
+          },
+          {
+            "Name": "singular_content",
+            "Type": {
+              "Name": "text",
+              "Schema": "",
+              "IsNullable": false,
+              "IsArray": false,
+              "IsEnum": false
+            },
+            "Nullable": false
+          }
+        ]
+      }
+    ],
+    "Enums": null,
+    "CompositeTypes": null
+  },
+  "queries": [
+    {
+      "Name": "GetSMSProducts",
+      "SQL": "select id, name from sms_stories",
+      "Command": ":many",
+      "Params": null,
+      "Results": [
+        {
+          "Name": "id",
+          "Type": {
+            "Name": "text",
+            "Schema": "",
+            "IsNullable": false,
+            "IsArray": false,
+            "IsEnum": false
+          },
+          "Table": "sms_stories"
+        },
+        {
+          "Name": "name",
+          "Type": {
+            "Name": "text",
+            "Schema": "",
+            "IsNullable": false,
+            "IsArray": false,
+            "IsEnum": false
+          },
+          "Table": "sms_stories"
+        }
+      ],
+      "Tables": [
+        "sms_stories"
+      ],
+      "HasEnum": false
+    },
+    {
+      "Name": "GetByIds",
+      "SQL": "select id, name from sms_stories where id in ($1)",
+      "Command": ":many",
+      "Params": [
+        {
+          "Name": "ids",
+          "Position": 1,
+          "Type": {
+            "Name": "text",
+            "Schema": "",
+            "IsNullable": false,
+            "IsArray": false,
+            "IsEnum": false
+          }
+        }
+      ],
+      "Results": [
+        {
+          "Name": "id",
+          "Type": {
+            "Name": "text",
+            "Schema": "",
+            "IsNullable": false,
+            "IsArray": false,
+            "IsEnum": false
+          },
+          "Table": "sms_stories"
+        },
+        {
+          "Name": "name",
+          "Type": {
+            "Name": "text",
+            "Schema": "",
+            "IsNullable": false,
+            "IsArray": false,
+            "IsEnum": false
+          },
+          "Table": "sms_stories"
+        }
+      ],
+      "Tables": [
+        "sms_stories"
+      ],
+      "HasEnum": false
+    },
+    {
+      "Name": "GetStory",
+      "SQL": "select id, name from sms_stories where id = $1",
+      "Command": ":one",
+      "Params": [
+        {
+          "Name": "id",
+          "Position": 1,
+          "Type": {
+            "Name": "text",
+            "Schema": "",
+            "IsNullable": false,
+            "IsArray": false,
+            "IsEnum": false
+          }
+        }
+      ],
+      "Results": [
+        {
+          "Name": "id",
+          "Type": {
+            "Name": "text",
+            "Schema": "",
+            "IsNullable": false,
+            "IsArray": false,
+            "IsEnum": false
+          },
+          "Table": "sms_stories"
+        },
+        {
+          "Name": "name",
+          "Type": {
+            "Name": "text",
+            "Schema": "",
+            "IsNullable": false,
+            "IsArray": false,
+            "IsEnum": false
+          },
+          "Table": "sms_stories"
+        }
+      ],
+      "Tables": [
+        "sms_stories"
+      ],
+      "HasEnum": false
+    },
+    {
+      "Name": "AddStory",
+      "SQL": "insert into sms_stories (id, name) values ($1,$2)",
+      "Command": ":exec",
+      "Params": [
+        {
+          "Name": "id",
+          "Position": 1,
+          "Type": {
+            "Name": "text",
+            "Schema": "",
+            "IsNullable": false,
+            "IsArray": false,
+            "IsEnum": false
+          }
+        },
+        {
+          "Name": "name",
+          "Position": 2,
+          "Type": {
+            "Name": "text",
+            "Schema": "",
+            "IsNullable": false,
+            "IsArray": false,
+            "IsEnum": false
+          }
+        }
+      ],
+      "Results": null,
+      "Tables": [],
+      "HasEnum": false
+    },
+    {
+      "Name": "GetStories",
+      "SQL": "SELECT sms_stories.id, name, sender, sms_episodes.id, story_id, send_date, singular_content FROM sms_stories \ninner join sms_episodes on sms_stories.id  = sms_episodes.id",
+      "Command": ":many",
+      "Params": null,
+      "Results": [
+        {
+          "Name": "id",
+          "Type": {
+            "Name": "text",
+            "Schema": "",
+            "IsNullable": false,
+            "IsArray": false,
+            "IsEnum": false
+          },
+          "Table": "sms_stories"
+        },
+        {
+          "Name": "name",
+          "Type": {
+            "Name": "text",
+            "Schema": "",
+            "IsNullable": false,
+            "IsArray": false,
+            "IsEnum": false
+          },
+          "Table": "sms_stories"
+        },
+        {
+          "Name": "sender",
+          "Type": {
+            "Name": "text",
+            "Schema": "",
+            "IsNullable": false,
+            "IsArray": false,
+            "IsEnum": false
+          },
+          "Table": "sms_stories"
+        },
+        {
+          "Name": "id",
+          "Type": {
+            "Name": "text",
+            "Schema": "",
+            "IsNullable": false,
+            "IsArray": false,
+            "IsEnum": false
+          },
+          "Table": "sms_episodes"
+        },
+        {
+          "Name": "story_id",
+          "Type": {
+            "Name": "text",
+            "Schema": "",
+            "IsNullable": false,
+            "IsArray": false,
+            "IsEnum": false
+          },
+          "Table": "sms_episodes"
+        },
+        {
+          "Name": "send_date",
+          "Type": {
+            "Name": "date",
+            "Schema": "",
+            "IsNullable": false,
+            "IsArray": false,
+            "IsEnum": false
+          },
+          "Table": "sms_episodes"
+        },
+        {
+          "Name": "singular_content",
+          "Type": {
+            "Name": "text",
+            "Schema": "",
+            "IsNullable": false,
+            "IsArray": false,
+            "IsEnum": false
+          },
+          "Table": "sms_episodes"
+        }
+      ],
+      "Tables": [
+        "sms_stories",
+        "sms_episodes"
+      ],
+      "HasEnum": false
+    }
+  ]
+}

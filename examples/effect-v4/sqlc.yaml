@@ -1,8 +1,8 @@
 version: '2'
 plugins:
 - name: effect
-  process:
-      cmd: ../../dist/plugin
+  wasm:
+    url: file://../../dist/plugin
 sql:
 - schema: schema/schema.sql
   queries: schema/queries.sql
@@ -10,4 +10,7 @@ sql:
   codegen:
   - out: src/models
     plugin: effect
-    options: {}
+    options: 
+      builder: effect-v4-unstable
+      debug: true
+      debug_dir: debug

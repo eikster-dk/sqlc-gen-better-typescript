@@ -73,14 +73,25 @@ func (m *Mapper) mapQuery(q *plugin.Query) models.Query {
 	params := m.mapParams(q.Params)
 	results := m.mapResults(q.Columns)
 
+	// Rewrite SQL if needed (adds explicit column aliases for duplicates)
+	rewrittenSQL := models.RewriteSQLWithAliases(q.Text, results)
+	if rewrittenSQL != q.Text {
+		m.logger.Debug("Rewrote SQL with aliases",
+			logger.F("query", q.Name),
+			logger.F("original", q.Text),
+			logger.F("rewritten", rewrittenSQL))
+	}
+
 	return models.Query{
-		Name:    q.Name,
-		SQL:     q.Text,
-		Command: q.Cmd,
-		Params:  params,
-		Results: results,
-		Tables:  extractTables(q.Columns),
-		HasEnum: hasEnumInResults(results, m.enumSet),
+		Name:         q.Name,
+		SQL:          q.Text,
+		RewrittenSQL: rewrittenSQL,
+		Command:      q.Cmd,
+		Params:       params,
+		Results:      results,
+		Tables:       extractTables(q.Columns),
+		HasEnum:      hasEnumInResults(results, m.enumSet),
+		Filename:     q.Filename,
 	}
 }
 
@@ -118,6 +129,7 @@ func (m *Mapper) mapParams(params []*plugin.Parameter) []models.Param {
 
 func (m *Mapper) mapResults(columns []*plugin.Column) []models.ResultField {
 	var result []models.ResultField
+	fieldCount := make(map[string]int) // Track field name occurrences
 
 	for _, col := range columns {
 		tableName := ""
@@ -125,10 +137,30 @@ func (m *Mapper) mapResults(columns []*plugin.Column) []models.ResultField {
 			tableName = col.Table.Name
 		}
 
+		// Get original column name
+		originalName := col.Name
+
+		// Check for duplicates and create alias in format table_column
+		fieldCount[originalName]++
+		uniqueName := originalName
+		isAliased := false
+
+		if count := fieldCount[originalName]; count > 1 {
+			// Create alias: table_column (e.g., sms_episodes_id)
+			uniqueName = fmt.Sprintf("%s_%s", tableName, originalName)
+			isAliased = true
+			m.logger.Debug("Auto-aliased duplicate column",
+				logger.F("original", originalName),
+				logger.F("alias", uniqueName),
+				logger.F("table", tableName))
+		}
+
 		result = append(result, models.ResultField{
-			Name:  col.Name,
-			Type:  m.mapSqlTypeFromColumn(col),
-			Table: tableName,
+			Name:         uniqueName,
+			OriginalName: originalName,
+			Type:         m.mapSqlTypeFromColumn(col),
+			Table:        tableName,
+			IsAliased:    isAliased,
 		})
 	}
 

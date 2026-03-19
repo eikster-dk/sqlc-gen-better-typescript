@@ -1,0 +1,1520 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`OrdersRepository > countOrdersByStatus > returns order counts grouped by status 1`] = `
+[
+  {
+    "order_count": 4n,
+    "status": "confirmed",
+  },
+  {
+    "order_count": 3n,
+    "status": "shipped",
+  },
+  {
+    "order_count": 3n,
+    "status": "delivered",
+  },
+  {
+    "order_count": 3n,
+    "status": "pending",
+  },
+  {
+    "order_count": 2n,
+    "status": "processing",
+  },
+  {
+    "order_count": 1n,
+    "status": "cancelled",
+  },
+  {
+    "order_count": 1n,
+    "status": "refunded",
+  },
+]
+`;
+
+exports[`OrdersRepository > getCustomerOrderStats > returns order statistics for a customer 1`] = `
+{
+  "_id": "Option",
+  "_tag": "Some",
+  "value": {
+    "avg_order_value": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "8332.3333333333333333",
+    },
+    "total_orders": 3n,
+    "total_spent": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "24997",
+    },
+  },
+}
+`;
+
+exports[`OrdersRepository > getFullOrderDetails > returns full order details with customer and products 1`] = `
+[
+  {
+    "customer_email": "alice@example.com",
+    "customer_id": 1,
+    "customer_name": "Alice Johnson",
+    "discount_cents": 0,
+    "line_id": 1,
+    "order_date": 2024-01-15T10:00:00.000Z,
+    "order_id": 1,
+    "order_total": 19998,
+    "product_id": 1,
+    "product_name": "Wireless Headphones",
+    "quantity": 1,
+    "shipping_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "New Shipping Address",
+    },
+    "sku": "ELEC-001",
+    "status": "delivered",
+    "unit_price_cents": 14999,
+  },
+  {
+    "customer_email": "alice@example.com",
+    "customer_id": 1,
+    "customer_name": "Alice Johnson",
+    "discount_cents": 0,
+    "line_id": 2,
+    "order_date": 2024-01-15T10:00:00.000Z,
+    "order_id": 1,
+    "order_total": 19998,
+    "product_id": 4,
+    "product_name": "Wireless Mouse",
+    "quantity": 1,
+    "shipping_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "New Shipping Address",
+    },
+    "sku": "ELEC-004",
+    "status": "delivered",
+    "unit_price_cents": 4999,
+  },
+]
+`;
+
+exports[`OrdersRepository > getOrder > returns order when found 1`] = `
+{
+  "billing_address": {
+    "_id": "Option",
+    "_tag": "Some",
+    "value": "123 Main St, New York, NY 10001",
+  },
+  "created_at": 2024-01-15T10:00:00.000Z,
+  "customer_id": 1,
+  "id": 1,
+  "notes": {
+    "_id": "Option",
+    "_tag": "Some",
+    "value": "Leave at door",
+  },
+  "shipping_address": {
+    "_id": "Option",
+    "_tag": "Some",
+    "value": "123 Main St, New York, NY 10001",
+  },
+  "status": "delivered",
+  "total_cents": 19998,
+  "updated_at": 2024-01-15T10:00:00.000Z,
+}
+`;
+
+exports[`OrdersRepository > getOrderLine > returns order line when found 1`] = `
+{
+  "created_at": 2024-01-15T10:01:00.000Z,
+  "discount_cents": 0,
+  "id": 1,
+  "order_id": 1,
+  "product_id": 1,
+  "quantity": 1,
+  "unit_price_cents": 14999,
+}
+`;
+
+exports[`OrdersRepository > getOrderLineTotal > returns total for order lines 1`] = `
+{
+  "_id": "Option",
+  "_tag": "Some",
+  "value": {
+    "total": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "79994",
+    },
+  },
+}
+`;
+
+exports[`OrdersRepository > getOrderWithCustomer > returns order with customer details 1`] = `
+{
+  "billing_address": {
+    "_id": "Option",
+    "_tag": "Some",
+    "value": "123 Main St, New York, NY 10001",
+  },
+  "created_at": 2024-01-15T10:00:00.000Z,
+  "customer_email": "alice@example.com",
+  "customer_id": 1,
+  "customer_name": "Alice Johnson",
+  "customer_phone": {
+    "_id": "Option",
+    "_tag": "Some",
+    "value": "+1-555-0101",
+  },
+  "id": 1,
+  "notes": {
+    "_id": "Option",
+    "_tag": "Some",
+    "value": "Leave at door",
+  },
+  "shipping_address": {
+    "_id": "Option",
+    "_tag": "Some",
+    "value": "123 Main St, New York, NY 10001",
+  },
+  "status": "delivered",
+  "total_cents": 19998,
+  "updated_at": 2024-01-15T10:00:00.000Z,
+}
+`;
+
+exports[`OrdersRepository > getProductSalesStats > returns sales statistics for a product 1`] = `
+{
+  "_id": "Option",
+  "_tag": "Some",
+  "value": {
+    "id": 1,
+    "name": "Wireless Headphones",
+    "sku": "ELEC-001",
+    "total_revenue": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "134991",
+    },
+    "total_sold": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "9",
+    },
+  },
+}
+`;
+
+exports[`OrdersRepository > getTopSellingProducts > returns top selling products 1`] = `
+[
+  {
+    "category": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "Electronics",
+    },
+    "id": 1,
+    "name": "Wireless Headphones",
+    "sku": "ELEC-001",
+    "total_revenue": 134991n,
+    "total_sold": 9n,
+  },
+  {
+    "category": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "Clothing",
+    },
+    "id": 6,
+    "name": "Cotton T-Shirt",
+    "sku": "CLTH-001",
+    "total_revenue": 13993n,
+    "total_sold": 7n,
+  },
+  {
+    "category": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "Home & Garden",
+    },
+    "id": 12,
+    "name": "Plant Pot Set",
+    "sku": "HOME-002",
+    "total_revenue": 11996n,
+    "total_sold": 4n,
+  },
+  {
+    "category": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "Electronics",
+    },
+    "id": 4,
+    "name": "Wireless Mouse",
+    "sku": "ELEC-004",
+    "total_revenue": 12997n,
+    "total_sold": 3n,
+  },
+  {
+    "category": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "Books",
+    },
+    "id": 16,
+    "name": "TypeScript Handbook",
+    "sku": "BOOK-001",
+    "total_revenue": 11997n,
+    "total_sold": 3n,
+  },
+]
+`;
+
+exports[`OrdersRepository > listOrderLines > returns order lines for an order 1`] = `
+[
+  {
+    "created_at": 2024-01-15T10:01:00.000Z,
+    "discount_cents": 0,
+    "id": 1,
+    "order_id": 1,
+    "product_id": 1,
+    "quantity": 1,
+    "unit_price_cents": 14999,
+  },
+  {
+    "created_at": 2024-01-15T10:02:00.000Z,
+    "discount_cents": 0,
+    "id": 2,
+    "order_id": 1,
+    "product_id": 4,
+    "quantity": 1,
+    "unit_price_cents": 4999,
+  },
+]
+`;
+
+exports[`OrdersRepository > listOrderLines > returns order lines for order with many items 1`] = `
+[
+  {
+    "created_at": 2024-01-29T16:16:00.000Z,
+    "discount_cents": 1000,
+    "id": 25,
+    "order_id": 15,
+    "product_id": 1,
+    "quantity": 1,
+    "unit_price_cents": 14999,
+  },
+  {
+    "created_at": 2024-01-29T16:17:00.000Z,
+    "discount_cents": 500,
+    "id": 26,
+    "order_id": 15,
+    "product_id": 3,
+    "quantity": 1,
+    "unit_price_cents": 12999,
+  },
+  {
+    "created_at": 2024-01-29T16:18:00.000Z,
+    "discount_cents": 0,
+    "id": 27,
+    "order_id": 15,
+    "product_id": 9,
+    "quantity": 1,
+    "unit_price_cents": 7999,
+  },
+  {
+    "created_at": 2024-01-29T16:19:00.000Z,
+    "discount_cents": 1000,
+    "id": 28,
+    "order_id": 15,
+    "product_id": 11,
+    "quantity": 1,
+    "unit_price_cents": 7999,
+  },
+  {
+    "created_at": 2024-01-29T16:20:00.000Z,
+    "discount_cents": 500,
+    "id": 29,
+    "order_id": 15,
+    "product_id": 16,
+    "quantity": 2,
+    "unit_price_cents": 3999,
+  },
+  {
+    "created_at": 2024-01-29T16:21:00.000Z,
+    "discount_cents": 500,
+    "id": 30,
+    "order_id": 15,
+    "product_id": 17,
+    "quantity": 1,
+    "unit_price_cents": 4499,
+  },
+]
+`;
+
+exports[`OrdersRepository > listOrderLinesWithProduct > returns order lines with product details 1`] = `
+[
+  {
+    "created_at": 2024-01-15T10:01:00.000Z,
+    "discount_cents": 0,
+    "id": 1,
+    "order_id": 1,
+    "product_id": 1,
+    "product_name": "Wireless Headphones",
+    "product_sku": "ELEC-001",
+    "quantity": 1,
+    "unit_price_cents": 14999,
+  },
+  {
+    "created_at": 2024-01-15T10:02:00.000Z,
+    "discount_cents": 0,
+    "id": 2,
+    "order_id": 1,
+    "product_id": 4,
+    "product_name": "Wireless Mouse",
+    "product_sku": "ELEC-004",
+    "quantity": 1,
+    "unit_price_cents": 4999,
+  },
+]
+`;
+
+exports[`OrdersRepository > listOrders > returns all orders ordered by created_at DESC 1`] = `
+[
+  {
+    "billing_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "741 Aspen Pl, San Jose, CA 95101",
+    },
+    "created_at": 2024-01-29T16:15:00.000Z,
+    "customer_id": 10,
+    "id": 15,
+    "notes": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "Large order - verify stock",
+    },
+    "shipping_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "741 Aspen Pl, San Jose, CA 95101",
+    },
+    "status": "pending",
+    "total_cents": 27495,
+    "updated_at": 2024-01-29T16:15:00.000Z,
+  },
+  {
+    "billing_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "369 Willow Blvd, Dallas, TX 75201",
+    },
+    "created_at": 2024-01-28T08:30:00.000Z,
+    "customer_id": 9,
+    "id": 14,
+    "notes": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "Fragile items",
+    },
+    "shipping_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "369 Willow Blvd, Dallas, TX 75201",
+    },
+    "status": "shipped",
+    "total_cents": 3999,
+    "updated_at": 2024-01-28T08:30:00.000Z,
+  },
+  {
+    "billing_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "258 Spruce Ct, San Diego, CA 92101",
+    },
+    "created_at": 2024-01-27T12:45:00.000Z,
+    "customer_id": 8,
+    "id": 13,
+    "notes": {
+      "_id": "Option",
+      "_tag": "None",
+    },
+    "shipping_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "258 Spruce Ct, San Diego, CA 92101",
+    },
+    "status": "confirmed",
+    "total_cents": 10998,
+    "updated_at": 2024-01-27T12:45:00.000Z,
+  },
+  {
+    "billing_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "258 Spruce Ct, San Diego, CA 92101",
+    },
+    "created_at": 2024-01-26T17:00:00.000Z,
+    "customer_id": 8,
+    "id": 12,
+    "notes": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "Refunded due to damage",
+    },
+    "shipping_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "258 Spruce Ct, San Diego, CA 92101",
+    },
+    "status": "refunded",
+    "total_cents": 7998,
+    "updated_at": 2024-01-26T17:00:00.000Z,
+  },
+  {
+    "billing_address": {
+      "_id": "Option",
+      "_tag": "None",
+    },
+    "created_at": 2024-01-25T09:00:00.000Z,
+    "customer_id": 7,
+    "id": 11,
+    "notes": {
+      "_id": "Option",
+      "_tag": "None",
+    },
+    "shipping_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "147 Birch Way, San Antonio, TX 78201",
+    },
+    "status": "pending",
+    "total_cents": 4999,
+    "updated_at": 2024-01-25T09:00:00.000Z,
+  },
+  {
+    "billing_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "987 Cedar Ln, Philadelphia, PA 19101",
+    },
+    "created_at": 2024-01-24T14:30:00.000Z,
+    "customer_id": 6,
+    "id": 10,
+    "notes": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "Call before delivery",
+    },
+    "shipping_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "987 Cedar Ln, Philadelphia, PA 19101",
+    },
+    "status": "processing",
+    "total_cents": 9498,
+    "updated_at": 2024-01-24T14:30:00.000Z,
+  },
+  {
+    "billing_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "654 Maple Dr, Phoenix, AZ 85001",
+    },
+    "created_at": 2024-01-23T11:00:00.000Z,
+    "customer_id": 5,
+    "id": 9,
+    "notes": {
+      "_id": "Option",
+      "_tag": "None",
+    },
+    "shipping_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "654 Maple Dr, Phoenix, AZ 85001",
+    },
+    "status": "shipped",
+    "total_cents": 2999,
+    "updated_at": 2024-01-23T11:00:00.000Z,
+  },
+  {
+    "billing_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "654 Maple Dr, Phoenix, AZ 85001",
+    },
+    "created_at": 2024-01-22T15:20:00.000Z,
+    "customer_id": 5,
+    "id": 8,
+    "notes": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "Second floor apartment",
+    },
+    "shipping_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "654 Maple Dr, Phoenix, AZ 85001",
+    },
+    "status": "delivered",
+    "total_cents": 15996,
+    "updated_at": 2024-01-22T15:20:00.000Z,
+  },
+  {
+    "billing_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "321 Elm St, Houston, TX 77001",
+    },
+    "created_at": 2024-01-21T10:45:00.000Z,
+    "customer_id": 4,
+    "id": 7,
+    "notes": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "Customer requested cancellation",
+    },
+    "shipping_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "321 Elm St, Houston, TX 77001",
+    },
+    "status": "cancelled",
+    "total_cents": 14999,
+    "updated_at": 2024-01-21T10:45:00.000Z,
+  },
+  {
+    "billing_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "321 Elm St, Houston, TX 77001",
+    },
+    "created_at": 2024-01-20T13:15:00.000Z,
+    "customer_id": 4,
+    "id": 6,
+    "notes": {
+      "_id": "Option",
+      "_tag": "None",
+    },
+    "shipping_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "321 Elm St, Houston, TX 77001",
+    },
+    "status": "delivered",
+    "total_cents": 3999,
+    "updated_at": 2024-01-20T13:15:00.000Z,
+  },
+  {
+    "billing_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "789 Pine Rd, Chicago, IL 60601",
+    },
+    "created_at": 2024-01-19T16:30:00.000Z,
+    "customer_id": 3,
+    "id": 5,
+    "notes": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "Express delivery",
+    },
+    "shipping_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "789 Pine Rd, Chicago, IL 60601",
+    },
+    "status": "confirmed",
+    "total_cents": 11998,
+    "updated_at": 2024-01-19T16:30:00.000Z,
+  },
+  {
+    "billing_address": {
+      "_id": "Option",
+      "_tag": "None",
+    },
+    "created_at": 2024-01-18T09:45:00.000Z,
+    "customer_id": 2,
+    "id": 4,
+    "notes": {
+      "_id": "Option",
+      "_tag": "None",
+    },
+    "shipping_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "456 Oak Ave, Los Angeles, CA 90001",
+    },
+    "status": "pending",
+    "total_cents": 7999,
+    "updated_at": 2024-01-18T09:45:00.000Z,
+  },
+  {
+    "billing_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "456 Oak Ave, Los Angeles, CA 90001",
+    },
+    "created_at": 2024-01-17T14:00:00.000Z,
+    "customer_id": 2,
+    "id": 3,
+    "notes": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "Gift wrapping requested",
+    },
+    "shipping_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "456 Oak Ave, Los Angeles, CA 90001",
+    },
+    "status": "processing",
+    "total_cents": 25997,
+    "updated_at": 2024-01-17T14:00:00.000Z,
+  },
+  {
+    "billing_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "123 Main St, New York, NY 10001",
+    },
+    "created_at": 2024-01-16T11:30:00.000Z,
+    "customer_id": 1,
+    "id": 2,
+    "notes": {
+      "_id": "Option",
+      "_tag": "None",
+    },
+    "shipping_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "123 Main St, New York, NY 10001",
+    },
+    "status": "shipped",
+    "total_cents": 4999,
+    "updated_at": 2024-01-16T11:30:00.000Z,
+  },
+  {
+    "billing_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "123 Main St, New York, NY 10001",
+    },
+    "created_at": 2024-01-15T10:00:00.000Z,
+    "customer_id": 1,
+    "id": 1,
+    "notes": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "Leave at door",
+    },
+    "shipping_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "123 Main St, New York, NY 10001",
+    },
+    "status": "delivered",
+    "total_cents": 19998,
+    "updated_at": 2024-01-15T10:00:00.000Z,
+  },
+]
+`;
+
+exports[`OrdersRepository > listOrdersByCustomer > returns orders for a specific customer 1`] = `
+[
+  {
+    "billing_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "123 Main St, New York, NY 10001",
+    },
+    "created_at": 2024-01-16T11:30:00.000Z,
+    "customer_id": 1,
+    "id": 2,
+    "notes": {
+      "_id": "Option",
+      "_tag": "None",
+    },
+    "shipping_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "123 Main St, New York, NY 10001",
+    },
+    "status": "shipped",
+    "total_cents": 4999,
+    "updated_at": 2024-01-16T11:30:00.000Z,
+  },
+  {
+    "billing_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "123 Main St, New York, NY 10001",
+    },
+    "created_at": 2024-01-15T10:00:00.000Z,
+    "customer_id": 1,
+    "id": 1,
+    "notes": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "Leave at door",
+    },
+    "shipping_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "123 Main St, New York, NY 10001",
+    },
+    "status": "delivered",
+    "total_cents": 19998,
+    "updated_at": 2024-01-15T10:00:00.000Z,
+  },
+]
+`;
+
+exports[`OrdersRepository > listOrdersByDateRange > returns orders within date range 1`] = `
+[
+  {
+    "billing_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "987 Cedar Ln, Philadelphia, PA 19101",
+    },
+    "created_at": 2024-01-24T14:30:00.000Z,
+    "customer_id": 6,
+    "id": 10,
+    "notes": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "Call before delivery",
+    },
+    "shipping_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "987 Cedar Ln, Philadelphia, PA 19101",
+    },
+    "status": "processing",
+    "total_cents": 9498,
+    "updated_at": 2024-01-24T14:30:00.000Z,
+  },
+  {
+    "billing_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "654 Maple Dr, Phoenix, AZ 85001",
+    },
+    "created_at": 2024-01-23T11:00:00.000Z,
+    "customer_id": 5,
+    "id": 9,
+    "notes": {
+      "_id": "Option",
+      "_tag": "None",
+    },
+    "shipping_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "654 Maple Dr, Phoenix, AZ 85001",
+    },
+    "status": "shipped",
+    "total_cents": 2999,
+    "updated_at": 2024-01-23T11:00:00.000Z,
+  },
+  {
+    "billing_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "654 Maple Dr, Phoenix, AZ 85001",
+    },
+    "created_at": 2024-01-22T15:20:00.000Z,
+    "customer_id": 5,
+    "id": 8,
+    "notes": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "Second floor apartment",
+    },
+    "shipping_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "654 Maple Dr, Phoenix, AZ 85001",
+    },
+    "status": "delivered",
+    "total_cents": 15996,
+    "updated_at": 2024-01-22T15:20:00.000Z,
+  },
+  {
+    "billing_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "321 Elm St, Houston, TX 77001",
+    },
+    "created_at": 2024-01-21T10:45:00.000Z,
+    "customer_id": 4,
+    "id": 7,
+    "notes": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "Customer requested cancellation",
+    },
+    "shipping_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "321 Elm St, Houston, TX 77001",
+    },
+    "status": "cancelled",
+    "total_cents": 14999,
+    "updated_at": 2024-01-21T10:45:00.000Z,
+  },
+  {
+    "billing_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "321 Elm St, Houston, TX 77001",
+    },
+    "created_at": 2024-01-20T13:15:00.000Z,
+    "customer_id": 4,
+    "id": 6,
+    "notes": {
+      "_id": "Option",
+      "_tag": "None",
+    },
+    "shipping_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "321 Elm St, Houston, TX 77001",
+    },
+    "status": "delivered",
+    "total_cents": 3999,
+    "updated_at": 2024-01-20T13:15:00.000Z,
+  },
+]
+`;
+
+exports[`OrdersRepository > listOrdersByDateRangeNamed > returns orders within named date range 1`] = `
+[
+  {
+    "billing_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "789 Pine Rd, Chicago, IL 60601",
+    },
+    "created_at": 2024-01-19T16:30:00.000Z,
+    "customer_id": 3,
+    "id": 5,
+    "notes": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "Express delivery",
+    },
+    "shipping_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "789 Pine Rd, Chicago, IL 60601",
+    },
+    "status": "confirmed",
+    "total_cents": 11998,
+    "updated_at": 2024-01-19T16:30:00.000Z,
+  },
+  {
+    "billing_address": {
+      "_id": "Option",
+      "_tag": "None",
+    },
+    "created_at": 2024-01-18T09:45:00.000Z,
+    "customer_id": 2,
+    "id": 4,
+    "notes": {
+      "_id": "Option",
+      "_tag": "None",
+    },
+    "shipping_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "456 Oak Ave, Los Angeles, CA 90001",
+    },
+    "status": "pending",
+    "total_cents": 7999,
+    "updated_at": 2024-01-18T09:45:00.000Z,
+  },
+  {
+    "billing_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "456 Oak Ave, Los Angeles, CA 90001",
+    },
+    "created_at": 2024-01-17T14:00:00.000Z,
+    "customer_id": 2,
+    "id": 3,
+    "notes": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "Gift wrapping requested",
+    },
+    "shipping_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "456 Oak Ave, Los Angeles, CA 90001",
+    },
+    "status": "processing",
+    "total_cents": 25997,
+    "updated_at": 2024-01-17T14:00:00.000Z,
+  },
+  {
+    "billing_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "123 Main St, New York, NY 10001",
+    },
+    "created_at": 2024-01-16T11:30:00.000Z,
+    "customer_id": 1,
+    "id": 2,
+    "notes": {
+      "_id": "Option",
+      "_tag": "None",
+    },
+    "shipping_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "123 Main St, New York, NY 10001",
+    },
+    "status": "shipped",
+    "total_cents": 4999,
+    "updated_at": 2024-01-16T11:30:00.000Z,
+  },
+  {
+    "billing_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "123 Main St, New York, NY 10001",
+    },
+    "created_at": 2024-01-15T10:00:00.000Z,
+    "customer_id": 1,
+    "id": 1,
+    "notes": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "Leave at door",
+    },
+    "shipping_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "123 Main St, New York, NY 10001",
+    },
+    "status": "delivered",
+    "total_cents": 19998,
+    "updated_at": 2024-01-15T10:00:00.000Z,
+  },
+]
+`;
+
+exports[`OrdersRepository > listOrdersByStatus > returns orders with cancelled status 1`] = `
+[
+  {
+    "billing_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "321 Elm St, Houston, TX 77001",
+    },
+    "created_at": 2024-01-21T10:45:00.000Z,
+    "customer_id": 4,
+    "id": 7,
+    "notes": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "Customer requested cancellation",
+    },
+    "shipping_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "321 Elm St, Houston, TX 77001",
+    },
+    "status": "cancelled",
+    "total_cents": 14999,
+    "updated_at": 2024-01-21T10:45:00.000Z,
+  },
+]
+`;
+
+exports[`OrdersRepository > listOrdersByStatus > returns orders with delivered status 1`] = `
+[
+  {
+    "billing_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "654 Maple Dr, Phoenix, AZ 85001",
+    },
+    "created_at": 2024-01-22T15:20:00.000Z,
+    "customer_id": 5,
+    "id": 8,
+    "notes": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "Second floor apartment",
+    },
+    "shipping_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "654 Maple Dr, Phoenix, AZ 85001",
+    },
+    "status": "delivered",
+    "total_cents": 15996,
+    "updated_at": 2024-01-22T15:20:00.000Z,
+  },
+  {
+    "billing_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "321 Elm St, Houston, TX 77001",
+    },
+    "created_at": 2024-01-20T13:15:00.000Z,
+    "customer_id": 4,
+    "id": 6,
+    "notes": {
+      "_id": "Option",
+      "_tag": "None",
+    },
+    "shipping_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "321 Elm St, Houston, TX 77001",
+    },
+    "status": "delivered",
+    "total_cents": 3999,
+    "updated_at": 2024-01-20T13:15:00.000Z,
+  },
+  {
+    "billing_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "123 Main St, New York, NY 10001",
+    },
+    "created_at": 2024-01-15T10:00:00.000Z,
+    "customer_id": 1,
+    "id": 1,
+    "notes": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "Leave at door",
+    },
+    "shipping_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "123 Main St, New York, NY 10001",
+    },
+    "status": "delivered",
+    "total_cents": 19998,
+    "updated_at": 2024-01-15T10:00:00.000Z,
+  },
+]
+`;
+
+exports[`OrdersRepository > listOrdersByStatus > returns orders with pending status 1`] = `
+[
+  {
+    "billing_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "741 Aspen Pl, San Jose, CA 95101",
+    },
+    "created_at": 2024-01-29T16:15:00.000Z,
+    "customer_id": 10,
+    "id": 15,
+    "notes": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "Large order - verify stock",
+    },
+    "shipping_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "741 Aspen Pl, San Jose, CA 95101",
+    },
+    "status": "pending",
+    "total_cents": 27495,
+    "updated_at": 2024-01-29T16:15:00.000Z,
+  },
+  {
+    "billing_address": {
+      "_id": "Option",
+      "_tag": "None",
+    },
+    "created_at": 2024-01-25T09:00:00.000Z,
+    "customer_id": 7,
+    "id": 11,
+    "notes": {
+      "_id": "Option",
+      "_tag": "None",
+    },
+    "shipping_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "147 Birch Way, San Antonio, TX 78201",
+    },
+    "status": "pending",
+    "total_cents": 4999,
+    "updated_at": 2024-01-25T09:00:00.000Z,
+  },
+  {
+    "billing_address": {
+      "_id": "Option",
+      "_tag": "None",
+    },
+    "created_at": 2024-01-18T09:45:00.000Z,
+    "customer_id": 2,
+    "id": 4,
+    "notes": {
+      "_id": "Option",
+      "_tag": "None",
+    },
+    "shipping_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "456 Oak Ave, Los Angeles, CA 90001",
+    },
+    "status": "pending",
+    "total_cents": 7999,
+    "updated_at": 2024-01-18T09:45:00.000Z,
+  },
+]
+`;
+
+exports[`OrdersRepository > listOrdersPaginated > returns paginated orders - first page 1`] = `
+[
+  {
+    "billing_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "741 Aspen Pl, San Jose, CA 95101",
+    },
+    "created_at": 2024-01-29T16:15:00.000Z,
+    "customer_id": 10,
+    "id": 15,
+    "notes": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "Large order - verify stock",
+    },
+    "shipping_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "741 Aspen Pl, San Jose, CA 95101",
+    },
+    "status": "pending",
+    "total_cents": 27495,
+    "updated_at": 2024-01-29T16:15:00.000Z,
+  },
+  {
+    "billing_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "369 Willow Blvd, Dallas, TX 75201",
+    },
+    "created_at": 2024-01-28T08:30:00.000Z,
+    "customer_id": 9,
+    "id": 14,
+    "notes": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "Fragile items",
+    },
+    "shipping_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "369 Willow Blvd, Dallas, TX 75201",
+    },
+    "status": "shipped",
+    "total_cents": 3999,
+    "updated_at": 2024-01-28T08:30:00.000Z,
+  },
+  {
+    "billing_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "258 Spruce Ct, San Diego, CA 92101",
+    },
+    "created_at": 2024-01-27T12:45:00.000Z,
+    "customer_id": 8,
+    "id": 13,
+    "notes": {
+      "_id": "Option",
+      "_tag": "None",
+    },
+    "shipping_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "258 Spruce Ct, San Diego, CA 92101",
+    },
+    "status": "confirmed",
+    "total_cents": 10998,
+    "updated_at": 2024-01-27T12:45:00.000Z,
+  },
+  {
+    "billing_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "258 Spruce Ct, San Diego, CA 92101",
+    },
+    "created_at": 2024-01-26T17:00:00.000Z,
+    "customer_id": 8,
+    "id": 12,
+    "notes": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "Refunded due to damage",
+    },
+    "shipping_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "258 Spruce Ct, San Diego, CA 92101",
+    },
+    "status": "refunded",
+    "total_cents": 7998,
+    "updated_at": 2024-01-26T17:00:00.000Z,
+  },
+  {
+    "billing_address": {
+      "_id": "Option",
+      "_tag": "None",
+    },
+    "created_at": 2024-01-25T09:00:00.000Z,
+    "customer_id": 7,
+    "id": 11,
+    "notes": {
+      "_id": "Option",
+      "_tag": "None",
+    },
+    "shipping_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "147 Birch Way, San Antonio, TX 78201",
+    },
+    "status": "pending",
+    "total_cents": 4999,
+    "updated_at": 2024-01-25T09:00:00.000Z,
+  },
+]
+`;
+
+exports[`OrdersRepository > listOrdersPaginated > returns paginated orders - second page 1`] = `
+[
+  {
+    "billing_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "987 Cedar Ln, Philadelphia, PA 19101",
+    },
+    "created_at": 2024-01-24T14:30:00.000Z,
+    "customer_id": 6,
+    "id": 10,
+    "notes": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "Call before delivery",
+    },
+    "shipping_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "987 Cedar Ln, Philadelphia, PA 19101",
+    },
+    "status": "processing",
+    "total_cents": 9498,
+    "updated_at": 2024-01-24T14:30:00.000Z,
+  },
+  {
+    "billing_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "654 Maple Dr, Phoenix, AZ 85001",
+    },
+    "created_at": 2024-01-23T11:00:00.000Z,
+    "customer_id": 5,
+    "id": 9,
+    "notes": {
+      "_id": "Option",
+      "_tag": "None",
+    },
+    "shipping_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "654 Maple Dr, Phoenix, AZ 85001",
+    },
+    "status": "shipped",
+    "total_cents": 2999,
+    "updated_at": 2024-01-23T11:00:00.000Z,
+  },
+  {
+    "billing_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "654 Maple Dr, Phoenix, AZ 85001",
+    },
+    "created_at": 2024-01-22T15:20:00.000Z,
+    "customer_id": 5,
+    "id": 8,
+    "notes": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "Second floor apartment",
+    },
+    "shipping_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "654 Maple Dr, Phoenix, AZ 85001",
+    },
+    "status": "delivered",
+    "total_cents": 15996,
+    "updated_at": 2024-01-22T15:20:00.000Z,
+  },
+  {
+    "billing_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "321 Elm St, Houston, TX 77001",
+    },
+    "created_at": 2024-01-21T10:45:00.000Z,
+    "customer_id": 4,
+    "id": 7,
+    "notes": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "Customer requested cancellation",
+    },
+    "shipping_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "321 Elm St, Houston, TX 77001",
+    },
+    "status": "cancelled",
+    "total_cents": 14999,
+    "updated_at": 2024-01-21T10:45:00.000Z,
+  },
+  {
+    "billing_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "321 Elm St, Houston, TX 77001",
+    },
+    "created_at": 2024-01-20T13:15:00.000Z,
+    "customer_id": 4,
+    "id": 6,
+    "notes": {
+      "_id": "Option",
+      "_tag": "None",
+    },
+    "shipping_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "321 Elm St, Houston, TX 77001",
+    },
+    "status": "delivered",
+    "total_cents": 3999,
+    "updated_at": 2024-01-20T13:15:00.000Z,
+  },
+]
+`;
+
+exports[`OrdersRepository > listRecentOrdersWithCustomer > returns recent orders with customer info 1`] = `
+[
+  {
+    "created_at": 2024-01-29T16:15:00.000Z,
+    "customer_email": "jack@example.com",
+    "customer_name": "Jack Anderson",
+    "id": 15,
+    "status": "pending",
+    "total_cents": 27495,
+  },
+  {
+    "created_at": 2024-01-28T08:30:00.000Z,
+    "customer_email": "ivy@example.com",
+    "customer_name": "Ivy Taylor",
+    "id": 14,
+    "status": "shipped",
+    "total_cents": 3999,
+  },
+  {
+    "created_at": 2024-01-27T12:45:00.000Z,
+    "customer_email": "henry@example.com",
+    "customer_name": "Henry Moore",
+    "id": 13,
+    "status": "confirmed",
+    "total_cents": 10998,
+  },
+  {
+    "created_at": 2024-01-26T17:00:00.000Z,
+    "customer_email": "henry@example.com",
+    "customer_name": "Henry Moore",
+    "id": 12,
+    "status": "refunded",
+    "total_cents": 7998,
+  },
+  {
+    "created_at": 2024-01-25T09:00:00.000Z,
+    "customer_email": "grace@example.com",
+    "customer_name": "Grace Wilson",
+    "id": 11,
+    "status": "pending",
+    "total_cents": 4999,
+  },
+]
+`;
+
+exports[`OrdersRepository > searchOrders > searches orders by notes 1`] = `
+[
+  {
+    "created_at": 2024-01-17T14:00:00.000Z,
+    "customer_id": 2,
+    "id": 3,
+    "notes": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "Gift wrapping requested",
+    },
+    "shipping_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "456 Oak Ave, Los Angeles, CA 90001",
+    },
+    "status": "processing",
+    "total_cents": 25997,
+  },
+]
+`;
+
+exports[`OrdersRepository > searchOrders > searches orders by shipping address 1`] = `
+[
+  {
+    "created_at": 2024-01-16T11:30:00.000Z,
+    "customer_id": 1,
+    "id": 2,
+    "notes": {
+      "_id": "Option",
+      "_tag": "None",
+    },
+    "shipping_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "123 Main St, New York, NY 10001",
+    },
+    "status": "shipped",
+    "total_cents": 4999,
+  },
+  {
+    "created_at": 2024-01-15T10:00:00.000Z,
+    "customer_id": 1,
+    "id": 1,
+    "notes": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "Leave at door",
+    },
+    "shipping_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "123 Main St, New York, NY 10001",
+    },
+    "status": "delivered",
+    "total_cents": 19998,
+  },
+]
+`;

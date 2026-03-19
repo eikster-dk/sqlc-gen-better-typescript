@@ -4,13 +4,13 @@ plugins:
   wasm:
     url: file://../../dist/plugin
 sql:
-- schema: schema/schema.sql
-  queries: schema/queries.sql
+- schema: schema/
+  queries: queries/
   engine: postgresql
   codegen:
-  - out: src/models
+  - out: src/repositories
     plugin: effect
     options: 
       builder: effect-v4-unstable
-      debug: true
-      debug_dir: debug
+      # debug: true
+      # debug_dir: debug

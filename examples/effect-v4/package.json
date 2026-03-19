@@ -2,15 +2,22 @@
   "name": "effect-v4",
   "version": "1.0.0",
   "description": "",
+  "type": "module",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@effect/language-service": "^0.79.0"
+    "@effect/language-service": "^0.79.0",
+    "@effect/vitest": "4.0.0-beta.29",
+    "@testcontainers/postgresql": "^10.18.0",
+    "testcontainers": "^10.18.0",
+    "typescript": "^5.9.3",
+    "vitest": "^3.1.4"
   },
   "dependencies": {
     "@effect/platform-node": "4.0.0-beta.29",

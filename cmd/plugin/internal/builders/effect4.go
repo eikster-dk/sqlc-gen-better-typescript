@@ -195,7 +195,7 @@ func (e *Effect4) generateParamsSchema(query models.Query) string {
 	var fields []string
 	for _, param := range query.Params {
 		fieldName := toCamelCase(param.Name)
-		schema := e.sqlTypeToEffectSchema(param.Type)
+		schema := e.sqlTypeToEffectSchemaForParams(param.Type)
 		fields = append(fields, fmt.Sprintf("%s: %s", fieldName, schema))
 	}
 
@@ -213,7 +213,7 @@ func (e *Effect4) generateResultSchema(query models.Query) string {
 	for _, result := range query.Results {
 		// Use original column name from SQL (preserves snake_case)
 		fieldName := result.Name
-		schema := e.sqlTypeToEffectSchema(result.Type)
+		schema := e.sqlTypeToEffectSchemaForResults(result.Type)
 		fields = append(fields, fmt.Sprintf("%s: %s", fieldName, schema))
 	}
 
@@ -246,8 +246,9 @@ func (e *Effect4) generateParamList(query models.Query) string {
 	return strings.Join(params, ", ")
 }
 
-// sqlTypeToEffectSchema converts internal SqlType to Effect Schema expression
-func (e *Effect4) sqlTypeToEffectSchema(t models.SqlType) string {
+// sqlTypeToEffectSchemaBase converts internal SqlType to Effect Schema expression
+// This returns the base schema without nullability handling
+func (e *Effect4) sqlTypeToEffectSchemaBase(t models.SqlType) string {
 	var baseSchema string
 
 	switch strings.ToLower(t.Name) {
@@ -255,7 +256,7 @@ func (e *Effect4) sqlTypeToEffectSchema(t models.SqlType) string {
 	case "serial", "serial4":
 		baseSchema = "Schema.Int"
 	case "bigserial", "serial8":
-		baseSchema = "Schema.BigInt"
+		baseSchema = "BigIntFromString" // PostgreSQL returns bigint as string
 	case "smallserial", "serial2":
 		baseSchema = "Schema.Int"
 
@@ -263,7 +264,7 @@ func (e *Effect4) sqlTypeToEffectSchema(t models.SqlType) string {
 	case "integer", "int", "int4":
 		baseSchema = "Schema.Int"
 	case "bigint", "int8":
-		baseSchema = "Schema.BigInt"
+		baseSchema = "BigIntFromString" // PostgreSQL returns bigint as string
 	case "smallint", "int2":
 		baseSchema = "Schema.Int"
 
@@ -331,9 +332,30 @@ func (e *Effect4) sqlTypeToEffectSchema(t models.SqlType) string {
 		baseSchema = fmt.Sprintf("Schema.Array(%s)", baseSchema)
 	}
 
-	// Handle nullability
+	return baseSchema
+}
+
+// sqlTypeToEffectSchemaForParams converts internal SqlType to Effect Schema expression for parameters
+// Uses Schema.optional() for nullable params so callers can omit optional fields
+func (e *Effect4) sqlTypeToEffectSchemaForParams(t models.SqlType) string {
+	baseSchema := e.sqlTypeToEffectSchemaBase(t)
+
+	// For parameters, use optional() so callers can omit nullable fields
 	if t.IsNullable {
 		baseSchema = fmt.Sprintf("Schema.optional(%s)", baseSchema)
+	}
+
+	return baseSchema
+}
+
+// sqlTypeToEffectSchemaForResults converts internal SqlType to Effect Schema expression for results
+// Uses Schema.OptionFromNullOr() for nullable results - transforms null to Option.None
+func (e *Effect4) sqlTypeToEffectSchemaForResults(t models.SqlType) string {
+	baseSchema := e.sqlTypeToEffectSchemaBase(t)
+
+	// For results, use OptionFromNullOr() to transform null to Option.None
+	if t.IsNullable {
+		baseSchema = fmt.Sprintf("Schema.OptionFromNullOr(%s)", baseSchema)
 	}
 
 	return baseSchema

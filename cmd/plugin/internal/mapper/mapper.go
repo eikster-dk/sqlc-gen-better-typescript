@@ -309,6 +309,11 @@ func normalizeTypeName(name string) string {
 	// Remove array suffix for normalization
 	name = strings.TrimSuffix(name, "[]")
 
+	// Strip schema prefix (e.g., "pg_catalog.int4" -> "int4")
+	if idx := strings.LastIndex(name, "."); idx != -1 {
+		name = name[idx+1:]
+	}
+
 	// Normalize common aliases
 	switch strings.ToLower(name) {
 	case "int4", "integer":

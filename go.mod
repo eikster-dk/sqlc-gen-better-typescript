@@ -1,4 +1,4 @@
-module github.com/eikster-dk/sqlc-effect
+module github.com/eikster-dk/sqlc-gen-better-typescript
 
 go 1.26.1
 

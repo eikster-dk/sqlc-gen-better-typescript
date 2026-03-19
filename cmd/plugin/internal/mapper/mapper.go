@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/eikster-dk/sqlc-effect/cmd/plugin/internal/logger"
-	"github.com/eikster-dk/sqlc-effect/cmd/plugin/internal/models"
+	"github.com/eikster-dk/sqlc-gen-better-typescript/cmd/plugin/internal/logger"
+	"github.com/eikster-dk/sqlc-gen-better-typescript/cmd/plugin/internal/models"
 	"github.com/sqlc-dev/plugin-sdk-go/plugin"
 )
 

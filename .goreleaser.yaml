@@ -3,7 +3,7 @@
 
 version: 2
 
-project_name: sqlc-effect
+project_name: sqlc-gen-better-typescript
 
 before:
   hooks:
@@ -11,17 +11,19 @@ before:
 
 builds:
   - id: plugin
+    main: ./cmd/plugin
     env:
       - CGO_ENABLED=0
     goos:
       - wasip1
     goarch:
       - wasm
+    ldflags:
+      - -s -w
+      - -X github.com/eikster-dk/sqlc-gen-better-typescript/cmd/plugin/internal/version.Version={{.Version}}
 
 archives:
   - id: dist
-    builds:
-      - plugin
     formats: binary
     name_template: "{{ .ProjectName }}"
 
@@ -35,17 +37,17 @@ changelog:
 release:
   github:
     owner: eikster-dk
-    name: sqlc-effect
+    name: sqlc-gen-better-typescript
   header: |
-    ## sqlc-effect ({{ .Date }})
+    ## sqlc-gen-better-typescript ({{ .Date }})
 
     To update to this version, use the following in your `sqlc.yaml`:
 
     ```yaml
     version: '2'
     plugins:
-    - name: effect
+    - name: better-typescript
       wasm:
-        url: https://github.com/eikster-dk/sqlc-effect/releases/download/{{ .Tag }}/sqlc-effect.wasm
-        sha256: {{ trimsuffix .Checksums "  sqlc-effect.wasm\n" }}
+        url: https://github.com/eikster-dk/sqlc-gen-better-typescript/releases/download/{{ .Tag }}/sqlc-gen-better-typescript.wasm
+        sha256: {{ trimsuffix .Checksums "  sqlc-gen-better-typescript.wasm\n" }}
     ```

@@ -3,11 +3,11 @@ package internal
 import (
 	"context"
 
-	"github.com/eikster-dk/sqlc-effect/cmd/plugin/internal/builders"
-	"github.com/eikster-dk/sqlc-effect/cmd/plugin/internal/config"
-	"github.com/eikster-dk/sqlc-effect/cmd/plugin/internal/debug"
-	"github.com/eikster-dk/sqlc-effect/cmd/plugin/internal/logger"
-	"github.com/eikster-dk/sqlc-effect/cmd/plugin/internal/mapper"
+	"github.com/eikster-dk/sqlc-gen-better-typescript/cmd/plugin/internal/builders"
+	"github.com/eikster-dk/sqlc-gen-better-typescript/cmd/plugin/internal/config"
+	"github.com/eikster-dk/sqlc-gen-better-typescript/cmd/plugin/internal/debug"
+	"github.com/eikster-dk/sqlc-gen-better-typescript/cmd/plugin/internal/logger"
+	"github.com/eikster-dk/sqlc-gen-better-typescript/cmd/plugin/internal/mapper"
 	"github.com/sqlc-dev/plugin-sdk-go/plugin"
 )
 

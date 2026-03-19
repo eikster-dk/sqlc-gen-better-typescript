@@ -3,7 +3,7 @@ package builders
 import (
 	"fmt"
 
-	"github.com/eikster-dk/sqlc-effect/cmd/plugin/internal/config"
+	"github.com/eikster-dk/sqlc-gen-better-typescript/cmd/plugin/internal/config"
 )
 
 // NewBuilder creates a builder based on the config

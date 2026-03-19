@@ -10,9 +10,10 @@ import (
 	"text/template"
 	"unicode"
 
-	"github.com/eikster-dk/sqlc-effect/cmd/plugin/internal/config"
-	"github.com/eikster-dk/sqlc-effect/cmd/plugin/internal/logger"
-	"github.com/eikster-dk/sqlc-effect/cmd/plugin/internal/models"
+	"github.com/eikster-dk/sqlc-gen-better-typescript/cmd/plugin/internal/config"
+	"github.com/eikster-dk/sqlc-gen-better-typescript/cmd/plugin/internal/logger"
+	"github.com/eikster-dk/sqlc-gen-better-typescript/cmd/plugin/internal/models"
+	"github.com/eikster-dk/sqlc-gen-better-typescript/cmd/plugin/internal/version"
 )
 
 //go:embed templates/**/*.gotmpl
@@ -178,9 +179,6 @@ type RepositoryData struct {
 	NeedsExecRows bool // True if any query uses :execrows command
 }
 
-// PluginVersion is the version of this sqlc-effect plugin
-const PluginVersion = "v0.1.0"
-
 func (e *Effect4) generateRepository(tmpl *template.Template, filename string, queries []models.Query, catalog *models.Catalog, sqlcVersion string, log *logger.Logger) (string, error) {
 	repoName := e.filenameToRepoName(filename)
 	queryViews := e.buildQueryViews(queries)
@@ -196,7 +194,7 @@ func (e *Effect4) generateRepository(tmpl *template.Template, filename string, q
 		Catalog:             catalog,
 		Config:              e.cfg,
 		SqlcVersion:         sqlcVersion,
-		PluginVersion:       PluginVersion,
+		PluginVersion:       version.Version,
 		NeedsBigInt:         needsBigInt,
 		NeedsExecRows:       needsExecRows,
 	}

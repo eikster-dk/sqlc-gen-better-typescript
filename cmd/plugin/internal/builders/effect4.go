@@ -8,6 +8,7 @@ import (
 	"regexp"
 	"strings"
 	"text/template"
+	"unicode"
 
 	"github.com/eikster-dk/sqlc-effect/cmd/plugin/internal/config"
 	"github.com/eikster-dk/sqlc-effect/cmd/plugin/internal/logger"
@@ -121,6 +122,7 @@ func (e *Effect4) loadTemplate(log *logger.Logger) (*template.Template, error) {
 		"isOne":               func(q models.Query) bool { return q.Command == ":one" },
 		"isMany":              func(q models.Query) bool { return q.Command == ":many" },
 		"isExec":              func(q models.Query) bool { return q.Command == ":exec" },
+		"isExecRows":          func(q models.Query) bool { return q.Command == ":execrows" },
 		"paramsSchema":        e.generateParamsSchema,
 		"resultSchema":        e.generateResultSchema,
 		"sqlWithPlaceholders": e.generateSQLWithPlaceholders,
@@ -339,12 +341,18 @@ func (e *Effect4) sqlTypeToEffectSchema(t models.SqlType) string {
 
 // toPascalCase converts snake_case or camelCase to PascalCase
 func toPascalCase(s string) string {
-	// Handle special SQL names
-	s = strings.ReplaceAll(s, "_", " ")
-	s = strings.Title(s)
-	s = strings.ReplaceAll(s, " ", "")
-
-	return s
+	// Handle special SQL names - split by underscore
+	words := strings.Split(s, "_")
+	for i, word := range words {
+		if word == "" {
+			continue
+		}
+		// Capitalize first letter of each word
+		runes := []rune(word)
+		runes[0] = unicode.ToUpper(runes[0])
+		words[i] = string(runes)
+	}
+	return strings.Join(words, "")
 }
 
 // toCamelCase converts snake_case to camelCase

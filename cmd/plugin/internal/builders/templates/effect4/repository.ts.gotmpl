@@ -33,9 +33,10 @@ export interface {{.RepositoryName}}Shape {
 {{- $queryNameCamel := camelCase .Name -}}
 {{- $hasParams := hasParams . -}}
 {{- $isOne := isOne . -}}
-{{- $isExec := isExec . }}
+{{- $isExec := isExec . -}}
+{{- $isExecRows := isExecRows . }}
   readonly {{$queryNameCamel}}: {{if $hasParams}}(params: {{$queryNamePascal}}Params){{else}}(){{end}} => Effect.Effect<
-    {{if $isExec}}void{{else if $isOne}}Option.Option<{{$queryNamePascal}}Result>{{else}}{{$queryNamePascal}}Result[]{{end}},
+    {{if $isExec}}void{{else if $isExecRows}}number{{else if $isOne}}Option.Option<{{$queryNamePascal}}Result>{{else}}{{$queryNamePascal}}Result[]{{end}},
     SqlError.SqlError | Schema.SchemaError,
     SqlClient.SqlClient
   >
@@ -54,13 +55,16 @@ const {{camelCase .RepositoryName}}Impl = Effect.gen(function* () {
 {{- $queryNameCamel := camelCase $queryName -}}
 {{- $hasParams := hasParams . -}}
 {{- $isOne := isOne . -}}
-{{- $isExec := isExec . }}
+{{- $isExec := isExec . -}}
+{{- $isExecRows := isExecRows . }}
   // {{$queryName}}
 {{- if $isExec }}
   const {{$queryNameCamel}} = SqlSchema.void({
     Request: {{if $hasParams}}{{$queryNamePascal}}Params{{else}}Schema.Void{{end}},
     execute: {{if $hasParams}}(params) => {{else}}() => {{end}}sql.unsafe(`{{sqlWithPlaceholders .}}`{{if $hasParams}}, [{{paramList .}}]{{end}})
   })
+{{- else if $isExecRows }}
+  const {{$queryNameCamel}} = {{if $hasParams}}(params: typeof {{$queryNamePascal}}Params.Type){{else}}(){{end}} => sql.unsafe(`{{sqlWithPlaceholders .}}`{{if $hasParams}}, [{{paramList .}}]{{end}}).pipe(Effect.map((rows) => rows.length))
 {{- else if $isOne }}
   const {{$queryNameCamel}} = SqlSchema.findOneOption({
     Request: {{if $hasParams}}{{$queryNamePascal}}Params{{else}}Schema.Void{{end}},

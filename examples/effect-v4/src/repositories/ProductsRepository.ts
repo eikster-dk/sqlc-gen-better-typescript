@@ -2,6 +2,7 @@
 import { ServiceMap, Effect, Layer, Schema, Option, SchemaGetter } from "effect"
 import { SqlClient, SqlError, SqlSchema } from "effect/unstable/sql"
 
+
 // PostgreSQL returns bigint as string to preserve precision, so we need to transform it
 const BigIntFromString = Schema.String.pipe(
   Schema.decodeTo(
@@ -37,7 +38,7 @@ export const OrderStatusSchema = Schema.Literals(["pending", "confirmed", "proce
 
 // GetProduct - Parameters Schema
 export const GetProductParams = Schema.Struct({
-  id: Schema.Int
+  id: Schema.Int,
 })
 
 export type GetProductParams = typeof GetProductParams.Type
@@ -53,14 +54,14 @@ export const GetProductResult = Schema.Struct({
   is_active: Schema.Boolean,
   category: Schema.OptionFromNullOr(Schema.String),
   created_at: Schema.Date,
-  updated_at: Schema.Date
+  updated_at: Schema.Date,
 })
 
 export type GetProductResult = typeof GetProductResult.Type
 
 // GetProductBySku - Parameters Schema
 export const GetProductBySkuParams = Schema.Struct({
-  sku: Schema.String
+  sku: Schema.String,
 })
 
 export type GetProductBySkuParams = typeof GetProductBySkuParams.Type
@@ -76,7 +77,7 @@ export const GetProductBySkuResult = Schema.Struct({
   is_active: Schema.Boolean,
   category: Schema.OptionFromNullOr(Schema.String),
   created_at: Schema.Date,
-  updated_at: Schema.Date
+  updated_at: Schema.Date,
 })
 
 export type GetProductBySkuResult = typeof GetProductBySkuResult.Type
@@ -92,7 +93,7 @@ export const ListProductsResult = Schema.Struct({
   is_active: Schema.Boolean,
   category: Schema.OptionFromNullOr(Schema.String),
   created_at: Schema.Date,
-  updated_at: Schema.Date
+  updated_at: Schema.Date,
 })
 
 export type ListProductsResult = typeof ListProductsResult.Type
@@ -108,14 +109,14 @@ export const ListActiveProductsResult = Schema.Struct({
   is_active: Schema.Boolean,
   category: Schema.OptionFromNullOr(Schema.String),
   created_at: Schema.Date,
-  updated_at: Schema.Date
+  updated_at: Schema.Date,
 })
 
 export type ListActiveProductsResult = typeof ListActiveProductsResult.Type
 
 // ListProductsByCategory - Parameters Schema
 export const ListProductsByCategoryParams = Schema.Struct({
-  category: Schema.optional(Schema.String)
+  category: Schema.optional(Schema.String),
 })
 
 export type ListProductsByCategoryParams = typeof ListProductsByCategoryParams.Type
@@ -131,7 +132,7 @@ export const ListProductsByCategoryResult = Schema.Struct({
   is_active: Schema.Boolean,
   category: Schema.OptionFromNullOr(Schema.String),
   created_at: Schema.Date,
-  updated_at: Schema.Date
+  updated_at: Schema.Date,
 })
 
 export type ListProductsByCategoryResult = typeof ListProductsByCategoryResult.Type
@@ -139,7 +140,7 @@ export type ListProductsByCategoryResult = typeof ListProductsByCategoryResult.T
 // ListProductsPaginated - Parameters Schema
 export const ListProductsPaginatedParams = Schema.Struct({
   limit: Schema.Int,
-  offset: Schema.Int
+  offset: Schema.Int,
 })
 
 export type ListProductsPaginatedParams = typeof ListProductsPaginatedParams.Type
@@ -155,7 +156,7 @@ export const ListProductsPaginatedResult = Schema.Struct({
   is_active: Schema.Boolean,
   category: Schema.OptionFromNullOr(Schema.String),
   created_at: Schema.Date,
-  updated_at: Schema.Date
+  updated_at: Schema.Date,
 })
 
 export type ListProductsPaginatedResult = typeof ListProductsPaginatedResult.Type
@@ -163,7 +164,7 @@ export type ListProductsPaginatedResult = typeof ListProductsPaginatedResult.Typ
 // ListProductsCursor - Parameters Schema
 export const ListProductsCursorParams = Schema.Struct({
   id: Schema.Int,
-  limit: Schema.Int
+  limit: Schema.Int,
 })
 
 export type ListProductsCursorParams = typeof ListProductsCursorParams.Type
@@ -179,14 +180,14 @@ export const ListProductsCursorResult = Schema.Struct({
   is_active: Schema.Boolean,
   category: Schema.OptionFromNullOr(Schema.String),
   created_at: Schema.Date,
-  updated_at: Schema.Date
+  updated_at: Schema.Date,
 })
 
 export type ListProductsCursorResult = typeof ListProductsCursorResult.Type
 
 // SearchProducts - Parameters Schema
 export const SearchProductsParams = Schema.Struct({
-  plaintoTsquery: Schema.String
+  plaintoTsquery: Schema.String,
 })
 
 export type SearchProductsParams = typeof SearchProductsParams.Type
@@ -199,7 +200,7 @@ export const SearchProductsResult = Schema.Struct({
   description: Schema.OptionFromNullOr(Schema.String),
   price_cents: Schema.Int,
   stock_quantity: Schema.Int,
-  category: Schema.OptionFromNullOr(Schema.String)
+  category: Schema.OptionFromNullOr(Schema.String),
 })
 
 export type SearchProductsResult = typeof SearchProductsResult.Type
@@ -208,7 +209,7 @@ export type SearchProductsResult = typeof SearchProductsResult.Type
 export const SearchProductsRankedParams = Schema.Struct({
   plaintoTsquery: Schema.String,
   limit: Schema.Int,
-  offset: Schema.Int
+  offset: Schema.Int,
 })
 
 export type SearchProductsRankedParams = typeof SearchProductsRankedParams.Type
@@ -222,14 +223,14 @@ export const SearchProductsRankedResult = Schema.Struct({
   price_cents: Schema.Int,
   stock_quantity: Schema.Int,
   category: Schema.OptionFromNullOr(Schema.String),
-  rank: Schema.Number
+  rank: Schema.Number,
 })
 
 export type SearchProductsRankedResult = typeof SearchProductsRankedResult.Type
 
 // SearchProductsWithHighlight - Parameters Schema
 export const SearchProductsWithHighlightParams = Schema.Struct({
-  plaintoTsquery: Schema.String
+  plaintoTsquery: Schema.String,
 })
 
 export type SearchProductsWithHighlightParams = typeof SearchProductsWithHighlightParams.Type
@@ -241,14 +242,14 @@ export const SearchProductsWithHighlightResult = Schema.Struct({
   name: Schema.String,
   highlighted_description: Schema.Unknown,
   price_cents: Schema.Int,
-  category: Schema.OptionFromNullOr(Schema.String)
+  category: Schema.OptionFromNullOr(Schema.String),
 })
 
 export type SearchProductsWithHighlightResult = typeof SearchProductsWithHighlightResult.Type
 
 // SearchProductsWebStyle - Parameters Schema
 export const SearchProductsWebStyleParams = Schema.Struct({
-  websearchToTsquery: Schema.String
+  websearchToTsquery: Schema.String,
 })
 
 export type SearchProductsWebStyleParams = typeof SearchProductsWebStyleParams.Type
@@ -260,7 +261,7 @@ export const SearchProductsWebStyleResult = Schema.Struct({
   name: Schema.String,
   description: Schema.OptionFromNullOr(Schema.String),
   price_cents: Schema.Int,
-  category: Schema.OptionFromNullOr(Schema.String)
+  category: Schema.OptionFromNullOr(Schema.String),
 })
 
 export type SearchProductsWebStyleResult = typeof SearchProductsWebStyleResult.Type
@@ -273,7 +274,7 @@ export const CreateProductParams = Schema.Struct({
   priceCents: Schema.Int,
   stockQuantity: Schema.Int,
   isActive: Schema.Boolean,
-  category: Schema.optional(Schema.String)
+  category: Schema.optional(Schema.String),
 })
 
 export type CreateProductParams = typeof CreateProductParams.Type
@@ -289,7 +290,7 @@ export const CreateProductResult = Schema.Struct({
   is_active: Schema.Boolean,
   category: Schema.OptionFromNullOr(Schema.String),
   created_at: Schema.Date,
-  updated_at: Schema.Date
+  updated_at: Schema.Date,
 })
 
 export type CreateProductResult = typeof CreateProductResult.Type
@@ -303,7 +304,7 @@ export const UpdateProductParams = Schema.Struct({
   priceCents: Schema.Int,
   stockQuantity: Schema.Int,
   isActive: Schema.Boolean,
-  category: Schema.optional(Schema.String)
+  category: Schema.optional(Schema.String),
 })
 
 export type UpdateProductParams = typeof UpdateProductParams.Type
@@ -319,7 +320,7 @@ export const UpdateProductResult = Schema.Struct({
   is_active: Schema.Boolean,
   category: Schema.OptionFromNullOr(Schema.String),
   created_at: Schema.Date,
-  updated_at: Schema.Date
+  updated_at: Schema.Date,
 })
 
 export type UpdateProductResult = typeof UpdateProductResult.Type
@@ -327,28 +328,28 @@ export type UpdateProductResult = typeof UpdateProductResult.Type
 // UpdateProductStock - Parameters Schema
 export const UpdateProductStockParams = Schema.Struct({
   id: Schema.Int,
-  stockQuantity: Schema.Int
+  stockQuantity: Schema.Int,
 })
 
 export type UpdateProductStockParams = typeof UpdateProductStockParams.Type
 
 // DeactivateProduct - Parameters Schema
 export const DeactivateProductParams = Schema.Struct({
-  id: Schema.Int
+  id: Schema.Int,
 })
 
 export type DeactivateProductParams = typeof DeactivateProductParams.Type
 
 // DeleteProduct - Parameters Schema
 export const DeleteProductParams = Schema.Struct({
-  id: Schema.Int
+  id: Schema.Int,
 })
 
 export type DeleteProductParams = typeof DeleteProductParams.Type
 
 // GetProductsByIds - Parameters Schema
 export const GetProductsByIdsParams = Schema.Struct({
-  ids: Schema.Array(Schema.Int)
+  ids: Schema.Array(Schema.Int),
 })
 
 export type GetProductsByIdsParams = typeof GetProductsByIdsParams.Type
@@ -364,7 +365,7 @@ export const GetProductsByIdsResult = Schema.Struct({
   is_active: Schema.Boolean,
   category: Schema.OptionFromNullOr(Schema.String),
   created_at: Schema.Date,
-  updated_at: Schema.Date
+  updated_at: Schema.Date,
 })
 
 export type GetProductsByIdsResult = typeof GetProductsByIdsResult.Type
@@ -372,14 +373,14 @@ export type GetProductsByIdsResult = typeof GetProductsByIdsResult.Type
 // CountProductsByCategory - Result Schema
 export const CountProductsByCategoryResult = Schema.Struct({
   category: Schema.OptionFromNullOr(Schema.String),
-  product_count: BigIntFromString
+  product_count: BigIntFromString,
 })
 
 export type CountProductsByCategoryResult = typeof CountProductsByCategoryResult.Type
 
 // GetLowStockProducts - Parameters Schema
 export const GetLowStockProductsParams = Schema.Struct({
-  stockQuantity: Schema.Int
+  stockQuantity: Schema.Int,
 })
 
 export type GetLowStockProductsParams = typeof GetLowStockProductsParams.Type
@@ -390,7 +391,7 @@ export const GetLowStockProductsResult = Schema.Struct({
   sku: Schema.String,
   name: Schema.String,
   stock_quantity: Schema.Int,
-  category: Schema.OptionFromNullOr(Schema.String)
+  category: Schema.OptionFromNullOr(Schema.String),
 })
 
 export type GetLowStockProductsResult = typeof GetLowStockProductsResult.Type
@@ -483,6 +484,7 @@ export class ProductsRepository extends ServiceMap.Service<ProductsRepository, P
 const productsRepositoryImpl = Effect.gen(function* () {
   const sql = yield* SqlClient.SqlClient
 
+
   // GetProduct
   const getProduct = SqlSchema.findOneOption({
     Request: GetProductParams,
@@ -491,6 +493,7 @@ const productsRepositoryImpl = Effect.gen(function* () {
 FROM products
 WHERE id = $1`, [params.id])
   })
+
   // GetProductBySku
   const getProductBySku = SqlSchema.findOneOption({
     Request: GetProductBySkuParams,
@@ -499,6 +502,7 @@ WHERE id = $1`, [params.id])
 FROM products
 WHERE sku = $1`, [params.sku])
   })
+
   // ListProducts
   const listProducts = SqlSchema.findAll({
     Request: Schema.Void,
@@ -507,6 +511,7 @@ WHERE sku = $1`, [params.sku])
 FROM products
 ORDER BY name`)
   })
+
   // ListActiveProducts
   const listActiveProducts = SqlSchema.findAll({
     Request: Schema.Void,
@@ -516,6 +521,7 @@ FROM products
 WHERE is_active = TRUE
 ORDER BY name`)
   })
+
   // ListProductsByCategory
   const listProductsByCategory = SqlSchema.findAll({
     Request: ListProductsByCategoryParams,
@@ -525,6 +531,7 @@ FROM products
 WHERE category = $1 AND is_active = TRUE
 ORDER BY name`, [params.category])
   })
+
   // ListProductsPaginated
   const listProductsPaginated = SqlSchema.findAll({
     Request: ListProductsPaginatedParams,
@@ -535,6 +542,7 @@ WHERE is_active = TRUE
 ORDER BY created_at DESC
 LIMIT $1 OFFSET $2`, [params.limit, params.offset])
   })
+
   // ListProductsCursor
   const listProductsCursor = SqlSchema.findAll({
     Request: ListProductsCursorParams,
@@ -545,6 +553,7 @@ WHERE is_active = TRUE AND id > $1
 ORDER BY id
 LIMIT $2`, [params.id, params.limit])
   })
+
   // SearchProducts
   const searchProducts = SqlSchema.findAll({
     Request: SearchProductsParams,
@@ -555,6 +564,7 @@ WHERE search_vector @@ plainto_tsquery('english', $1)
   AND is_active = TRUE
 ORDER BY name`, [params.plaintoTsquery])
   })
+
   // SearchProductsRanked
   const searchProductsRanked = SqlSchema.findAll({
     Request: SearchProductsRankedParams,
@@ -567,6 +577,7 @@ WHERE search_vector @@ query
 ORDER BY rank DESC
 LIMIT $2 OFFSET $3`, [params.plaintoTsquery, params.limit, params.offset])
   })
+
   // SearchProductsWithHighlight
   const searchProductsWithHighlight = SqlSchema.findAll({
     Request: SearchProductsWithHighlightParams,
@@ -578,6 +589,7 @@ FROM products
 WHERE search_vector @@ plainto_tsquery('english', $1)
   AND is_active = TRUE`, [params.plaintoTsquery])
   })
+
   // SearchProductsWebStyle
   const searchProductsWebStyle = SqlSchema.findAll({
     Request: SearchProductsWebStyleParams,
@@ -588,6 +600,7 @@ WHERE search_vector @@ websearch_to_tsquery('english', $1)
   AND is_active = TRUE
 ORDER BY name`, [params.websearchToTsquery])
   })
+
   // CreateProduct
   const createProduct = SqlSchema.findOneOption({
     Request: CreateProductParams,
@@ -596,6 +609,7 @@ ORDER BY name`, [params.websearchToTsquery])
 VALUES ($1, $2, $3, $4, $5, $6, $7)
 RETURNING id, sku, name, description, price_cents, stock_quantity, is_active, category, created_at, updated_at`, [params.sku, params.name, params.description, params.priceCents, params.stockQuantity, params.isActive, params.category])
   })
+
   // UpdateProduct
   const updateProduct = SqlSchema.findOneOption({
     Request: UpdateProductParams,
@@ -605,6 +619,7 @@ SET sku = $2, name = $3, description = $4, price_cents = $5, stock_quantity = $6
 WHERE id = $1
 RETURNING id, sku, name, description, price_cents, stock_quantity, is_active, category, created_at, updated_at`, [params.id, params.sku, params.name, params.description, params.priceCents, params.stockQuantity, params.isActive, params.category])
   })
+
   // UpdateProductStock
   const updateProductStock = execRows({
     Request: UpdateProductStockParams,
@@ -612,6 +627,7 @@ RETURNING id, sku, name, description, price_cents, stock_quantity, is_active, ca
 SET stock_quantity = stock_quantity + $2, updated_at = NOW()
 WHERE id = $1`, [params.id, params.stockQuantity])
   })
+
   // DeactivateProduct
   const deactivateProduct = SqlSchema.void({
     Request: DeactivateProductParams,
@@ -619,12 +635,14 @@ WHERE id = $1`, [params.id, params.stockQuantity])
 SET is_active = FALSE, updated_at = NOW()
 WHERE id = $1`, [params.id])
   })
+
   // DeleteProduct
   const deleteProduct = SqlSchema.void({
     Request: DeleteProductParams,
     execute: (params) => sql.unsafe(`DELETE FROM products
 WHERE id = $1`, [params.id])
   })
+
   // GetProductsByIds
   const getProductsByIds = SqlSchema.findAll({
     Request: GetProductsByIdsParams,
@@ -633,6 +651,7 @@ WHERE id = $1`, [params.id])
 FROM products
 WHERE id = ANY($1::int[])`, [params.ids])
   })
+
   // CountProductsByCategory
   const countProductsByCategory = SqlSchema.findAll({
     Request: Schema.Void,
@@ -643,6 +662,7 @@ WHERE is_active = TRUE
 GROUP BY category
 ORDER BY product_count DESC`)
   })
+
   // GetLowStockProducts
   const getLowStockProducts = SqlSchema.findAll({
     Request: GetLowStockProductsParams,

@@ -172,6 +172,10 @@ type RepositoryData struct {
 	Config              config.Config
 	SqlcVersion         string
 	PluginVersion       string
+
+	// Helper flags - only include helpers that are actually used
+	NeedsBigInt   bool // True if any field uses BigIntFromString
+	NeedsExecRows bool // True if any query uses :execrows command
 }
 
 // PluginVersion is the version of this sqlc-effect plugin
@@ -180,6 +184,9 @@ const PluginVersion = "v0.1.0"
 func (e *Effect4) generateRepository(tmpl *template.Template, filename string, queries []models.Query, catalog *models.Catalog, sqlcVersion string, log *logger.Logger) (string, error) {
 	repoName := e.filenameToRepoName(filename)
 	queryViews := e.buildQueryViews(queries)
+
+	// Compute which helpers are needed
+	needsBigInt, needsExecRows := e.computeHelperFlags(queryViews)
 
 	data := RepositoryData{
 		RepositoryName:      repoName,
@@ -190,6 +197,8 @@ func (e *Effect4) generateRepository(tmpl *template.Template, filename string, q
 		Config:              e.cfg,
 		SqlcVersion:         sqlcVersion,
 		PluginVersion:       PluginVersion,
+		NeedsBigInt:         needsBigInt,
+		NeedsExecRows:       needsExecRows,
 	}
 
 	var buf bytes.Buffer
@@ -213,6 +222,34 @@ func cleanWhitespace(content string) string {
 	content = re.ReplaceAllString(content, "\n")
 
 	return strings.TrimSpace(content) + "\n"
+}
+
+// computeHelperFlags analyzes query views to determine which helpers are needed
+func (e *Effect4) computeHelperFlags(views []QueryView) (needsBigInt, needsExecRows bool) {
+	for _, v := range views {
+		// Check if any query uses :execrows
+		if v.Query.Command == ":execrows" {
+			needsExecRows = true
+		}
+
+		// Check if any schema field uses BigIntFromString
+		for _, f := range v.ParamFields {
+			if f.Schema == "BigIntFromString" || strings.Contains(f.Schema, "BigIntFromString") {
+				needsBigInt = true
+			}
+		}
+		for _, f := range v.ResultFields {
+			if f.Schema == "BigIntFromString" || strings.Contains(f.Schema, "BigIntFromString") {
+				needsBigInt = true
+			}
+		}
+
+		// Early exit if both flags are set
+		if needsBigInt && needsExecRows {
+			return
+		}
+	}
+	return
 }
 
 // buildQueryViews transforms a slice of queries into QueryViews with pre-computed values

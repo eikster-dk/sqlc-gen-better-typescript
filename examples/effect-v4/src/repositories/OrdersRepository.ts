@@ -2,6 +2,7 @@
 import { ServiceMap, Effect, Layer, Schema, Option, SchemaGetter } from "effect"
 import { SqlClient, SqlError, SqlSchema } from "effect/unstable/sql"
 
+
 // PostgreSQL returns bigint as string to preserve precision, so we need to transform it
 const BigIntFromString = Schema.String.pipe(
   Schema.decodeTo(
@@ -37,7 +38,7 @@ export const OrderStatusSchema = Schema.Literals(["pending", "confirmed", "proce
 
 // GetOrder - Parameters Schema
 export const GetOrderParams = Schema.Struct({
-  id: Schema.Int
+  id: Schema.Int,
 })
 
 export type GetOrderParams = typeof GetOrderParams.Type
@@ -52,14 +53,14 @@ export const GetOrderResult = Schema.Struct({
   billing_address: Schema.OptionFromNullOr(Schema.String),
   notes: Schema.OptionFromNullOr(Schema.String),
   created_at: Schema.Date,
-  updated_at: Schema.Date
+  updated_at: Schema.Date,
 })
 
 export type GetOrderResult = typeof GetOrderResult.Type
 
 // GetOrderWithCustomer - Parameters Schema
 export const GetOrderWithCustomerParams = Schema.Struct({
-  id: Schema.Int
+  id: Schema.Int,
 })
 
 export type GetOrderWithCustomerParams = typeof GetOrderWithCustomerParams.Type
@@ -77,7 +78,7 @@ export const GetOrderWithCustomerResult = Schema.Struct({
   customer_id: Schema.Int,
   customer_email: Schema.String,
   customer_name: Schema.String,
-  customer_phone: Schema.OptionFromNullOr(Schema.String)
+  customer_phone: Schema.OptionFromNullOr(Schema.String),
 })
 
 export type GetOrderWithCustomerResult = typeof GetOrderWithCustomerResult.Type
@@ -92,14 +93,14 @@ export const ListOrdersResult = Schema.Struct({
   billing_address: Schema.OptionFromNullOr(Schema.String),
   notes: Schema.OptionFromNullOr(Schema.String),
   created_at: Schema.Date,
-  updated_at: Schema.Date
+  updated_at: Schema.Date,
 })
 
 export type ListOrdersResult = typeof ListOrdersResult.Type
 
 // ListOrdersByCustomer - Parameters Schema
 export const ListOrdersByCustomerParams = Schema.Struct({
-  customerId: Schema.Int
+  customerId: Schema.Int,
 })
 
 export type ListOrdersByCustomerParams = typeof ListOrdersByCustomerParams.Type
@@ -114,14 +115,14 @@ export const ListOrdersByCustomerResult = Schema.Struct({
   billing_address: Schema.OptionFromNullOr(Schema.String),
   notes: Schema.OptionFromNullOr(Schema.String),
   created_at: Schema.Date,
-  updated_at: Schema.Date
+  updated_at: Schema.Date,
 })
 
 export type ListOrdersByCustomerResult = typeof ListOrdersByCustomerResult.Type
 
 // ListOrdersByStatus - Parameters Schema
 export const ListOrdersByStatusParams = Schema.Struct({
-  status: OrderStatusSchema
+  status: OrderStatusSchema,
 })
 
 export type ListOrdersByStatusParams = typeof ListOrdersByStatusParams.Type
@@ -136,7 +137,7 @@ export const ListOrdersByStatusResult = Schema.Struct({
   billing_address: Schema.OptionFromNullOr(Schema.String),
   notes: Schema.OptionFromNullOr(Schema.String),
   created_at: Schema.Date,
-  updated_at: Schema.Date
+  updated_at: Schema.Date,
 })
 
 export type ListOrdersByStatusResult = typeof ListOrdersByStatusResult.Type
@@ -144,7 +145,7 @@ export type ListOrdersByStatusResult = typeof ListOrdersByStatusResult.Type
 // ListOrdersPaginated - Parameters Schema
 export const ListOrdersPaginatedParams = Schema.Struct({
   limit: Schema.Int,
-  offset: Schema.Int
+  offset: Schema.Int,
 })
 
 export type ListOrdersPaginatedParams = typeof ListOrdersPaginatedParams.Type
@@ -159,7 +160,7 @@ export const ListOrdersPaginatedResult = Schema.Struct({
   billing_address: Schema.OptionFromNullOr(Schema.String),
   notes: Schema.OptionFromNullOr(Schema.String),
   created_at: Schema.Date,
-  updated_at: Schema.Date
+  updated_at: Schema.Date,
 })
 
 export type ListOrdersPaginatedResult = typeof ListOrdersPaginatedResult.Type
@@ -167,7 +168,7 @@ export type ListOrdersPaginatedResult = typeof ListOrdersPaginatedResult.Type
 // ListOrdersByDateRange - Parameters Schema
 export const ListOrdersByDateRangeParams = Schema.Struct({
   createdAt: Schema.Date,
-  createdAt2: Schema.Date
+  createdAt2: Schema.Date,
 })
 
 export type ListOrdersByDateRangeParams = typeof ListOrdersByDateRangeParams.Type
@@ -182,7 +183,7 @@ export const ListOrdersByDateRangeResult = Schema.Struct({
   billing_address: Schema.OptionFromNullOr(Schema.String),
   notes: Schema.OptionFromNullOr(Schema.String),
   created_at: Schema.Date,
-  updated_at: Schema.Date
+  updated_at: Schema.Date,
 })
 
 export type ListOrdersByDateRangeResult = typeof ListOrdersByDateRangeResult.Type
@@ -190,7 +191,7 @@ export type ListOrdersByDateRangeResult = typeof ListOrdersByDateRangeResult.Typ
 // ListOrdersByDateRangeNamed - Parameters Schema
 export const ListOrdersByDateRangeNamedParams = Schema.Struct({
   startDate: Schema.Date,
-  endDate: Schema.Date
+  endDate: Schema.Date,
 })
 
 export type ListOrdersByDateRangeNamedParams = typeof ListOrdersByDateRangeNamedParams.Type
@@ -205,14 +206,14 @@ export const ListOrdersByDateRangeNamedResult = Schema.Struct({
   billing_address: Schema.OptionFromNullOr(Schema.String),
   notes: Schema.OptionFromNullOr(Schema.String),
   created_at: Schema.Date,
-  updated_at: Schema.Date
+  updated_at: Schema.Date,
 })
 
 export type ListOrdersByDateRangeNamedResult = typeof ListOrdersByDateRangeNamedResult.Type
 
 // ListRecentOrdersWithCustomer - Parameters Schema
 export const ListRecentOrdersWithCustomerParams = Schema.Struct({
-  limit: Schema.Int
+  limit: Schema.Int,
 })
 
 export type ListRecentOrdersWithCustomerParams = typeof ListRecentOrdersWithCustomerParams.Type
@@ -224,14 +225,14 @@ export const ListRecentOrdersWithCustomerResult = Schema.Struct({
   total_cents: Schema.Int,
   created_at: Schema.Date,
   customer_name: Schema.String,
-  customer_email: Schema.String
+  customer_email: Schema.String,
 })
 
 export type ListRecentOrdersWithCustomerResult = typeof ListRecentOrdersWithCustomerResult.Type
 
 // SearchOrders - Parameters Schema
 export const SearchOrdersParams = Schema.Struct({
-  websearchToTsquery: Schema.String
+  websearchToTsquery: Schema.String,
 })
 
 export type SearchOrdersParams = typeof SearchOrdersParams.Type
@@ -244,7 +245,7 @@ export const SearchOrdersResult = Schema.Struct({
   total_cents: Schema.Int,
   shipping_address: Schema.OptionFromNullOr(Schema.String),
   notes: Schema.OptionFromNullOr(Schema.String),
-  created_at: Schema.Date
+  created_at: Schema.Date,
 })
 
 export type SearchOrdersResult = typeof SearchOrdersResult.Type
@@ -255,7 +256,7 @@ export const CreateOrderParams = Schema.Struct({
   status: OrderStatusSchema,
   shippingAddress: Schema.optional(Schema.String),
   billingAddress: Schema.optional(Schema.String),
-  notes: Schema.optional(Schema.String)
+  notes: Schema.optional(Schema.String),
 })
 
 export type CreateOrderParams = typeof CreateOrderParams.Type
@@ -270,7 +271,7 @@ export const CreateOrderResult = Schema.Struct({
   billing_address: Schema.OptionFromNullOr(Schema.String),
   notes: Schema.OptionFromNullOr(Schema.String),
   created_at: Schema.Date,
-  updated_at: Schema.Date
+  updated_at: Schema.Date,
 })
 
 export type CreateOrderResult = typeof CreateOrderResult.Type
@@ -278,7 +279,7 @@ export type CreateOrderResult = typeof CreateOrderResult.Type
 // UpdateOrderStatus - Parameters Schema
 export const UpdateOrderStatusParams = Schema.Struct({
   id: Schema.Int,
-  status: OrderStatusSchema
+  status: OrderStatusSchema,
 })
 
 export type UpdateOrderStatusParams = typeof UpdateOrderStatusParams.Type
@@ -287,21 +288,21 @@ export type UpdateOrderStatusParams = typeof UpdateOrderStatusParams.Type
 export const UpdateOrderAddressesParams = Schema.Struct({
   id: Schema.Int,
   shippingAddress: Schema.optional(Schema.String),
-  billingAddress: Schema.optional(Schema.String)
+  billingAddress: Schema.optional(Schema.String),
 })
 
 export type UpdateOrderAddressesParams = typeof UpdateOrderAddressesParams.Type
 
 // UpdateOrderTotal - Parameters Schema
 export const UpdateOrderTotalParams = Schema.Struct({
-  orderId: Schema.Int
+  orderId: Schema.Int,
 })
 
 export type UpdateOrderTotalParams = typeof UpdateOrderTotalParams.Type
 
 // DeleteOrder - Parameters Schema
 export const DeleteOrderParams = Schema.Struct({
-  id: Schema.Int
+  id: Schema.Int,
 })
 
 export type DeleteOrderParams = typeof DeleteOrderParams.Type
@@ -309,14 +310,14 @@ export type DeleteOrderParams = typeof DeleteOrderParams.Type
 // CountOrdersByStatus - Result Schema
 export const CountOrdersByStatusResult = Schema.Struct({
   status: OrderStatusSchema,
-  order_count: BigIntFromString
+  order_count: BigIntFromString,
 })
 
 export type CountOrdersByStatusResult = typeof CountOrdersByStatusResult.Type
 
 // GetCustomerOrderStats - Parameters Schema
 export const GetCustomerOrderStatsParams = Schema.Struct({
-  customerId: Schema.Int
+  customerId: Schema.Int,
 })
 
 export type GetCustomerOrderStatsParams = typeof GetCustomerOrderStatsParams.Type
@@ -325,7 +326,7 @@ export type GetCustomerOrderStatsParams = typeof GetCustomerOrderStatsParams.Typ
 export const GetCustomerOrderStatsResult = Schema.Struct({
   total_orders: BigIntFromString,
   total_spent: Schema.OptionFromNullOr(Schema.String),
-  avg_order_value: Schema.OptionFromNullOr(Schema.String)
+  avg_order_value: Schema.OptionFromNullOr(Schema.String),
 })
 
 export type GetCustomerOrderStatsResult = typeof GetCustomerOrderStatsResult.Type
@@ -333,7 +334,7 @@ export type GetCustomerOrderStatsResult = typeof GetCustomerOrderStatsResult.Typ
 // GetOrdersWithLineCount - Parameters Schema
 export const GetOrdersWithLineCountParams = Schema.Struct({
   limit: Schema.Int,
-  offset: Schema.Int
+  offset: Schema.Int,
 })
 
 export type GetOrdersWithLineCountParams = typeof GetOrdersWithLineCountParams.Type
@@ -345,14 +346,14 @@ export const GetOrdersWithLineCountResult = Schema.Struct({
   status: OrderStatusSchema,
   total_cents: Schema.Int,
   created_at: Schema.Date,
-  line_count: BigIntFromString
+  line_count: BigIntFromString,
 })
 
 export type GetOrdersWithLineCountResult = typeof GetOrdersWithLineCountResult.Type
 
 // GetOrderLine - Parameters Schema
 export const GetOrderLineParams = Schema.Struct({
-  id: Schema.Int
+  id: Schema.Int,
 })
 
 export type GetOrderLineParams = typeof GetOrderLineParams.Type
@@ -365,14 +366,14 @@ export const GetOrderLineResult = Schema.Struct({
   quantity: Schema.Int,
   unit_price_cents: Schema.Int,
   discount_cents: Schema.Int,
-  created_at: Schema.Date
+  created_at: Schema.Date,
 })
 
 export type GetOrderLineResult = typeof GetOrderLineResult.Type
 
 // ListOrderLines - Parameters Schema
 export const ListOrderLinesParams = Schema.Struct({
-  orderId: Schema.Int
+  orderId: Schema.Int,
 })
 
 export type ListOrderLinesParams = typeof ListOrderLinesParams.Type
@@ -385,14 +386,14 @@ export const ListOrderLinesResult = Schema.Struct({
   quantity: Schema.Int,
   unit_price_cents: Schema.Int,
   discount_cents: Schema.Int,
-  created_at: Schema.Date
+  created_at: Schema.Date,
 })
 
 export type ListOrderLinesResult = typeof ListOrderLinesResult.Type
 
 // ListOrderLinesWithProduct - Parameters Schema
 export const ListOrderLinesWithProductParams = Schema.Struct({
-  orderId: Schema.Int
+  orderId: Schema.Int,
 })
 
 export type ListOrderLinesWithProductParams = typeof ListOrderLinesWithProductParams.Type
@@ -407,14 +408,14 @@ export const ListOrderLinesWithProductResult = Schema.Struct({
   created_at: Schema.Date,
   product_id: Schema.Int,
   product_sku: Schema.String,
-  product_name: Schema.String
+  product_name: Schema.String,
 })
 
 export type ListOrderLinesWithProductResult = typeof ListOrderLinesWithProductResult.Type
 
 // GetFullOrderDetails - Parameters Schema
 export const GetFullOrderDetailsParams = Schema.Struct({
-  id: Schema.Int
+  id: Schema.Int,
 })
 
 export type GetFullOrderDetailsParams = typeof GetFullOrderDetailsParams.Type
@@ -435,7 +436,7 @@ export const GetFullOrderDetailsResult = Schema.Struct({
   discount_cents: Schema.Int,
   product_id: Schema.Int,
   sku: Schema.String,
-  product_name: Schema.String
+  product_name: Schema.String,
 })
 
 export type GetFullOrderDetailsResult = typeof GetFullOrderDetailsResult.Type
@@ -446,7 +447,7 @@ export const CreateOrderLineParams = Schema.Struct({
   productId: Schema.Int,
   quantity: Schema.Int,
   unitPriceCents: Schema.Int,
-  discountCents: Schema.Int
+  discountCents: Schema.Int,
 })
 
 export type CreateOrderLineParams = typeof CreateOrderLineParams.Type
@@ -459,7 +460,7 @@ export const CreateOrderLineResult = Schema.Struct({
   quantity: Schema.Int,
   unit_price_cents: Schema.Int,
   discount_cents: Schema.Int,
-  created_at: Schema.Date
+  created_at: Schema.Date,
 })
 
 export type CreateOrderLineResult = typeof CreateOrderLineResult.Type
@@ -467,42 +468,42 @@ export type CreateOrderLineResult = typeof CreateOrderLineResult.Type
 // UpdateOrderLineQuantity - Parameters Schema
 export const UpdateOrderLineQuantityParams = Schema.Struct({
   id: Schema.Int,
-  quantity: Schema.Int
+  quantity: Schema.Int,
 })
 
 export type UpdateOrderLineQuantityParams = typeof UpdateOrderLineQuantityParams.Type
 
 // DeleteOrderLine - Parameters Schema
 export const DeleteOrderLineParams = Schema.Struct({
-  id: Schema.Int
+  id: Schema.Int,
 })
 
 export type DeleteOrderLineParams = typeof DeleteOrderLineParams.Type
 
 // DeleteOrderLines - Parameters Schema
 export const DeleteOrderLinesParams = Schema.Struct({
-  orderId: Schema.Int
+  orderId: Schema.Int,
 })
 
 export type DeleteOrderLinesParams = typeof DeleteOrderLinesParams.Type
 
 // GetOrderLineTotal - Parameters Schema
 export const GetOrderLineTotalParams = Schema.Struct({
-  orderId: Schema.Int
+  orderId: Schema.Int,
 })
 
 export type GetOrderLineTotalParams = typeof GetOrderLineTotalParams.Type
 
 // GetOrderLineTotal - Result Schema
 export const GetOrderLineTotalResult = Schema.Struct({
-  total: Schema.OptionFromNullOr(Schema.String)
+  total: Schema.OptionFromNullOr(Schema.String),
 })
 
 export type GetOrderLineTotalResult = typeof GetOrderLineTotalResult.Type
 
 // GetProductSalesStats - Parameters Schema
 export const GetProductSalesStatsParams = Schema.Struct({
-  id: Schema.Int
+  id: Schema.Int,
 })
 
 export type GetProductSalesStatsParams = typeof GetProductSalesStatsParams.Type
@@ -513,14 +514,14 @@ export const GetProductSalesStatsResult = Schema.Struct({
   sku: Schema.String,
   name: Schema.String,
   total_sold: Schema.OptionFromNullOr(Schema.String),
-  total_revenue: Schema.OptionFromNullOr(Schema.String)
+  total_revenue: Schema.OptionFromNullOr(Schema.String),
 })
 
 export type GetProductSalesStatsResult = typeof GetProductSalesStatsResult.Type
 
 // GetTopSellingProducts - Parameters Schema
 export const GetTopSellingProductsParams = Schema.Struct({
-  limit: Schema.Int
+  limit: Schema.Int,
 })
 
 export type GetTopSellingProductsParams = typeof GetTopSellingProductsParams.Type
@@ -532,14 +533,14 @@ export const GetTopSellingProductsResult = Schema.Struct({
   name: Schema.String,
   category: Schema.OptionFromNullOr(Schema.String),
   total_sold: BigIntFromString,
-  total_revenue: BigIntFromString
+  total_revenue: BigIntFromString,
 })
 
 export type GetTopSellingProductsResult = typeof GetTopSellingProductsResult.Type
 
 // GetOrdersByProductIds - Parameters Schema
 export const GetOrdersByProductIdsParams = Schema.Struct({
-  productIds: Schema.Array(Schema.Int)
+  productIds: Schema.Array(Schema.Int),
 })
 
 export type GetOrdersByProductIdsParams = typeof GetOrdersByProductIdsParams.Type
@@ -550,7 +551,7 @@ export const GetOrdersByProductIdsResult = Schema.Struct({
   customer_id: Schema.Int,
   status: OrderStatusSchema,
   total_cents: Schema.Int,
-  created_at: Schema.Date
+  created_at: Schema.Date,
 })
 
 export type GetOrdersByProductIdsResult = typeof GetOrdersByProductIdsResult.Type
@@ -687,6 +688,7 @@ export class OrdersRepository extends ServiceMap.Service<OrdersRepository, Order
 const ordersRepositoryImpl = Effect.gen(function* () {
   const sql = yield* SqlClient.SqlClient
 
+
   // GetOrder
   const getOrder = SqlSchema.findOneOption({
     Request: GetOrderParams,
@@ -695,6 +697,7 @@ const ordersRepositoryImpl = Effect.gen(function* () {
 FROM orders
 WHERE id = $1`, [params.id])
   })
+
   // GetOrderWithCustomer
   const getOrderWithCustomer = SqlSchema.findOneOption({
     Request: GetOrderWithCustomerParams,
@@ -706,6 +709,7 @@ FROM orders o
 JOIN customers c ON o.customer_id = c.id
 WHERE o.id = $1`, [params.id])
   })
+
   // ListOrders
   const listOrders = SqlSchema.findAll({
     Request: Schema.Void,
@@ -714,6 +718,7 @@ WHERE o.id = $1`, [params.id])
 FROM orders
 ORDER BY created_at DESC`)
   })
+
   // ListOrdersByCustomer
   const listOrdersByCustomer = SqlSchema.findAll({
     Request: ListOrdersByCustomerParams,
@@ -723,6 +728,7 @@ FROM orders
 WHERE customer_id = $1
 ORDER BY created_at DESC`, [params.customerId])
   })
+
   // ListOrdersByStatus
   const listOrdersByStatus = SqlSchema.findAll({
     Request: ListOrdersByStatusParams,
@@ -732,6 +738,7 @@ FROM orders
 WHERE status = $1
 ORDER BY created_at DESC`, [params.status])
   })
+
   // ListOrdersPaginated
   const listOrdersPaginated = SqlSchema.findAll({
     Request: ListOrdersPaginatedParams,
@@ -741,6 +748,7 @@ FROM orders
 ORDER BY created_at DESC
 LIMIT $1 OFFSET $2`, [params.limit, params.offset])
   })
+
   // ListOrdersByDateRange
   const listOrdersByDateRange = SqlSchema.findAll({
     Request: ListOrdersByDateRangeParams,
@@ -750,6 +758,7 @@ FROM orders
 WHERE created_at >= $1 AND created_at < $2
 ORDER BY created_at DESC`, [params.createdAt, params.createdAt2])
   })
+
   // ListOrdersByDateRangeNamed
   const listOrdersByDateRangeNamed = SqlSchema.findAll({
     Request: ListOrdersByDateRangeNamedParams,
@@ -759,6 +768,7 @@ FROM orders
 WHERE created_at >= $1 AND created_at < $2
 ORDER BY created_at DESC`, [params.startDate, params.endDate])
   })
+
   // ListRecentOrdersWithCustomer
   const listRecentOrdersWithCustomer = SqlSchema.findAll({
     Request: ListRecentOrdersWithCustomerParams,
@@ -771,6 +781,7 @@ JOIN customers c ON o.customer_id = c.id
 ORDER BY o.created_at DESC
 LIMIT $1`, [params.limit])
   })
+
   // SearchOrders
   const searchOrders = SqlSchema.findAll({
     Request: SearchOrdersParams,
@@ -780,6 +791,7 @@ FROM orders
 WHERE search_vector @@ websearch_to_tsquery('english', $1)
 ORDER BY created_at DESC`, [params.websearchToTsquery])
   })
+
   // CreateOrder
   const createOrder = SqlSchema.findOneOption({
     Request: CreateOrderParams,
@@ -788,6 +800,7 @@ ORDER BY created_at DESC`, [params.websearchToTsquery])
 VALUES ($1, $2, $3, $4, $5)
 RETURNING id, customer_id, status, total_cents, shipping_address, billing_address, notes, created_at, updated_at`, [params.customerId, params.status, params.shippingAddress, params.billingAddress, params.notes])
   })
+
   // UpdateOrderStatus
   const updateOrderStatus = SqlSchema.void({
     Request: UpdateOrderStatusParams,
@@ -795,6 +808,7 @@ RETURNING id, customer_id, status, total_cents, shipping_address, billing_addres
 SET status = $2, updated_at = NOW()
 WHERE id = $1`, [params.id, params.status])
   })
+
   // UpdateOrderAddresses
   const updateOrderAddresses = SqlSchema.void({
     Request: UpdateOrderAddressesParams,
@@ -802,6 +816,7 @@ WHERE id = $1`, [params.id, params.status])
 SET shipping_address = $2, billing_address = $3, updated_at = NOW()
 WHERE id = $1`, [params.id, params.shippingAddress, params.billingAddress])
   })
+
   // UpdateOrderTotal
   const updateOrderTotal = SqlSchema.void({
     Request: UpdateOrderTotalParams,
@@ -813,12 +828,14 @@ SET total_cents = (
 ), updated_at = NOW()
 WHERE id = $1`, [params.orderId])
   })
+
   // DeleteOrder
   const deleteOrder = SqlSchema.void({
     Request: DeleteOrderParams,
     execute: (params) => sql.unsafe(`DELETE FROM orders
 WHERE id = $1`, [params.id])
   })
+
   // CountOrdersByStatus
   const countOrdersByStatus = SqlSchema.findAll({
     Request: Schema.Void,
@@ -828,6 +845,7 @@ FROM orders
 GROUP BY status
 ORDER BY order_count DESC`)
   })
+
   // GetCustomerOrderStats
   const getCustomerOrderStats = SqlSchema.findOneOption({
     Request: GetCustomerOrderStatsParams,
@@ -839,6 +857,7 @@ ORDER BY order_count DESC`)
 FROM orders
 WHERE customer_id = $1`, [params.customerId])
   })
+
   // GetOrdersWithLineCount
   const getOrdersWithLineCount = SqlSchema.findAll({
     Request: GetOrdersWithLineCountParams,
@@ -852,6 +871,7 @@ GROUP BY o.id
 ORDER BY o.created_at DESC
 LIMIT $1 OFFSET $2`, [params.limit, params.offset])
   })
+
   // GetOrderLine
   const getOrderLine = SqlSchema.findOneOption({
     Request: GetOrderLineParams,
@@ -861,6 +881,7 @@ SELECT id, order_id, product_id, quantity, unit_price_cents, discount_cents, cre
 FROM order_lines
 WHERE id = $1`, [params.id])
   })
+
   // ListOrderLines
   const listOrderLines = SqlSchema.findAll({
     Request: ListOrderLinesParams,
@@ -870,6 +891,7 @@ FROM order_lines
 WHERE order_id = $1
 ORDER BY created_at`, [params.orderId])
   })
+
   // ListOrderLinesWithProduct
   const listOrderLinesWithProduct = SqlSchema.findAll({
     Request: ListOrderLinesWithProductParams,
@@ -882,6 +904,7 @@ JOIN products p ON ol.product_id = p.id
 WHERE ol.order_id = $1
 ORDER BY ol.created_at`, [params.orderId])
   })
+
   // GetFullOrderDetails
   const getFullOrderDetails = SqlSchema.findAll({
     Request: GetFullOrderDetailsParams,
@@ -898,6 +921,7 @@ JOIN products p ON ol.product_id = p.id
 WHERE o.id = $1
 ORDER BY ol.created_at`, [params.id])
   })
+
   // CreateOrderLine
   const createOrderLine = SqlSchema.findOneOption({
     Request: CreateOrderLineParams,
@@ -906,6 +930,7 @@ ORDER BY ol.created_at`, [params.id])
 VALUES ($1, $2, $3, $4, $5)
 RETURNING id, order_id, product_id, quantity, unit_price_cents, discount_cents, created_at`, [params.orderId, params.productId, params.quantity, params.unitPriceCents, params.discountCents])
   })
+
   // UpdateOrderLineQuantity
   const updateOrderLineQuantity = SqlSchema.void({
     Request: UpdateOrderLineQuantityParams,
@@ -913,18 +938,21 @@ RETURNING id, order_id, product_id, quantity, unit_price_cents, discount_cents, 
 SET quantity = $2
 WHERE id = $1`, [params.id, params.quantity])
   })
+
   // DeleteOrderLine
   const deleteOrderLine = SqlSchema.void({
     Request: DeleteOrderLineParams,
     execute: (params) => sql.unsafe(`DELETE FROM order_lines
 WHERE id = $1`, [params.id])
   })
+
   // DeleteOrderLines
   const deleteOrderLines = execRows({
     Request: DeleteOrderLinesParams,
     execute: (params) => sql.unsafe(`DELETE FROM order_lines
 WHERE order_id = $1`, [params.orderId])
   })
+
   // GetOrderLineTotal
   const getOrderLineTotal = SqlSchema.findOneOption({
     Request: GetOrderLineTotalParams,
@@ -934,6 +962,7 @@ WHERE order_id = $1`, [params.orderId])
 FROM order_lines
 WHERE order_id = $1`, [params.orderId])
   })
+
   // GetProductSalesStats
   const getProductSalesStats = SqlSchema.findOneOption({
     Request: GetProductSalesStatsParams,
@@ -947,6 +976,7 @@ LEFT JOIN order_lines ol ON p.id = ol.product_id
 WHERE p.id = $1
 GROUP BY p.id`, [params.id])
   })
+
   // GetTopSellingProducts
   const getTopSellingProducts = SqlSchema.findAll({
     Request: GetTopSellingProductsParams,
@@ -961,6 +991,7 @@ GROUP BY p.id
 ORDER BY total_sold DESC
 LIMIT $1`, [params.limit])
   })
+
   // GetOrdersByProductIds
   const getOrdersByProductIds = SqlSchema.findAll({
     Request: GetOrdersByProductIdsParams,

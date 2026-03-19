@@ -3,17 +3,18 @@
      ============================================================ */}}
 
 {{/* ------------------------------------------------------------
-     imports - Effect and SQL client imports
+     imports - Effect and SQL client imports (conditional)
      ------------------------------------------------------------ */}}
 {{define "imports" -}}
-import { ServiceMap, Effect, Layer, Schema, Option, SchemaGetter } from "effect"
+import { ServiceMap, Effect, Layer, Schema, Option{{if .NeedsBigInt}}, SchemaGetter{{end}} } from "effect"
 import { SqlClient, SqlError, SqlSchema } from "effect/unstable/sql"
 {{- end}}
 
 {{/* ------------------------------------------------------------
-     helpers - Static TypeScript helper functions
+     helpers - Static TypeScript helper functions (conditional)
      ------------------------------------------------------------ */}}
 {{define "helpers" -}}
+{{- if .NeedsBigInt }}
 // PostgreSQL returns bigint as string to preserve precision, so we need to transform it
 const BigIntFromString = Schema.String.pipe(
   Schema.decodeTo(
@@ -24,6 +25,8 @@ const BigIntFromString = Schema.String.pipe(
     }
   )
 )
+{{- end}}
+{{- if .NeedsExecRows }}
 
 // PostgreSQL returns affected row count in the raw result metadata
 const ExecResult = Schema.Struct({ rowCount: Schema.NullOr(Schema.Int) })
@@ -41,6 +44,7 @@ const execRows = <Req extends Schema.Top, E, R>(options: {
       (raw) => Effect.map(decodeResult(raw), (r) => r.rowCount ?? 0)
     )
 }
+{{- end}}
 {{- end}}
 
 {{/* ------------------------------------------------------------

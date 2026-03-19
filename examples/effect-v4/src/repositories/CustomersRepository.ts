@@ -2,6 +2,7 @@
 import { ServiceMap, Effect, Layer, Schema, Option, SchemaGetter } from "effect"
 import { SqlClient, SqlError, SqlSchema } from "effect/unstable/sql"
 
+
 // PostgreSQL returns bigint as string to preserve precision, so we need to transform it
 const BigIntFromString = Schema.String.pipe(
   Schema.decodeTo(
@@ -13,23 +14,6 @@ const BigIntFromString = Schema.String.pipe(
   )
 )
 
-// PostgreSQL returns affected row count in the raw result metadata
-const ExecResult = Schema.Struct({ rowCount: Schema.NullOr(Schema.Int) })
-
-// Helper for :execrows queries - returns affected row count (similar to SqlSchema.void but returns count)
-const execRows = <Req extends Schema.Top, E, R>(options: {
-  readonly Request: Req
-  readonly execute: (request: Req["Encoded"]) => { raw: Effect.Effect<unknown, E, R> }
-}) => {
-  const encode = Schema.encodeEffect(options.Request)
-  const decodeResult = Schema.decodeUnknownEffect(ExecResult)
-  return (request: Req["Type"]): Effect.Effect<number, E | Schema.SchemaError, R | Req["EncodingServices"]> =>
-    Effect.flatMap(
-      Effect.flatMap(encode(request), (encoded) => options.execute(encoded).raw),
-      (raw) => Effect.map(decodeResult(raw), (r) => r.rowCount ?? 0)
-    )
-}
-
 
 // order_status enum schema
 export const OrderStatusSchema = Schema.Literals(["pending", "confirmed", "processing", "shipped", "delivered", "cancelled", "refunded"])
@@ -37,7 +21,7 @@ export const OrderStatusSchema = Schema.Literals(["pending", "confirmed", "proce
 
 // GetCustomer - Parameters Schema
 export const GetCustomerParams = Schema.Struct({
-  id: Schema.Int
+  id: Schema.Int,
 })
 
 export type GetCustomerParams = typeof GetCustomerParams.Type
@@ -49,14 +33,14 @@ export const GetCustomerResult = Schema.Struct({
   name: Schema.String,
   phone: Schema.OptionFromNullOr(Schema.String),
   created_at: Schema.Date,
-  updated_at: Schema.Date
+  updated_at: Schema.Date,
 })
 
 export type GetCustomerResult = typeof GetCustomerResult.Type
 
 // GetCustomerByEmail - Parameters Schema
 export const GetCustomerByEmailParams = Schema.Struct({
-  email: Schema.String
+  email: Schema.String,
 })
 
 export type GetCustomerByEmailParams = typeof GetCustomerByEmailParams.Type
@@ -68,7 +52,7 @@ export const GetCustomerByEmailResult = Schema.Struct({
   name: Schema.String,
   phone: Schema.OptionFromNullOr(Schema.String),
   created_at: Schema.Date,
-  updated_at: Schema.Date
+  updated_at: Schema.Date,
 })
 
 export type GetCustomerByEmailResult = typeof GetCustomerByEmailResult.Type
@@ -80,7 +64,7 @@ export const ListCustomersResult = Schema.Struct({
   name: Schema.String,
   phone: Schema.OptionFromNullOr(Schema.String),
   created_at: Schema.Date,
-  updated_at: Schema.Date
+  updated_at: Schema.Date,
 })
 
 export type ListCustomersResult = typeof ListCustomersResult.Type
@@ -88,7 +72,7 @@ export type ListCustomersResult = typeof ListCustomersResult.Type
 // ListCustomersPaginated - Parameters Schema
 export const ListCustomersPaginatedParams = Schema.Struct({
   limit: Schema.Int,
-  offset: Schema.Int
+  offset: Schema.Int,
 })
 
 export type ListCustomersPaginatedParams = typeof ListCustomersPaginatedParams.Type
@@ -100,14 +84,14 @@ export const ListCustomersPaginatedResult = Schema.Struct({
   name: Schema.String,
   phone: Schema.OptionFromNullOr(Schema.String),
   created_at: Schema.Date,
-  updated_at: Schema.Date
+  updated_at: Schema.Date,
 })
 
 export type ListCustomersPaginatedResult = typeof ListCustomersPaginatedResult.Type
 
 // SearchCustomersByName - Parameters Schema
 export const SearchCustomersByNameParams = Schema.Struct({
-  arg1: Schema.optional(Schema.String)
+  arg1: Schema.optional(Schema.String),
 })
 
 export type SearchCustomersByNameParams = typeof SearchCustomersByNameParams.Type
@@ -119,7 +103,7 @@ export const SearchCustomersByNameResult = Schema.Struct({
   name: Schema.String,
   phone: Schema.OptionFromNullOr(Schema.String),
   created_at: Schema.Date,
-  updated_at: Schema.Date
+  updated_at: Schema.Date,
 })
 
 export type SearchCustomersByNameResult = typeof SearchCustomersByNameResult.Type
@@ -128,7 +112,7 @@ export type SearchCustomersByNameResult = typeof SearchCustomersByNameResult.Typ
 export const CreateCustomerParams = Schema.Struct({
   email: Schema.String,
   name: Schema.String,
-  phone: Schema.optional(Schema.String)
+  phone: Schema.optional(Schema.String),
 })
 
 export type CreateCustomerParams = typeof CreateCustomerParams.Type
@@ -140,7 +124,7 @@ export const CreateCustomerResult = Schema.Struct({
   name: Schema.String,
   phone: Schema.OptionFromNullOr(Schema.String),
   created_at: Schema.Date,
-  updated_at: Schema.Date
+  updated_at: Schema.Date,
 })
 
 export type CreateCustomerResult = typeof CreateCustomerResult.Type
@@ -150,7 +134,7 @@ export const UpdateCustomerParams = Schema.Struct({
   id: Schema.Int,
   email: Schema.String,
   name: Schema.String,
-  phone: Schema.optional(Schema.String)
+  phone: Schema.optional(Schema.String),
 })
 
 export type UpdateCustomerParams = typeof UpdateCustomerParams.Type
@@ -162,7 +146,7 @@ export const UpdateCustomerResult = Schema.Struct({
   name: Schema.String,
   phone: Schema.OptionFromNullOr(Schema.String),
   created_at: Schema.Date,
-  updated_at: Schema.Date
+  updated_at: Schema.Date,
 })
 
 export type UpdateCustomerResult = typeof UpdateCustomerResult.Type
@@ -170,28 +154,28 @@ export type UpdateCustomerResult = typeof UpdateCustomerResult.Type
 // UpdateCustomerEmail - Parameters Schema
 export const UpdateCustomerEmailParams = Schema.Struct({
   id: Schema.Int,
-  email: Schema.String
+  email: Schema.String,
 })
 
 export type UpdateCustomerEmailParams = typeof UpdateCustomerEmailParams.Type
 
 // DeleteCustomer - Parameters Schema
 export const DeleteCustomerParams = Schema.Struct({
-  id: Schema.Int
+  id: Schema.Int,
 })
 
 export type DeleteCustomerParams = typeof DeleteCustomerParams.Type
 
 // CountCustomers - Result Schema
 export const CountCustomersResult = Schema.Struct({
-  total: BigIntFromString
+  total: BigIntFromString,
 })
 
 export type CountCustomersResult = typeof CountCustomersResult.Type
 
 // GetCustomersByIds - Parameters Schema
 export const GetCustomersByIdsParams = Schema.Struct({
-  ids: Schema.Array(Schema.Int)
+  ids: Schema.Array(Schema.Int),
 })
 
 export type GetCustomersByIdsParams = typeof GetCustomersByIdsParams.Type
@@ -203,7 +187,7 @@ export const GetCustomersByIdsResult = Schema.Struct({
   name: Schema.String,
   phone: Schema.OptionFromNullOr(Schema.String),
   created_at: Schema.Date,
-  updated_at: Schema.Date
+  updated_at: Schema.Date,
 })
 
 export type GetCustomersByIdsResult = typeof GetCustomersByIdsResult.Type
@@ -264,6 +248,7 @@ export class CustomersRepository extends ServiceMap.Service<CustomersRepository,
 const customersRepositoryImpl = Effect.gen(function* () {
   const sql = yield* SqlClient.SqlClient
 
+
   // GetCustomer
   const getCustomer = SqlSchema.findOneOption({
     Request: GetCustomerParams,
@@ -272,6 +257,7 @@ const customersRepositoryImpl = Effect.gen(function* () {
 FROM customers
 WHERE id = $1`, [params.id])
   })
+
   // GetCustomerByEmail
   const getCustomerByEmail = SqlSchema.findOneOption({
     Request: GetCustomerByEmailParams,
@@ -280,6 +266,7 @@ WHERE id = $1`, [params.id])
 FROM customers
 WHERE email = $1`, [params.email])
   })
+
   // ListCustomers
   const listCustomers = SqlSchema.findAll({
     Request: Schema.Void,
@@ -288,6 +275,7 @@ WHERE email = $1`, [params.email])
 FROM customers
 ORDER BY created_at DESC`)
   })
+
   // ListCustomersPaginated
   const listCustomersPaginated = SqlSchema.findAll({
     Request: ListCustomersPaginatedParams,
@@ -297,6 +285,7 @@ FROM customers
 ORDER BY created_at DESC
 LIMIT $1 OFFSET $2`, [params.limit, params.offset])
   })
+
   // SearchCustomersByName
   const searchCustomersByName = SqlSchema.findAll({
     Request: SearchCustomersByNameParams,
@@ -306,6 +295,7 @@ FROM customers
 WHERE name ILIKE '%' || $1 || '%'
 ORDER BY name`, [params.arg1])
   })
+
   // CreateCustomer
   const createCustomer = SqlSchema.findOneOption({
     Request: CreateCustomerParams,
@@ -314,6 +304,7 @@ ORDER BY name`, [params.arg1])
 VALUES ($1, $2, $3)
 RETURNING id, email, name, phone, created_at, updated_at`, [params.email, params.name, params.phone])
   })
+
   // UpdateCustomer
   const updateCustomer = SqlSchema.findOneOption({
     Request: UpdateCustomerParams,
@@ -323,6 +314,7 @@ SET email = $2, name = $3, phone = $4, updated_at = NOW()
 WHERE id = $1
 RETURNING id, email, name, phone, created_at, updated_at`, [params.id, params.email, params.name, params.phone])
   })
+
   // UpdateCustomerEmail
   const updateCustomerEmail = SqlSchema.void({
     Request: UpdateCustomerEmailParams,
@@ -330,12 +322,14 @@ RETURNING id, email, name, phone, created_at, updated_at`, [params.id, params.em
 SET email = $2, updated_at = NOW()
 WHERE id = $1`, [params.id, params.email])
   })
+
   // DeleteCustomer
   const deleteCustomer = SqlSchema.void({
     Request: DeleteCustomerParams,
     execute: (params) => sql.unsafe(`DELETE FROM customers
 WHERE id = $1`, [params.id])
   })
+
   // CountCustomers
   const countCustomers = SqlSchema.findOneOption({
     Request: Schema.Void,
@@ -343,6 +337,7 @@ WHERE id = $1`, [params.id])
     execute: () => sql.unsafe(`SELECT COUNT(*) AS total
 FROM customers`)
   })
+
   // GetCustomersByIds
   const getCustomersByIds = SqlSchema.findAll({
     Request: GetCustomersByIdsParams,

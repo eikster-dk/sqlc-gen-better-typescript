@@ -114,17 +114,12 @@ func (e *Effect4) loadTemplate(log *logger.Logger) (*template.Template, error) {
 	}
 
 	// Create function map for template
+	// Most logic is now pre-computed in QueryView, keeping only what's needed
 	funcMap := template.FuncMap{
-		"pascalCase":          toPascalCase,
-		"camelCase":           toCamelCase,
-		"hasParams":           func(q models.Query) bool { return len(q.Params) > 0 },
-		"hasResults":          func(q models.Query) bool { return len(q.Results) > 0 },
-		"isOne":               func(q models.Query) bool { return q.Command == ":one" },
-		"isMany":              func(q models.Query) bool { return q.Command == ":many" },
-		"isExec":              func(q models.Query) bool { return q.Command == ":exec" },
-		"isExecRows":          func(q models.Query) bool { return q.Command == ":execrows" },
-		"paramsSchema":        e.generateParamsSchema,
-		"resultSchema":        e.generateResultSchema,
+		// String transformations (still needed for enums in Catalog)
+		"pascalCase": toPascalCase,
+
+		// SQL generation (operates on original Query)
 		"sqlWithPlaceholders": e.generateSQLWithPlaceholders,
 		"paramList":           e.generateParamList,
 	}
@@ -137,14 +132,46 @@ func (e *Effect4) loadTemplate(log *logger.Logger) (*template.Template, error) {
 	return tmpl, nil
 }
 
+// SchemaField represents a single field in a Schema.Struct for templates
+type SchemaField struct {
+	Name   string // Field name (camelCase for params, original for results)
+	Schema string // e.g., "Schema.Int", "Schema.optional(Schema.String)"
+}
+
+// QueryView is a pre-computed view of a Query for templates
+// This moves computation logic from templates to Go for better readability
+type QueryView struct {
+	// Names in different cases
+	Name       string // Original: "GetUser"
+	NamePascal string // "GetUser"
+	NameCamel  string // "getUser"
+
+	// Flags
+	HasParams  bool
+	HasResults bool
+
+	// Pre-computed template strings
+	ReturnType      string // "void" | "number" | "Option.Option<GetUserResult>" | "GetUserResult[]"
+	SqlSchemaMethod string // "SqlSchema.void" | "SqlSchema.findOneOption" | "SqlSchema.findAll" | "execRows"
+	RequestSchema   string // "Schema.Void" | "GetUserParams"
+
+	// Pre-computed schema fields for cleaner template iteration
+	ParamFields  []SchemaField // For params schema
+	ResultFields []SchemaField // For result schema
+
+	// Original query (for SQL and param list generation)
+	Query models.Query
+}
+
 type RepositoryData struct {
-	RepositoryName string
-	Filename       string
-	Queries        []models.Query
-	Catalog        *models.Catalog
-	Config         config.Config
-	SqlcVersion    string
-	PluginVersion  string
+	RepositoryName      string
+	RepositoryNameCamel string // e.g., "ordersRepository"
+	Filename            string
+	QueryViews          []QueryView
+	Catalog             *models.Catalog
+	Config              config.Config
+	SqlcVersion         string
+	PluginVersion       string
 }
 
 // PluginVersion is the version of this sqlc-effect plugin
@@ -152,15 +179,17 @@ const PluginVersion = "v0.1.0"
 
 func (e *Effect4) generateRepository(tmpl *template.Template, filename string, queries []models.Query, catalog *models.Catalog, sqlcVersion string, log *logger.Logger) (string, error) {
 	repoName := e.filenameToRepoName(filename)
+	queryViews := e.buildQueryViews(queries)
 
 	data := RepositoryData{
-		RepositoryName: repoName,
-		Filename:       filename,
-		Queries:        queries,
-		Catalog:        catalog,
-		Config:         e.cfg,
-		SqlcVersion:    sqlcVersion,
-		PluginVersion:  PluginVersion,
+		RepositoryName:      repoName,
+		RepositoryNameCamel: toCamelCase(repoName),
+		Filename:            filename,
+		QueryViews:          queryViews,
+		Catalog:             catalog,
+		Config:              e.cfg,
+		SqlcVersion:         sqlcVersion,
+		PluginVersion:       PluginVersion,
 	}
 
 	var buf bytes.Buffer
@@ -186,38 +215,91 @@ func cleanWhitespace(content string) string {
 	return strings.TrimSpace(content) + "\n"
 }
 
-// generateParamsSchema generates Schema.Struct for parameters
-func (e *Effect4) generateParamsSchema(query models.Query) string {
-	if len(query.Params) == 0 {
-		return "Schema.Struct({})"
+// buildQueryViews transforms a slice of queries into QueryViews with pre-computed values
+func (e *Effect4) buildQueryViews(queries []models.Query) []QueryView {
+	views := make([]QueryView, len(queries))
+	for i, q := range queries {
+		views[i] = e.buildQueryView(q)
 	}
-
-	var fields []string
-	for _, param := range query.Params {
-		fieldName := toCamelCase(param.Name)
-		schema := e.sqlTypeToEffectSchemaForParams(param.Type)
-		fields = append(fields, fmt.Sprintf("%s: %s", fieldName, schema))
-	}
-
-	return fmt.Sprintf("Schema.Struct({\n  %s\n})", strings.Join(fields, ",\n  "))
+	return views
 }
 
-// generateResultSchema generates Schema.Struct for results
-// Preserves original column names from SQL (no camelCase conversion)
-func (e *Effect4) generateResultSchema(query models.Query) string {
-	if len(query.Results) == 0 {
-		return "Schema.Struct({})"
+// buildQueryView creates a QueryView with all pre-computed template values
+func (e *Effect4) buildQueryView(q models.Query) QueryView {
+	namePascal := toPascalCase(q.Name)
+	nameCamel := toCamelCase(q.Name)
+	hasParams := len(q.Params) > 0
+	hasResults := len(q.Results) > 0
+
+	// Compute return type based on command
+	var returnType string
+	switch q.Command {
+	case ":exec":
+		returnType = "void"
+	case ":execrows":
+		returnType = "number"
+	case ":one":
+		returnType = fmt.Sprintf("Option.Option<%sResult>", namePascal)
+	default: // :many
+		returnType = fmt.Sprintf("%sResult[]", namePascal)
 	}
 
-	var fields []string
-	for _, result := range query.Results {
-		// Use original column name from SQL (preserves snake_case)
-		fieldName := result.Name
-		schema := e.sqlTypeToEffectSchemaForResults(result.Type)
-		fields = append(fields, fmt.Sprintf("%s: %s", fieldName, schema))
+	// Compute SqlSchema method
+	var sqlSchemaMethod string
+	switch q.Command {
+	case ":exec":
+		sqlSchemaMethod = "SqlSchema.void"
+	case ":execrows":
+		sqlSchemaMethod = "execRows"
+	case ":one":
+		sqlSchemaMethod = "SqlSchema.findOneOption"
+	default:
+		sqlSchemaMethod = "SqlSchema.findAll"
 	}
 
-	return fmt.Sprintf("Schema.Struct({\n  %s\n})", strings.Join(fields, ",\n  "))
+	// Compute request schema
+	requestSchema := "Schema.Void"
+	if hasParams {
+		requestSchema = namePascal + "Params"
+	}
+
+	return QueryView{
+		Name:            q.Name,
+		NamePascal:      namePascal,
+		NameCamel:       nameCamel,
+		HasParams:       hasParams,
+		HasResults:      hasResults,
+		ReturnType:      returnType,
+		SqlSchemaMethod: sqlSchemaMethod,
+		RequestSchema:   requestSchema,
+		ParamFields:     e.buildParamFields(q.Params),
+		ResultFields:    e.buildResultFields(q.Results),
+		Query:           q,
+	}
+}
+
+// buildParamFields converts query parameters to SchemaFields for template rendering
+func (e *Effect4) buildParamFields(params []models.Param) []SchemaField {
+	fields := make([]SchemaField, len(params))
+	for i, p := range params {
+		fields[i] = SchemaField{
+			Name:   toCamelCase(p.Name),
+			Schema: e.sqlTypeToEffectSchemaForParams(p.Type),
+		}
+	}
+	return fields
+}
+
+// buildResultFields converts query results to SchemaFields for template rendering
+func (e *Effect4) buildResultFields(results []models.ResultField) []SchemaField {
+	fields := make([]SchemaField, len(results))
+	for i, r := range results {
+		fields[i] = SchemaField{
+			Name:   r.Name, // Keep original column name (preserves snake_case)
+			Schema: e.sqlTypeToEffectSchemaForResults(r.Type),
+		}
+	}
+	return fields
 }
 
 // generateSQLWithPlaceholders returns the SQL to use

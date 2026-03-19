@@ -97,11 +97,13 @@
     {
       "Name": "GetSMSProducts",
       "SQL": "select id, name from sms_stories",
+      "RewrittenSQL": "select id, name from sms_stories",
       "Command": ":many",
       "Params": null,
       "Results": [
         {
           "Name": "id",
+          "OriginalName": "id",
           "Type": {
             "Name": "text",
             "Schema": "",
@@ -109,10 +111,12 @@
             "IsArray": false,
             "IsEnum": false
           },
-          "Table": "sms_stories"
+          "Table": "sms_stories",
+          "IsAliased": false
         },
         {
           "Name": "name",
+          "OriginalName": "name",
           "Type": {
             "Name": "text",
             "Schema": "",
@@ -120,17 +124,20 @@
             "IsArray": false,
             "IsEnum": false
           },
-          "Table": "sms_stories"
+          "Table": "sms_stories",
+          "IsAliased": false
         }
       ],
       "Tables": [
         "sms_stories"
       ],
-      "HasEnum": false
+      "HasEnum": false,
+      "Filename": "queries.sql"
     },
     {
       "Name": "GetByIds",
       "SQL": "select id, name from sms_stories where id in ($1)",
+      "RewrittenSQL": "select id, name from sms_stories where id in ($1)",
       "Command": ":many",
       "Params": [
         {
@@ -148,6 +155,7 @@
       "Results": [
         {
           "Name": "id",
+          "OriginalName": "id",
           "Type": {
             "Name": "text",
             "Schema": "",
@@ -155,10 +163,12 @@
             "IsArray": false,
             "IsEnum": false
           },
-          "Table": "sms_stories"
+          "Table": "sms_stories",
+          "IsAliased": false
         },
         {
           "Name": "name",
+          "OriginalName": "name",
           "Type": {
             "Name": "text",
             "Schema": "",
@@ -166,17 +176,20 @@
             "IsArray": false,
             "IsEnum": false
           },
-          "Table": "sms_stories"
+          "Table": "sms_stories",
+          "IsAliased": false
         }
       ],
       "Tables": [
         "sms_stories"
       ],
-      "HasEnum": false
+      "HasEnum": false,
+      "Filename": "queries.sql"
     },
     {
       "Name": "GetStory",
       "SQL": "select id, name from sms_stories where id = $1",
+      "RewrittenSQL": "select id, name from sms_stories where id = $1",
       "Command": ":one",
       "Params": [
         {
@@ -194,6 +207,7 @@
       "Results": [
         {
           "Name": "id",
+          "OriginalName": "id",
           "Type": {
             "Name": "text",
             "Schema": "",
@@ -201,10 +215,12 @@
             "IsArray": false,
             "IsEnum": false
           },
-          "Table": "sms_stories"
+          "Table": "sms_stories",
+          "IsAliased": false
         },
         {
           "Name": "name",
+          "OriginalName": "name",
           "Type": {
             "Name": "text",
             "Schema": "",
@@ -212,17 +228,20 @@
             "IsArray": false,
             "IsEnum": false
           },
-          "Table": "sms_stories"
+          "Table": "sms_stories",
+          "IsAliased": false
         }
       ],
       "Tables": [
         "sms_stories"
       ],
-      "HasEnum": false
+      "HasEnum": false,
+      "Filename": "queries.sql"
     },
     {
       "Name": "AddStory",
       "SQL": "insert into sms_stories (id, name) values ($1,$2)",
+      "RewrittenSQL": "insert into sms_stories (id, name) values ($1,$2)",
       "Command": ":exec",
       "Params": [
         {
@@ -250,16 +269,19 @@
       ],
       "Results": null,
       "Tables": [],
-      "HasEnum": false
+      "HasEnum": false,
+      "Filename": "queries.sql"
     },
     {
       "Name": "GetStories",
-      "SQL": "SELECT sms_stories.id, name, sender, sms_episodes.id, story_id, send_date, singular_content FROM sms_stories \ninner join sms_episodes on sms_stories.id  = sms_episodes.id",
+      "SQL": "SELECT sms_stories.id, name, sender, sms_episodes.id, story_id, send_date, singular_content FROM sms_stories \ninner join sms_episodes on sms_stories.id = sms_episodes.story_id",
+      "RewrittenSQL": "SELECT sms_stories.id, name, sender, sms_episodes.id AS sms_episodes_id, story_id, send_date, singular_content FROM sms_stories \ninner join sms_episodes on sms_stories.id = sms_episodes.story_id",
       "Command": ":many",
       "Params": null,
       "Results": [
         {
           "Name": "id",
+          "OriginalName": "id",
           "Type": {
             "Name": "text",
             "Schema": "",
@@ -267,10 +289,12 @@
             "IsArray": false,
             "IsEnum": false
           },
-          "Table": "sms_stories"
+          "Table": "sms_stories",
+          "IsAliased": false
         },
         {
           "Name": "name",
+          "OriginalName": "name",
           "Type": {
             "Name": "text",
             "Schema": "",
@@ -278,10 +302,12 @@
             "IsArray": false,
             "IsEnum": false
           },
-          "Table": "sms_stories"
+          "Table": "sms_stories",
+          "IsAliased": false
         },
         {
           "Name": "sender",
+          "OriginalName": "sender",
           "Type": {
             "Name": "text",
             "Schema": "",
@@ -289,10 +315,12 @@
             "IsArray": false,
             "IsEnum": false
           },
-          "Table": "sms_stories"
+          "Table": "sms_stories",
+          "IsAliased": false
         },
         {
-          "Name": "id",
+          "Name": "sms_episodes_id",
+          "OriginalName": "id",
           "Type": {
             "Name": "text",
             "Schema": "",
@@ -300,10 +328,12 @@
             "IsArray": false,
             "IsEnum": false
           },
-          "Table": "sms_episodes"
+          "Table": "sms_episodes",
+          "IsAliased": true
         },
         {
           "Name": "story_id",
+          "OriginalName": "story_id",
           "Type": {
             "Name": "text",
             "Schema": "",
@@ -311,10 +341,12 @@
             "IsArray": false,
             "IsEnum": false
           },
-          "Table": "sms_episodes"
+          "Table": "sms_episodes",
+          "IsAliased": false
         },
         {
           "Name": "send_date",
+          "OriginalName": "send_date",
           "Type": {
             "Name": "date",
             "Schema": "",
@@ -322,10 +354,12 @@
             "IsArray": false,
             "IsEnum": false
           },
-          "Table": "sms_episodes"
+          "Table": "sms_episodes",
+          "IsAliased": false
         },
         {
           "Name": "singular_content",
+          "OriginalName": "singular_content",
           "Type": {
             "Name": "text",
             "Schema": "",
@@ -333,14 +367,16 @@
             "IsArray": false,
             "IsEnum": false
           },
-          "Table": "sms_episodes"
+          "Table": "sms_episodes",
+          "IsAliased": false
         }
       ],
       "Tables": [
         "sms_stories",
         "sms_episodes"
       ],
-      "HasEnum": false
+      "HasEnum": false,
+      "Filename": "queries.sql"
     }
   ]
 }

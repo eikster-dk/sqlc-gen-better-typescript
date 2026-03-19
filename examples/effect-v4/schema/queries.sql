@@ -12,5 +12,4 @@ insert into sms_stories (id, name) values ($1,$2);
 
 -- name: GetStories :many
 SELECT * FROM sms_stories 
-inner join sms_episodes on sms_stories.id  = sms_episodes.id;
-
+inner join sms_episodes on sms_stories.id = sms_episodes.story_id;

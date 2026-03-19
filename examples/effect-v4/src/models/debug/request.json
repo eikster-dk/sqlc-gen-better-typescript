@@ -300,7 +300,7 @@
       }
     },
     {
-      "text": "SELECT sms_stories.id, name, sender, sms_episodes.id, story_id, send_date, singular_content FROM sms_stories \ninner join sms_episodes on sms_stories.id  = sms_episodes.id",
+      "text": "SELECT sms_stories.id, name, sender, sms_episodes.id, story_id, send_date, singular_content FROM sms_stories \ninner join sms_episodes on sms_stories.id = sms_episodes.story_id",
       "name": "GetStories",
       "cmd": ":many",
       "columns": [

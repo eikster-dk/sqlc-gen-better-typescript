@@ -9,21 +9,21 @@ importers:
   .:
     dependencies:
       '@effect/platform-node':
-        specifier: 4.0.0-beta.29
-        version: 4.0.0-beta.29(effect@4.0.0-beta.29)(ioredis@5.10.0)
+        specifier: 4.0.0-beta.35
+        version: 4.0.0-beta.35(effect@4.0.0-beta.35)(ioredis@5.10.0)
       '@effect/sql-pg':
-        specifier: 4.0.0-beta.29
-        version: 4.0.0-beta.29(effect@4.0.0-beta.29)
+        specifier: 4.0.0-beta.35
+        version: 4.0.0-beta.35(effect@4.0.0-beta.35)
       effect:
-        specifier: 4.0.0-beta.29
-        version: 4.0.0-beta.29
+        specifier: 4.0.0-beta.35
+        version: 4.0.0-beta.35
     devDependencies:
       '@effect/language-service':
         specifier: ^0.79.0
         version: 0.79.0
       '@effect/vitest':
-        specifier: 4.0.0-beta.29
-        version: 4.0.0-beta.29(effect@4.0.0-beta.29)(vitest@3.2.4(@types/node@25.5.0)(yaml@2.8.2))
+        specifier: 4.0.0-beta.35
+        version: 4.0.0-beta.35(effect@4.0.0-beta.35)(vitest@3.2.4(@types/node@25.5.0)(yaml@2.8.2))
       '@testcontainers/postgresql':
         specifier: ^10.18.0
         version: 10.28.0
@@ -52,22 +52,22 @@ packages:
     peerDependencies:
       effect: ^4.0.0-beta.35
 
-  '@effect/platform-node@4.0.0-beta.29':
-    resolution: {integrity: sha512-lAJZrx/PnBWkf+X/iox0MRDnc+XpEIbVJEmiLhR7KrpuyzwNrlUmgRy9fHoGJMbcxqkHrXUh+rj9g7UGPYX3rQ==}
+  '@effect/platform-node@4.0.0-beta.35':
+    resolution: {integrity: sha512-HPc2xZASl9F9y/xJ01bQgFD6Jf9XP4Fcv/BlVTvG0Yr/uN63lwKZYr/VXor5K5krHfBDeCBD8y7/SICPYZoq3A==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
-      effect: ^4.0.0-beta.29
+      effect: ^4.0.0-beta.35
       ioredis: ^5.7.0
 
-  '@effect/sql-pg@4.0.0-beta.29':
-    resolution: {integrity: sha512-vOb5y7m2oWGh2aqvhUBQUCfpC/CrEgFjNIvE7nsWUh4COuF2sAH1RP7UdBmFsIU1NFAyV+X5f/DFW2Ne2gJzeQ==}
+  '@effect/sql-pg@4.0.0-beta.35':
+    resolution: {integrity: sha512-K4cldFZttYu+Wulynly+7Hr8rpmTZTx8/Lq7fOYnfvCPJROQMPZDRP9Wjc6ImcRfoQVe7Kq0zITDf1OxnoWKoQ==}
     peerDependencies:
-      effect: ^4.0.0-beta.29
+      effect: ^4.0.0-beta.35
 
-  '@effect/vitest@4.0.0-beta.29':
-    resolution: {integrity: sha512-5HoZOUd82lpEoiTuWUw0lWxudaT1xY6kKd3KFNI1Kpg12uKd4Oh9gXrMncIuHxDKhrvVP6yerEIg13L3gZNshQ==}
+  '@effect/vitest@4.0.0-beta.35':
+    resolution: {integrity: sha512-wdt6j7yNL8cYXSyi1QWch4UPpjB0C7QBzStmdMSmIzAZ3ZVAUcyQkdfg/hnUJt6NPZMdjVmbI7m93ml5Mqqnhw==}
     peerDependencies:
-      effect: ^4.0.0-beta.29
+      effect: ^4.0.0-beta.35
       vitest: ^3.0.0 || ^4.0.0
 
   '@esbuild/aix-ppc64@0.27.4':
@@ -737,8 +737,8 @@ packages:
   eastasianwidth@0.2.0:
     resolution: {integrity: sha512-I88TYZWc9XiYHRQ4/3c5rjjfgkjhLyW2luGIheGERbNQ6OY7yTybanSpDXZa8y7VUP9YmDcYa+eyq4ca7iLqWA==}
 
-  effect@4.0.0-beta.29:
-    resolution: {integrity: sha512-7UoBAEiktoS81XLMX/39Mq/Ymq8whxmqFpsI0MEYdMlbDcbytzQlyuyhvrwEIdrd9qrqa8DZ5mKblWasamryqw==}
+  effect@4.0.0-beta.35:
+    resolution: {integrity: sha512-64j8dgJmoEMeq6Y3WLYcZIRqPZ5E/lqnULCf6QW5te3hQ/sa13UodWLGwBEviEqBoq72U8lArhVX+T7ntzhJGQ==}
 
   emoji-regex@8.0.0:
     resolution: {integrity: sha512-MSjYzcWNOA0ewAHpz0MxpYFvwg6yjy1NG3xteoqz644VCo/RPgnr1/GGt+ic3iJTzQ8Eu3TdM14SawnVUmGE6A==}
@@ -1427,19 +1427,19 @@ snapshots:
 
   '@effect/language-service@0.79.0': {}
 
-  '@effect/platform-node-shared@4.0.0-beta.35(effect@4.0.0-beta.29)':
+  '@effect/platform-node-shared@4.0.0-beta.35(effect@4.0.0-beta.35)':
     dependencies:
       '@types/ws': 8.18.1
-      effect: 4.0.0-beta.29
+      effect: 4.0.0-beta.35
       ws: 8.19.0
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
 
-  '@effect/platform-node@4.0.0-beta.29(effect@4.0.0-beta.29)(ioredis@5.10.0)':
+  '@effect/platform-node@4.0.0-beta.35(effect@4.0.0-beta.35)(ioredis@5.10.0)':
     dependencies:
-      '@effect/platform-node-shared': 4.0.0-beta.35(effect@4.0.0-beta.29)
-      effect: 4.0.0-beta.29
+      '@effect/platform-node-shared': 4.0.0-beta.35(effect@4.0.0-beta.35)
+      effect: 4.0.0-beta.35
       ioredis: 5.10.0
       mime: 4.1.0
       undici: 7.24.4
@@ -1447,9 +1447,9 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
-  '@effect/sql-pg@4.0.0-beta.29(effect@4.0.0-beta.29)':
+  '@effect/sql-pg@4.0.0-beta.35(effect@4.0.0-beta.35)':
     dependencies:
-      effect: 4.0.0-beta.29
+      effect: 4.0.0-beta.35
       pg: 8.20.0
       pg-connection-string: 2.11.0
       pg-cursor: 2.19.0(pg@8.20.0)
@@ -1458,9 +1458,9 @@ snapshots:
     transitivePeerDependencies:
       - pg-native
 
-  '@effect/vitest@4.0.0-beta.29(effect@4.0.0-beta.29)(vitest@3.2.4(@types/node@25.5.0)(yaml@2.8.2))':
+  '@effect/vitest@4.0.0-beta.35(effect@4.0.0-beta.35)(vitest@3.2.4(@types/node@25.5.0)(yaml@2.8.2))':
     dependencies:
-      effect: 4.0.0-beta.29
+      effect: 4.0.0-beta.35
       vitest: 3.2.4(@types/node@25.5.0)(yaml@2.8.2)
 
   '@esbuild/aix-ppc64@0.27.4':
@@ -2007,7 +2007,7 @@ snapshots:
 
   eastasianwidth@0.2.0: {}
 
-  effect@4.0.0-beta.29:
+  effect@4.0.0-beta.35:
     dependencies:
       '@standard-schema/spec': 1.1.0
       fast-check: 4.6.0

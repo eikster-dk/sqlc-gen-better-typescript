@@ -1,0 +1,269 @@
+[
+  {
+    "text": "select id, name from sms_stories",
+    "name": "GetSMSProducts",
+    "cmd": ":many",
+    "columns": [
+      {
+        "name": "id",
+        "not_null": true,
+        "length": -1,
+        "table": {
+          "name": "sms_stories"
+        },
+        "type": {
+          "name": "text"
+        },
+        "original_name": "id"
+      },
+      {
+        "name": "name",
+        "not_null": true,
+        "length": -1,
+        "table": {
+          "name": "sms_stories"
+        },
+        "type": {
+          "name": "text"
+        },
+        "original_name": "name"
+      }
+    ],
+    "filename": "queries.sql"
+  },
+  {
+    "text": "select id, name from sms_stories where id in ($1)",
+    "name": "GetByIds",
+    "cmd": ":many",
+    "columns": [
+      {
+        "name": "id",
+        "not_null": true,
+        "length": -1,
+        "table": {
+          "name": "sms_stories"
+        },
+        "type": {
+          "name": "text"
+        },
+        "original_name": "id"
+      },
+      {
+        "name": "name",
+        "not_null": true,
+        "length": -1,
+        "table": {
+          "name": "sms_stories"
+        },
+        "type": {
+          "name": "text"
+        },
+        "original_name": "name"
+      }
+    ],
+    "params": [
+      {
+        "number": 1,
+        "column": {
+          "name": "ids",
+          "not_null": true,
+          "length": -1,
+          "is_named_param": true,
+          "table": {
+            "name": "sms_stories"
+          },
+          "type": {
+            "name": "text"
+          },
+          "is_sqlc_slice": true,
+          "original_name": "id"
+        }
+      }
+    ],
+    "filename": "queries.sql"
+  },
+  {
+    "text": "select id, name from sms_stories where id = $1",
+    "name": "GetStory",
+    "cmd": ":one",
+    "columns": [
+      {
+        "name": "id",
+        "not_null": true,
+        "length": -1,
+        "table": {
+          "name": "sms_stories"
+        },
+        "type": {
+          "name": "text"
+        },
+        "original_name": "id"
+      },
+      {
+        "name": "name",
+        "not_null": true,
+        "length": -1,
+        "table": {
+          "name": "sms_stories"
+        },
+        "type": {
+          "name": "text"
+        },
+        "original_name": "name"
+      }
+    ],
+    "params": [
+      {
+        "number": 1,
+        "column": {
+          "name": "id",
+          "not_null": true,
+          "length": -1,
+          "table": {
+            "name": "sms_stories"
+          },
+          "type": {
+            "name": "text"
+          },
+          "original_name": "id"
+        }
+      }
+    ],
+    "filename": "queries.sql"
+  },
+  {
+    "text": "insert into sms_stories (id, name) values ($1,$2)",
+    "name": "AddStory",
+    "cmd": ":exec",
+    "params": [
+      {
+        "number": 1,
+        "column": {
+          "name": "id",
+          "not_null": true,
+          "length": -1,
+          "table": {
+            "schema": "public",
+            "name": "sms_stories"
+          },
+          "type": {
+            "name": "text"
+          },
+          "original_name": "id"
+        }
+      },
+      {
+        "number": 2,
+        "column": {
+          "name": "name",
+          "not_null": true,
+          "length": -1,
+          "table": {
+            "schema": "public",
+            "name": "sms_stories"
+          },
+          "type": {
+            "name": "text"
+          },
+          "original_name": "name"
+        }
+      }
+    ],
+    "filename": "queries.sql",
+    "insert_into_table": {
+      "name": "sms_stories"
+    }
+  },
+  {
+    "text": "SELECT sms_stories.id, name, sender, sms_episodes.id, story_id, send_date, singular_content FROM sms_stories \ninner join sms_episodes on sms_stories.id  = sms_episodes.id",
+    "name": "GetStories",
+    "cmd": ":many",
+    "columns": [
+      {
+        "name": "id",
+        "not_null": true,
+        "length": -1,
+        "table": {
+          "name": "sms_stories"
+        },
+        "type": {
+          "name": "text"
+        },
+        "original_name": "id"
+      },
+      {
+        "name": "name",
+        "not_null": true,
+        "length": -1,
+        "table": {
+          "name": "sms_stories"
+        },
+        "type": {
+          "name": "text"
+        },
+        "original_name": "name"
+      },
+      {
+        "name": "sender",
+        "not_null": true,
+        "length": -1,
+        "table": {
+          "name": "sms_stories"
+        },
+        "type": {
+          "name": "text"
+        },
+        "original_name": "sender"
+      },
+      {
+        "name": "id",
+        "not_null": true,
+        "length": -1,
+        "table": {
+          "name": "sms_episodes"
+        },
+        "type": {
+          "name": "text"
+        },
+        "original_name": "id"
+      },
+      {
+        "name": "story_id",
+        "not_null": true,
+        "length": -1,
+        "table": {
+          "name": "sms_episodes"
+        },
+        "type": {
+          "name": "text"
+        },
+        "original_name": "story_id"
+      },
+      {
+        "name": "send_date",
+        "not_null": true,
+        "length": -1,
+        "table": {
+          "name": "sms_episodes"
+        },
+        "type": {
+          "name": "date"
+        },
+        "original_name": "send_date"
+      },
+      {
+        "name": "singular_content",
+        "not_null": true,
+        "length": -1,
+        "table": {
+          "name": "sms_episodes"
+        },
+        "type": {
+          "name": "text"
+        },
+        "original_name": "singular_content"
+      }
+    ],
+    "filename": "queries.sql"
+  }
+]

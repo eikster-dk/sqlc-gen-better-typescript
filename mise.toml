@@ -1,3 +1,4 @@
 [tools]
 go = "1.26"
+goreleaser = "latest"
 sqlc = "1.30"

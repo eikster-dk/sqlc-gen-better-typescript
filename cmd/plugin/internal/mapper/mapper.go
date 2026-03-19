@@ -97,6 +97,7 @@ func (m *Mapper) mapQuery(q *plugin.Query) models.Query {
 
 func (m *Mapper) mapParams(params []*plugin.Parameter) []models.Param {
 	var result []models.Param
+	nameCount := make(map[string]int) // Track parameter name occurrences for deduplication
 
 	for i, p := range params {
 		name := ""
@@ -105,6 +106,12 @@ func (m *Mapper) mapParams(params []*plugin.Parameter) []models.Param {
 		}
 		if name == "" {
 			name = fmt.Sprintf("arg%d", i+1)
+		}
+
+		// Handle duplicate parameter names by suffixing with _2, _3, etc.
+		nameCount[name]++
+		if nameCount[name] > 1 {
+			name = fmt.Sprintf("%s_%d", name, nameCount[name])
 		}
 
 		position := int(p.Number)

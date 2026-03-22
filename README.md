@@ -111,22 +111,9 @@ The plugin uses a **builder** architecture to support different code generation 
 
 The `effect-v4-unstable` builder generates idiomatic Effect v4 code using the `effect/unstable/sql` module.
 
-#### SQL Injection Safety
+#### SQL Generation
 
-The generated code uses `sql.unsafe()` from Effect's SQL module, but **this is safe from SQL injection**. Despite the name, `sql.unsafe()` simply indicates that the query string is not built using Effect's tagged template literal. The generated queries use PostgreSQL's parameterized placeholders (`$1`, `$2`, etc.) with values passed as a separate array:
-
-```typescript
-sql.unsafe(
-  `SELECT * FROM customers WHERE id = $1 AND email = $2`,
-  [params.id, params.email]  // Values are safely parameterized
-)
-```
-
-The parameters are never interpolated into the SQL string - they are sent separately to PostgreSQL, which handles them safely. This is the same protection you get from prepared statements.
-
-#### Template Literals
-
-By default, the plugin generates code using Effect's `sql` tagged template literal:
+By default, the plugin transforms sqlc's parameterized SQL into Effect's tagged template literal syntax:
 
 ```typescript
 // Default output (template literals)
@@ -137,7 +124,9 @@ execute: (params) => sql`SELECT * FROM customers WHERE id = ${params.id} AND ema
 
 The original SQL query is included as a comment above each query implementation for reference.
 
-If you need to use `sql.unsafe()` instead (e.g., for compatibility reasons), you can disable template literals:
+#### Preserving Original SQL
+
+If you prefer to keep the sqlc-generated SQL statements unmodified, you can disable template literal transformation:
 
 ```yaml
 options:
@@ -145,7 +134,7 @@ options:
   disable_template_literals: true
 ```
 
-This generates:
+This uses `sql.unsafe()` which passes the SQL exactly as sqlc generated it:
 
 ```typescript
 // With disable_template_literals: true
@@ -157,7 +146,11 @@ execute: (params) => sql.unsafe(
 )
 ```
 
-Both approaches are equally safe from SQL injection - this is purely a stylistic preference.
+Both approaches are equally safe from SQL injection. The choice is between:
+- **Template literals (default)**: Cleaner syntax, but transforms the SQL by replacing `$1`, `$2` placeholders with interpolated parameters
+- **sql.unsafe()**: Preserves the original sqlc-generated SQL without modification
+
+> **Note:** In both cases, the plugin may still modify SQL to handle edge cases like duplicate column names (e.g., `id` becomes `id`, `id_2`, `id_3`).
 
 #### Repository Pattern
 
@@ -311,7 +304,7 @@ sql:
 | Option | Type | Required | Default | Description |
 |--------|------|----------|---------|-------------|
 | `builder` | string | Yes | - | The code generation builder to use. Must be one of the available builders (e.g., `effect-v4-unstable`). |
-| `disable_template_literals` | boolean | No | `false` | Disable template literals and use `sql.unsafe()` instead. See [Template Literals](#template-literals). |
+| `disable_template_literals` | boolean | No | `false` | Preserve original sqlc SQL using `sql.unsafe()` instead of transforming to template literals. See [Preserving Original SQL](#preserving-original-sql). |
 | `debug` | boolean | No | `false` | Enable debug mode to output intermediate representations and detailed logs during code generation. |
 | `debug_dir` | string | No | `"debug"` | Directory where debug output files are written when debug mode is enabled. |
 

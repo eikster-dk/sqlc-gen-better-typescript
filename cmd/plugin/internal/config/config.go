@@ -8,9 +8,10 @@ import (
 )
 
 type Config struct {
-	Builder  string `json:"builder"`
-	Debug    bool   `json:"debug"`     // Enable debug mode
-	DebugDir string `json:"debug_dir"` // Optional, defaults to "debug"
+	Builder                 string `json:"builder"`
+	Debug                   bool   `json:"debug"`                     // Enable debug mode
+	DebugDir                string `json:"debug_dir"`                 // Optional, defaults to "debug"
+	DisableTemplateLiterals bool   `json:"disable_template_literals"` // Opt-out: use sql.unsafe instead of template literals
 }
 
 var ValidBuilders = []string{

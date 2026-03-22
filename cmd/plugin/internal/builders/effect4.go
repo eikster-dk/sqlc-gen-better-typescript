@@ -120,9 +120,8 @@ func (e *Effect4) loadTemplate(log *logger.Logger) (*template.Template, error) {
 		// String transformations (still needed for enums in Catalog)
 		"pascalCase": toPascalCase,
 
-		// SQL generation (operates on original Query)
-		"sqlWithPlaceholders": e.generateSQLWithPlaceholders,
-		"paramList":           e.generateParamList,
+		// Utility functions for template rendering
+		"splitLines": splitLines,
 	}
 
 	tmpl, err := template.New("repository").Funcs(funcMap).Parse(string(tmplContent))
@@ -147,6 +146,9 @@ type QueryView struct {
 	NamePascal string // "GetUser"
 	NameCamel  string // "getUser"
 
+	// Command type (for helper flag computation)
+	Command string // ":one", ":many", ":exec", ":execrows"
+
 	// Flags
 	HasParams  bool
 	HasResults bool
@@ -160,8 +162,11 @@ type QueryView struct {
 	ParamFields  []SchemaField // For params schema
 	ResultFields []SchemaField // For result schema
 
-	// Original query (for SQL and param list generation)
-	Query models.Query
+	// SQL-related fields
+	OriginalSQL         string // The SQL (with explicit column aliases if needed)
+	SQLTemplateLiteral  string // Transformed SQL with ${params.name} (default, unless disabled)
+	ParamList           string // e.g., "params.id, params.name" for sql.unsafe
+	UseTemplateLiterals bool   // True by default, false if disable_template_literals is set
 }
 
 type RepositoryData struct {
@@ -181,7 +186,7 @@ type RepositoryData struct {
 
 func (e *Effect4) generateRepository(tmpl *template.Template, filename string, queries []models.Query, catalog *models.Catalog, sqlcVersion string, log *logger.Logger) (string, error) {
 	repoName := e.filenameToRepoName(filename)
-	queryViews := e.buildQueryViews(queries)
+	queryViews := e.buildQueryViews(queries, log)
 
 	// Compute which helpers are needed
 	needsBigInt, needsExecRows := e.computeHelperFlags(queryViews)
@@ -226,7 +231,7 @@ func cleanWhitespace(content string) string {
 func (e *Effect4) computeHelperFlags(views []QueryView) (needsBigInt, needsExecRows bool) {
 	for _, v := range views {
 		// Check if any query uses :execrows
-		if v.Query.Command == ":execrows" {
+		if v.Command == ":execrows" {
 			needsExecRows = true
 		}
 
@@ -251,16 +256,16 @@ func (e *Effect4) computeHelperFlags(views []QueryView) (needsBigInt, needsExecR
 }
 
 // buildQueryViews transforms a slice of queries into QueryViews with pre-computed values
-func (e *Effect4) buildQueryViews(queries []models.Query) []QueryView {
+func (e *Effect4) buildQueryViews(queries []models.Query, log *logger.Logger) []QueryView {
 	views := make([]QueryView, len(queries))
 	for i, q := range queries {
-		views[i] = e.buildQueryView(q)
+		views[i] = e.buildQueryView(q, log)
 	}
 	return views
 }
 
 // buildQueryView creates a QueryView with all pre-computed template values
-func (e *Effect4) buildQueryView(q models.Query) QueryView {
+func (e *Effect4) buildQueryView(q models.Query, log *logger.Logger) QueryView {
 	namePascal := toPascalCase(q.Name)
 	nameCamel := toCamelCase(q.Name)
 	hasParams := len(q.Params) > 0
@@ -298,19 +303,50 @@ func (e *Effect4) buildQueryView(q models.Query) QueryView {
 		requestSchema = namePascal + "Params"
 	}
 
-	return QueryView{
-		Name:            q.Name,
-		NamePascal:      namePascal,
-		NameCamel:       nameCamel,
-		HasParams:       hasParams,
-		HasResults:      hasResults,
-		ReturnType:      returnType,
-		SqlSchemaMethod: sqlSchemaMethod,
-		RequestSchema:   requestSchema,
-		ParamFields:     e.buildParamFields(q.Params),
-		ResultFields:    e.buildResultFields(q.Results),
-		Query:           q,
+	// Template literals are enabled by default, disabled via config
+	useTemplateLiterals := !e.cfg.DisableTemplateLiterals
+
+	view := QueryView{
+		Name:                q.Name,
+		NamePascal:          namePascal,
+		NameCamel:           nameCamel,
+		Command:             q.Command,
+		HasParams:           hasParams,
+		HasResults:          hasResults,
+		ReturnType:          returnType,
+		SqlSchemaMethod:     sqlSchemaMethod,
+		RequestSchema:       requestSchema,
+		ParamFields:         e.buildParamFields(q.Params),
+		ResultFields:        e.buildResultFields(q.Results),
+		OriginalSQL:         q.RewrittenSQL,
+		ParamList:           e.generateParamList(q.Params),
+		UseTemplateLiterals: useTemplateLiterals,
 	}
+
+	// Generate template literal version if enabled (default)
+	if useTemplateLiterals {
+		if hasParams {
+			transformer := &SQLTransformer{}
+			result, err := transformer.Transform(q.RewrittenSQL, q.Params, log)
+			if err != nil {
+				log.Warn("Failed to transform SQL to template literal, falling back to original",
+					logger.F("query", q.Name),
+					logger.F("error", err.Error()))
+				// On error, use original SQL as template literal
+				view.SQLTemplateLiteral = q.RewrittenSQL
+			} else {
+				view.SQLTemplateLiteral = result.TemplateLiteral
+				log.Debug("Successfully transformed SQL to template literal",
+					logger.F("query", q.Name),
+					logger.F("replacements", result.ReplacementsMade))
+			}
+		} else {
+			// No params, just use the SQL directly
+			view.SQLTemplateLiteral = q.RewrittenSQL
+		}
+	}
+
+	return view
 }
 
 // buildParamFields converts query parameters to SchemaFields for template rendering
@@ -337,30 +373,19 @@ func (e *Effect4) buildResultFields(results []models.ResultField) []SchemaField 
 	return fields
 }
 
-// generateSQLWithPlaceholders returns the SQL to use
-// Uses RewrittenSQL if available (with explicit column aliases), otherwise original SQL
-func (e *Effect4) generateSQLWithPlaceholders(query models.Query) string {
-	// Use rewritten SQL if available (has explicit column aliases for duplicates)
-	// Otherwise fall back to original SQL
-	if query.RewrittenSQL != "" && query.RewrittenSQL != query.SQL {
-		return query.RewrittenSQL
-	}
-	return query.SQL
-}
-
-// generateParamList generates the parameter array for sql.unsafe
-func (e *Effect4) generateParamList(query models.Query) string {
-	if len(query.Params) == 0 {
+// generateParamList generates the parameter array string for sql.unsafe (e.g., "params.id, params.name")
+func (e *Effect4) generateParamList(params []models.Param) string {
+	if len(params) == 0 {
 		return ""
 	}
 
-	var params []string
-	for _, param := range query.Params {
+	var parts []string
+	for _, param := range params {
 		paramName := toCamelCase(param.Name)
-		params = append(params, fmt.Sprintf("params.%s", paramName))
+		parts = append(parts, fmt.Sprintf("params.%s", paramName))
 	}
 
-	return strings.Join(params, ", ")
+	return strings.Join(parts, ", ")
 }
 
 // sqlTypeToEffectSchemaBase converts internal SqlType to Effect Schema expression
@@ -503,6 +528,11 @@ func toCamelCase(s string) string {
 	}
 
 	return strings.ToLower(pascal[:1]) + pascal[1:]
+}
+
+// splitLines splits a string into lines for template rendering
+func splitLines(s string) []string {
+	return strings.Split(s, "\n")
 }
 
 var _ Builder = (*Effect4)(nil)

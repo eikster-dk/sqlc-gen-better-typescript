@@ -12,5 +12,6 @@ sql:
     plugin: effect
     options: 
       builder: effect-v4-unstable
+      # disable_template_literals: true
       # debug: true
       # debug_dir: debug

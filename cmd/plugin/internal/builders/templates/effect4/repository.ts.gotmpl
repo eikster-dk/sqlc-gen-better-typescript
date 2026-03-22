@@ -120,7 +120,11 @@ export class {{.RepositoryName}} extends ServiceMap.Service<{{.RepositoryName}},
      Context: QueryView
      ------------------------------------------------------------ */}}
 {{define "execute-fn" -}}
-{{- if .HasParams}}(params) => {{else}}() => {{end}}sql.unsafe(`{{sqlWithPlaceholders .Query}}`{{if .HasParams}}, [{{paramList .Query}}]{{end}})
+{{- if .UseTemplateLiterals -}}
+{{- if .HasParams}}(params) => {{else}}() => {{end -}}sql`{{.SQLTemplateLiteral}}`
+{{- else -}}
+{{- if .HasParams}}(params) => {{else}}() => {{end -}}sql.unsafe(`{{.OriginalSQL}}`{{if .HasParams}}, [{{.ParamList}}]{{end}})
+{{- end -}}
 {{- end}}
 
 {{/* ------------------------------------------------------------
@@ -129,6 +133,10 @@ export class {{.RepositoryName}} extends ServiceMap.Service<{{.RepositoryName}},
      ------------------------------------------------------------ */}}
 {{define "query-impl"}}
   // {{.Name}}
+{{- $sqlLines := splitLines .OriginalSQL }}
+{{- range $sqlLines }}
+  // {{ . }}
+{{- end }}
   const {{.NameCamel}} = {{.SqlSchemaMethod}}({
     Request: {{.RequestSchema}},
 {{- if .HasResults }}

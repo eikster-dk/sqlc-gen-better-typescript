@@ -124,7 +124,40 @@ sql.unsafe(
 
 The parameters are never interpolated into the SQL string - they are sent separately to PostgreSQL, which handles them safely. This is the same protection you get from prepared statements.
 
-> **Note:** There is an open issue about enhancing the sql package with `sql.exec()` so we can avoid using sql.unsafe(). See [Effect-TS/effect#3719](https://github.com/Effect-TS/effect/issues/3719) for details.
+#### Template Literals
+
+By default, the plugin generates code using Effect's `sql` tagged template literal:
+
+```typescript
+// Default output (template literals)
+// GetCustomer
+// SELECT * FROM customers WHERE id = $1 AND email = $2
+execute: (params) => sql`SELECT * FROM customers WHERE id = ${params.id} AND email = ${params.email}`
+```
+
+The original SQL query is included as a comment above each query implementation for reference.
+
+If you need to use `sql.unsafe()` instead (e.g., for compatibility reasons), you can disable template literals:
+
+```yaml
+options:
+  builder: effect-v4-unstable
+  disable_template_literals: true
+```
+
+This generates:
+
+```typescript
+// With disable_template_literals: true
+// GetCustomer
+// SELECT * FROM customers WHERE id = $1 AND email = $2
+execute: (params) => sql.unsafe(
+  `SELECT * FROM customers WHERE id = $1 AND email = $2`,
+  [params.id, params.email]
+)
+```
+
+Both approaches are equally safe from SQL injection - this is purely a stylistic preference.
 
 #### Repository Pattern
 
@@ -278,6 +311,7 @@ sql:
 | Option | Type | Required | Default | Description |
 |--------|------|----------|---------|-------------|
 | `builder` | string | Yes | - | The code generation builder to use. Must be one of the available builders (e.g., `effect-v4-unstable`). |
+| `disable_template_literals` | boolean | No | `false` | Disable template literals and use `sql.unsafe()` instead. See [Template Literals](#template-literals). |
 | `debug` | boolean | No | `false` | Enable debug mode to output intermediate representations and detailed logs during code generation. |
 | `debug_dir` | string | No | `"debug"` | Directory where debug output files are written when debug mode is enabled. |
 

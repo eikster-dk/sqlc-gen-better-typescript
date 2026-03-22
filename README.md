@@ -97,6 +97,96 @@ const program = Effect.gen(function* () {
 })
 ```
 
+### Nested Results with `sqlc.embed`
+
+Use `sqlc.embed` to group columns from joined tables into nested structures. This is useful for queries that join multiple tables and you want the result to reflect that structure.
+
+Write a SQL query with embeds:
+
+```sql
+-- name: GetOrderWithCustomer :one
+SELECT sqlc.embed(orders), sqlc.embed(customers)
+FROM orders
+JOIN customers ON orders.customer_id = customers.id
+WHERE orders.id = $1;
+```
+
+Get a nested result type:
+
+```typescript
+// Generated automatically - Row schema represents flat database result
+const GetOrderWithCustomerRow = Schema.Struct({
+  orders_id: Schema.Int,
+  orders_customer_id: Schema.Int,
+  orders_status: OrderStatusSchema,
+  orders_total_cents: Schema.Int,
+  orders_shipping_address: Schema.NullOr(Schema.String),
+  // ... more orders columns
+  customers_id: Schema.Int,
+  customers_email: Schema.String,
+  customers_name: Schema.String,
+  // ... more customers columns
+})
+
+// Nested embed schemas with proper Option handling
+const OrderEmbed = Schema.Struct({
+  id: Schema.Int,
+  customer_id: Schema.Int,
+  status: OrderStatusSchema,  // Enums are preserved
+  total_cents: Schema.Int,
+  shipping_address: Schema.OptionFromNullOr(Schema.String),  // Nullable -> Option
+  // ...
+})
+
+const CustomerEmbed = Schema.Struct({
+  id: Schema.Int,
+  email: Schema.String,
+  name: Schema.String,
+  // ...
+})
+
+// Result schema transforms flat rows to nested structure
+export const GetOrderWithCustomerResult = GetOrderWithCustomerRow.pipe(
+  Schema.decodeTo(
+    Schema.Struct({
+      order: OrderEmbed,      // Singularized table name
+      customer: CustomerEmbed,
+    }),
+    SchemaTransformation.transform({
+      decode: (row) => ({
+        order: {
+          id: row.orders_id,
+          customer_id: row.orders_customer_id,
+          status: row.orders_status,
+          shipping_address: row.orders_shipping_address,
+          // ...
+        },
+        customer: {
+          id: row.customers_id,
+          email: row.customers_email,
+          name: row.customers_name,
+          // ...
+        },
+      }),
+      encode: () => { throw new Error("Encode not supported for sqlc.embed queries"); },
+    })
+  )
+)
+
+// Result type is nested:
+// {
+//   order: { id: number, status: "pending" | "shipped" | ..., shipping_address: Option<string>, ... }
+//   customer: { id: number, email: string, name: string, ... }
+// }
+```
+
+**Key features:**
+- Table names are singularized for field names (`orders` → `order`, `customers` → `customer`)
+- Columns are prefixed with table name to avoid conflicts (`orders_id`, `customers_id`)
+- Enum types are preserved in embed schemas
+- Nullable fields use `Schema.OptionFromNullOr` for consistent API with non-embed queries
+- The transformation is decode-only (embed queries are read-only)
+
 ## Builders
 
 The plugin uses a **builder** architecture to support different code generation targets. Each builder produces output tailored for a specific framework or library version.
@@ -220,7 +310,7 @@ const runnable = program.pipe(
 | `sqlc.arg('name')` | Yes | Explicit parameter naming |
 | `sqlc.narg('name')` | No | Nullable argument - not yet implemented |
 | `sqlc.slice('name')` | No | Slice expansion - use `= ANY($1::type[])` instead (see below) |
-| `sqlc.embed(table)` | No | Embed table columns - not yet implemented |
+| `sqlc.embed(table)` | Yes | Embed table columns into nested structures |
 
 > **Note on `sqlc.slice`:** While `sqlc.slice()` is not supported, you can achieve the same result using PostgreSQL's `ANY` operator with array casting:
 > ```sql

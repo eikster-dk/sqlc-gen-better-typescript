@@ -179,6 +179,7 @@ func (m *Mapper) mapResults(columns []*plugin.Column) ([]models.ResultField, []m
 			for _, field := range embedFields {
 				// Add table prefix to avoid conflicts: orders_id, customers_id, etc.
 				field.Name = fmt.Sprintf("%s_%s", embedTableName, field.OriginalName)
+				field.IsAliased = true
 				field.EmbedTable = embedTableName
 				result = append(result, field)
 				embedMap[embedTableName].Fields = append(embedMap[embedTableName].Fields, field)

@@ -201,7 +201,7 @@ const embedRepositoryImpl = Effect.gen(function* () {
 
   // GetOrderWithCustomerEmbed
   //
-  // SELECT orders.id, orders.customer_id, orders.status, orders.total_cents, orders.shipping_address, orders.billing_address, orders.notes, orders.created_at, orders.updated_at, orders.search_vector, customers.id, customers.email, customers.name, customers.phone, customers.created_at, customers.updated_at
+  // SELECT orders.id AS orders_id, orders.customer_id AS orders_customer_id, orders.status AS orders_status, orders.total_cents AS orders_total_cents, orders.shipping_address AS orders_shipping_address, orders.billing_address AS orders_billing_address, orders.notes AS orders_notes, orders.created_at AS orders_created_at, orders.updated_at AS orders_updated_at, orders.search_vector AS orders_search_vector, customers.id AS customers_id, customers.email AS customers_email, customers.name AS customers_name, customers.phone AS customers_phone, customers.created_at AS customers_created_at, customers.updated_at AS customers_updated_at
   // FROM orders
   // JOIN customers ON orders.customer_id = customers.id
   // WHERE orders.id = $1
@@ -209,21 +209,21 @@ const embedRepositoryImpl = Effect.gen(function* () {
     Request: GetOrderWithCustomerEmbedParams,
     Result: GetOrderWithCustomerEmbedResult,
     execute: (params) => sql`
-SELECT orders.id, orders.customer_id, orders.status, orders.total_cents, orders.shipping_address, orders.billing_address, orders.notes, orders.created_at, orders.updated_at, orders.search_vector, customers.id, customers.email, customers.name, customers.phone, customers.created_at, customers.updated_at
+SELECT orders.id AS orders_id, orders.customer_id AS orders_customer_id, orders.status AS orders_status, orders.total_cents AS orders_total_cents, orders.shipping_address AS orders_shipping_address, orders.billing_address AS orders_billing_address, orders.notes AS orders_notes, orders.created_at AS orders_created_at, orders.updated_at AS orders_updated_at, orders.search_vector AS orders_search_vector, customers.id AS customers_id, customers.email AS customers_email, customers.name AS customers_name, customers.phone AS customers_phone, customers.created_at AS customers_created_at, customers.updated_at AS customers_updated_at
 FROM orders
 JOIN customers ON orders.customer_id = customers.id
 WHERE orders.id = ${params.id}`
   })
 
   // ListOrdersWithCustomerEmbed
-  // SELECT orders.id, orders.customer_id, orders.status, orders.total_cents, orders.shipping_address, orders.billing_address, orders.notes, orders.created_at, orders.updated_at, orders.search_vector, customers.id, customers.email, customers.name, customers.phone, customers.created_at, customers.updated_at
+  // SELECT orders.id AS orders_id, orders.customer_id AS orders_customer_id, orders.status AS orders_status, orders.total_cents AS orders_total_cents, orders.shipping_address AS orders_shipping_address, orders.billing_address AS orders_billing_address, orders.notes AS orders_notes, orders.created_at AS orders_created_at, orders.updated_at AS orders_updated_at, orders.search_vector AS orders_search_vector, customers.id AS customers_id, customers.email AS customers_email, customers.name AS customers_name, customers.phone AS customers_phone, customers.created_at AS customers_created_at, customers.updated_at AS customers_updated_at
   // FROM orders
   // JOIN customers ON orders.customer_id = customers.id
   // ORDER BY orders.created_at DESC
   const listOrdersWithCustomerEmbed = SqlSchema.findAll({
     Request: Schema.Void,
     Result: ListOrdersWithCustomerEmbedResult,
-    execute: () => sql`SELECT orders.id, orders.customer_id, orders.status, orders.total_cents, orders.shipping_address, orders.billing_address, orders.notes, orders.created_at, orders.updated_at, orders.search_vector, customers.id, customers.email, customers.name, customers.phone, customers.created_at, customers.updated_at
+    execute: () => sql`SELECT orders.id AS orders_id, orders.customer_id AS orders_customer_id, orders.status AS orders_status, orders.total_cents AS orders_total_cents, orders.shipping_address AS orders_shipping_address, orders.billing_address AS orders_billing_address, orders.notes AS orders_notes, orders.created_at AS orders_created_at, orders.updated_at AS orders_updated_at, orders.search_vector AS orders_search_vector, customers.id AS customers_id, customers.email AS customers_email, customers.name AS customers_name, customers.phone AS customers_phone, customers.created_at AS customers_created_at, customers.updated_at AS customers_updated_at
 FROM orders
 JOIN customers ON orders.customer_id = customers.id
 ORDER BY orders.created_at DESC`

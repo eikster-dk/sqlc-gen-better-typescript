@@ -26,7 +26,7 @@ func Generate(ctx context.Context, req *plugin.GenerateRequest) (*plugin.Generat
 		logger.F("debug", cfg.Debug))
 
 	// 3. Validate config
-	if err := config.Validate(cfg); err != nil {
+	if err := config.Validate(cfg, req); err != nil {
 		log.Error("Config validation failed", err)
 		return nil, err
 	}

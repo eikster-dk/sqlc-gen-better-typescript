@@ -19,6 +19,8 @@ var ValidBuilders = []string{
 	"effect-v4-unstable",
 }
 
+const SupportedEngine = "postgresql"
+
 func GetConfig(req *plugin.GenerateRequest) (Config, error) {
 	var conf Config
 	if len(req.PluginOptions) > 0 {
@@ -30,7 +32,12 @@ func GetConfig(req *plugin.GenerateRequest) (Config, error) {
 	return conf, nil
 }
 
-func Validate(cfg Config) error {
+func Validate(cfg Config, req *plugin.GenerateRequest) error {
+	engine := req.GetSettings().GetEngine()
+	if engine != SupportedEngine {
+		return fmt.Errorf("Option: engine value is %q but this plugin currently only supports %q", engine, SupportedEngine)
+	}
+
 	for _, builder := range ValidBuilders {
 		if cfg.Builder == builder {
 			if cfg.ImportExtension == "" || cfg.ImportExtension == ".js" || cfg.ImportExtension == ".ts" {

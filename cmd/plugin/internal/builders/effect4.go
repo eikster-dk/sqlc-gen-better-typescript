@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"path/filepath"
 	"regexp"
+	"sort"
 	"strings"
 	"text/template"
 	"unicode"
@@ -24,6 +25,15 @@ type Effect4 struct {
 	cfg config.Config
 }
 
+type Imports map[string][]string
+
+type templateSet struct {
+	models     *template.Template
+	request    *template.Template
+	response   *template.Template
+	repository *template.Template
+}
+
 // NewEffect4 creates a new Effect4 builder
 func NewEffect4(cfg config.Config) *Effect4 {
 	return &Effect4{cfg: cfg}
@@ -34,47 +44,75 @@ func (e *Effect4) Build(catalog *models.Catalog, queries []models.Query, log *lo
 	log.Info("Starting Effect4 code generation", logger.F("builder", "effect-v4-unstable"))
 	log.Debug("Catalog info", logger.F("tables", len(catalog.Tables)), logger.F("enums", len(catalog.Enums)))
 
-	// Load and parse template
-	tmpl, err := e.loadTemplate(log)
+	// Load and parse templates
+	tmpls, err := e.loadTemplates(log)
 	if err != nil {
-		return nil, fmt.Errorf("failed to load template: %w", err)
+		return nil, fmt.Errorf("failed to load templates: %w", err)
 	}
 
 	// Group queries by filename
 	queryGroups := e.groupQueriesByFile(queries, log)
+	filenames := sortedGroupKeys(queryGroups)
 
-	var files []File
+	queryViewsByFile := make(map[string][]QueryView, len(queryGroups))
+	for _, filename := range filenames {
+		queryViewsByFile[filename] = e.buildQueryViews(queryGroups[filename], log)
+	}
 
-	for filename, fileQueries := range queryGroups {
+	modelsFile, err := e.generateModelsFile(tmpls.models, catalog, queryViewsByFile, sqlcVersion)
+	if err != nil {
+		return nil, fmt.Errorf("failed to generate models file: %w", err)
+	}
+
+	files := []File{modelsFile}
+
+	for _, filename := range filenames {
+		fileQueries := queryGroups[filename]
+		queryViews := queryViewsByFile[filename]
+		repoName := e.filenameToRepoName(filename)
+
 		log.Info("Generating repository",
 			logger.F("file", filename),
 			logger.F("queries", len(fileQueries)))
 
-		// Generate repository code for this file
-		content, err := e.generateRepository(tmpl, filename, fileQueries, catalog, sqlcVersion, log)
+		requestFile, err := e.generateRequestFile(tmpls.request, repoName, queryViews, sqlcVersion)
+		if err != nil {
+			log.Error("Failed to generate request file", err, logger.F("file", filename))
+			return nil, fmt.Errorf("failed to generate request file for %s: %w", filename, err)
+		}
+
+		responseFile, err := e.generateResponseFile(tmpls.response, repoName, queryViews, sqlcVersion)
+		if err != nil {
+			log.Error("Failed to generate response file", err, logger.F("file", filename))
+			return nil, fmt.Errorf("failed to generate response file for %s: %w", filename, err)
+		}
+
+		repositoryFile, err := e.generateRepositoryFile(tmpls.repository, filename, queryViews, sqlcVersion)
 		if err != nil {
 			log.Error("Failed to generate repository", err, logger.F("file", filename))
 			return nil, fmt.Errorf("failed to generate repository for %s: %w", filename, err)
 		}
 
-		// Repository name based on filename (without extension, PascalCase)
-		repoName := e.filenameToRepoName(filename)
-		outputFilename := fmt.Sprintf("%s.ts", repoName)
+		files = append(files, requestFile, responseFile, repositoryFile)
 
-		file := File{
-			Name:    outputFilename,
-			Content: []byte(content),
-		}
-		files = append(files, file)
-
-		log.Info("Generated repository file",
-			logger.F("name", file.Name),
-			logger.F("size", len(file.Content)))
+		log.Info("Generated repository files",
+			logger.F("repository", repositoryFile.Name),
+			logger.F("request", requestFile.Name),
+			logger.F("response", responseFile.Name))
 	}
 
 	log.Info("Effect4 code generation complete", logger.F("files", len(files)))
 
 	return files, nil
+}
+
+func sortedGroupKeys(groups map[string][]models.Query) []string {
+	keys := make([]string, 0, len(groups))
+	for k := range groups {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	return keys
 }
 
 // groupQueriesByFile groups queries by their source SQL filename
@@ -109,28 +147,96 @@ func (e *Effect4) filenameToRepoName(filename string) string {
 	return pascal + "Repository"
 }
 
-func (e *Effect4) loadTemplate(log *logger.Logger) (*template.Template, error) {
-	tmplContent, err := templates.ReadFile("templates/effect4/repository.ts.gotmpl")
-	if err != nil {
-		return nil, fmt.Errorf("failed to read template file: %w", err)
-	}
-
-	// Create function map for template
-	// Most logic is now pre-computed in QueryView, keeping only what's needed
+func (e *Effect4) loadTemplates(log *logger.Logger) (*templateSet, error) {
 	funcMap := template.FuncMap{
-		// String transformations (still needed for enums in Catalog)
-		"pascalCase": toPascalCase,
-
-		// Utility functions for template rendering
-		"splitLines": splitLines,
+		"splitLines":    splitLines,
+		"formatImports": formatImports,
 	}
 
-	tmpl, err := template.New("repository").Funcs(funcMap).Parse(string(tmplContent))
+	parseTemplate := func(name, path string) (*template.Template, error) {
+		content, err := templates.ReadFile(path)
+		if err != nil {
+			return nil, fmt.Errorf("failed to read %s template file: %w", name, err)
+		}
+
+		tmpl, err := template.New(name).Funcs(funcMap).Parse(string(content))
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse %s template: %w", name, err)
+		}
+
+		return tmpl, nil
+	}
+
+	repositoryTmpl, err := parseTemplate("repository", "templates/effect4/repository.ts.gotmpl")
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse template: %w", err)
+		return nil, err
 	}
 
-	return tmpl, nil
+	modelsTmpl, err := parseTemplate("models", "templates/effect4/models.ts.gotmpl")
+	if err != nil {
+		return nil, err
+	}
+
+	requestTmpl, err := parseTemplate("request", "templates/effect4/request.ts.gotmpl")
+	if err != nil {
+		return nil, err
+	}
+
+	responseTmpl, err := parseTemplate("response", "templates/effect4/response.ts.gotmpl")
+	if err != nil {
+		return nil, err
+	}
+
+	log.Debug("Templates loaded")
+
+	return &templateSet{
+		models:     modelsTmpl,
+		request:    requestTmpl,
+		response:   responseTmpl,
+		repository: repositoryTmpl,
+	}, nil
+}
+
+func formatImports(imports Imports) string {
+	if len(imports) == 0 {
+		return ""
+	}
+
+	modules := make([]string, 0, len(imports))
+	for mod := range imports {
+		modules = append(modules, mod)
+	}
+	sort.Strings(modules)
+
+	lines := make([]string, 0, len(modules))
+	for _, mod := range modules {
+		symbols := uniqueSorted(imports[mod])
+		if len(symbols) == 0 {
+			continue
+		}
+
+		lines = append(lines, fmt.Sprintf(`import { %s } from "%s"`, strings.Join(symbols, ", "), mod))
+	}
+
+	return strings.Join(lines, "\n")
+}
+
+func uniqueSorted(values []string) []string {
+	set := make(map[string]struct{}, len(values))
+	for _, value := range values {
+		if value == "" {
+			continue
+		}
+		set[value] = struct{}{}
+	}
+
+	result := make([]string, 0, len(set))
+	for value := range set {
+		result = append(result, value)
+	}
+	sort.Strings(result)
+
+	return result
 }
 
 // SchemaField represents a single field in a Schema.Struct for templates
@@ -139,11 +245,22 @@ type SchemaField struct {
 	Schema string // e.g., "Schema.Int", "Schema.optional(Schema.String)"
 }
 
+type EnumView struct {
+	NamePascal string
+	Values     []string
+}
+
+type TableRowView struct {
+	NamePascal string
+	Fields     []SchemaField
+}
+
 // EmbedGroupView represents an embed group for template rendering
 type EmbedGroupView struct {
 	TableName    string        // Original table name, e.g., "orders"
 	FieldName    string        // Singularized field name, e.g., "order"
-	SchemaName   string        // Internal schema name, e.g., "OrderEmbed"
+	RowSchema    string        // Shared row schema name, e.g., "OrdersRow"
+	SchemaName   string        // Legacy/internal name (kept for compatibility)
 	Fields       []SchemaField // Fields in this embed group
 	FieldMapping []FieldMap    // Maps row fields to embed fields
 }
@@ -194,45 +311,133 @@ type RepositoryData struct {
 	RepositoryName      string
 	RepositoryNameCamel string // e.g., "ordersRepository"
 	Filename            string
+	Imports             Imports
 	QueryViews          []QueryView
-	Catalog             *models.Catalog
-	Config              config.Config
 	SqlcVersion         string
 	PluginVersion       string
-
-	// Helper flags - only include imports/helpers that are actually used
-	NeedsBigInt               bool // True if any field uses BigIntFromString
-	NeedsExecRows             bool // True if any query uses :execrows command
-	NeedsSchemaTransformation bool // True if any query uses sqlc.embed transform
 }
 
-func (e *Effect4) generateRepository(tmpl *template.Template, filename string, queries []models.Query, catalog *models.Catalog, sqlcVersion string, log *logger.Logger) (string, error) {
-	repoName := e.filenameToRepoName(filename)
-	queryViews := e.buildQueryViews(queries, log)
+type RequestData struct {
+	RepositoryName string
+	Imports        Imports
+	QueryViews     []QueryView
+	SqlcVersion    string
+	PluginVersion  string
+}
 
-	// Compute which helpers are needed
-	needsBigInt, needsExecRows, needsSchemaTransformation := e.computeHelperFlags(queryViews)
+type ResponseData struct {
+	RepositoryName string
+	Imports        Imports
+	QueryViews     []QueryView
+	SqlcVersion    string
+	PluginVersion  string
+}
+
+type ModelsData struct {
+	Imports       Imports
+	Enums         []EnumView
+	TableRows     []TableRowView
+	NeedsBigInt   bool
+	NeedsExecRows bool
+	SqlcVersion   string
+	PluginVersion string
+}
+
+func (e *Effect4) generateRepositoryFile(tmpl *template.Template, filename string, queryViews []QueryView, sqlcVersion string) (File, error) {
+	repoName := e.filenameToRepoName(filename)
 
 	data := RepositoryData{
-		RepositoryName:            repoName,
-		RepositoryNameCamel:       toCamelCase(repoName),
-		Filename:                  filename,
-		QueryViews:                queryViews,
-		Catalog:                   catalog,
-		Config:                    e.cfg,
-		SqlcVersion:               sqlcVersion,
-		PluginVersion:             version.Version,
-		NeedsBigInt:               needsBigInt,
-		NeedsExecRows:             needsExecRows,
-		NeedsSchemaTransformation: needsSchemaTransformation,
+		RepositoryName:      repoName,
+		RepositoryNameCamel: toCamelCase(repoName),
+		Filename:            filename,
+		QueryViews:          queryViews,
+		Imports:             e.buildRepositoryImports(repoName, queryViews),
+		SqlcVersion:         sqlcVersion,
+		PluginVersion:       version.Version,
 	}
 
+	content, err := executeTemplate(tmpl, data)
+	if err != nil {
+		return File{}, fmt.Errorf("failed to render repository template: %w", err)
+	}
+
+	return File{
+		Name:    fmt.Sprintf("%s.ts", repoName),
+		Content: []byte(content),
+	}, nil
+}
+
+func (e *Effect4) generateRequestFile(tmpl *template.Template, repoName string, queryViews []QueryView, sqlcVersion string) (File, error) {
+	data := RequestData{
+		RepositoryName: repoName,
+		QueryViews:     queryViews,
+		Imports:        e.buildRequestImports(queryViews),
+		SqlcVersion:    sqlcVersion,
+		PluginVersion:  version.Version,
+	}
+
+	content, err := executeTemplate(tmpl, data)
+	if err != nil {
+		return File{}, fmt.Errorf("failed to render request template: %w", err)
+	}
+
+	return File{
+		Name:    fmt.Sprintf("%sRequest.ts", repoName),
+		Content: []byte(content),
+	}, nil
+}
+
+func (e *Effect4) generateResponseFile(tmpl *template.Template, repoName string, queryViews []QueryView, sqlcVersion string) (File, error) {
+	data := ResponseData{
+		RepositoryName: repoName,
+		QueryViews:     queryViews,
+		Imports:        e.buildResponseImports(queryViews),
+		SqlcVersion:    sqlcVersion,
+		PluginVersion:  version.Version,
+	}
+
+	content, err := executeTemplate(tmpl, data)
+	if err != nil {
+		return File{}, fmt.Errorf("failed to render response template: %w", err)
+	}
+
+	return File{
+		Name:    fmt.Sprintf("%sResponse.ts", repoName),
+		Content: []byte(content),
+	}, nil
+}
+
+func (e *Effect4) generateModelsFile(tmpl *template.Template, catalog *models.Catalog, queryViewsByFile map[string][]QueryView, sqlcVersion string) (File, error) {
+	needsBigInt, needsExecRows := e.computeGlobalHelpers(queryViewsByFile)
+	usedEmbedTables := collectUsedEmbedTables(queryViewsByFile)
+
+	data := ModelsData{
+		Imports:       buildModelsImports(needsBigInt, needsExecRows),
+		Enums:         buildEnumViews(catalog.Enums),
+		TableRows:     e.buildTableRows(catalog, usedEmbedTables),
+		NeedsBigInt:   needsBigInt,
+		NeedsExecRows: needsExecRows,
+		SqlcVersion:   sqlcVersion,
+		PluginVersion: version.Version,
+	}
+
+	content, err := executeTemplate(tmpl, data)
+	if err != nil {
+		return File{}, fmt.Errorf("failed to render models template: %w", err)
+	}
+
+	return File{
+		Name:    "models.ts",
+		Content: []byte(content),
+	}, nil
+}
+
+func executeTemplate(tmpl *template.Template, data any) (string, error) {
 	var buf bytes.Buffer
 	if err := tmpl.Execute(&buf, data); err != nil {
-		return "", fmt.Errorf("failed to execute template: %w", err)
+		return "", err
 	}
 
-	// Post-process to clean up excessive whitespace
 	return cleanWhitespace(buf.String()), nil
 }
 
@@ -250,37 +455,235 @@ func cleanWhitespace(content string) string {
 	return strings.TrimSpace(content) + "\n"
 }
 
-// computeHelperFlags analyzes query views to determine which helpers are needed
-func (e *Effect4) computeHelperFlags(views []QueryView) (needsBigInt, needsExecRows, needsSchemaTransformation bool) {
-	for _, v := range views {
-		// Check if any query uses :execrows
-		if v.Command == ":execrows" {
-			needsExecRows = true
-		}
-
-		// Check if any query uses embed transformation
-		if v.HasEmbeds {
-			needsSchemaTransformation = true
-		}
-
-		// Check if any schema field uses BigIntFromString
-		for _, f := range v.ParamFields {
-			if f.Schema == "BigIntFromString" || strings.Contains(f.Schema, "BigIntFromString") {
-				needsBigInt = true
+func (e *Effect4) computeGlobalHelpers(byFile map[string][]QueryView) (needsBigInt, needsExecRows bool) {
+	for _, views := range byFile {
+		for _, v := range views {
+			if v.Command == ":execrows" {
+				needsExecRows = true
 			}
-		}
-		for _, f := range v.ResultFields {
-			if f.Schema == "BigIntFromString" || strings.Contains(f.Schema, "BigIntFromString") {
-				needsBigInt = true
-			}
-		}
 
-		// Early exit if all flags are set
-		if needsBigInt && needsExecRows && needsSchemaTransformation {
-			return
+			for _, f := range v.ParamFields {
+				if strings.Contains(f.Schema, "BigIntFromString") {
+					needsBigInt = true
+				}
+			}
+			for _, f := range v.ResultFields {
+				if strings.Contains(f.Schema, "BigIntFromString") {
+					needsBigInt = true
+				}
+			}
+			for _, f := range v.RowFields {
+				if strings.Contains(f.Schema, "BigIntFromString") {
+					needsBigInt = true
+				}
+			}
+
+			if needsBigInt && needsExecRows {
+				return
+			}
 		}
 	}
+
 	return
+}
+
+func buildModelsImports(needsBigInt, needsExecRows bool) Imports {
+	imports := Imports{}
+	effectSymbols := []string{"Schema"}
+	if needsExecRows {
+		effectSymbols = append(effectSymbols, "Effect")
+	}
+	if needsBigInt {
+		effectSymbols = append(effectSymbols, "SchemaGetter")
+	}
+	imports["effect"] = effectSymbols
+	return imports
+}
+
+func buildEnumViews(enums []models.Enum) []EnumView {
+	views := make([]EnumView, len(enums))
+	for i, enum := range enums {
+		values := make([]string, len(enum.Values))
+		for j, value := range enum.Values {
+			values[j] = value.Value
+		}
+		views[i] = EnumView{
+			NamePascal: toPascalCase(enum.Name),
+			Values:     values,
+		}
+	}
+
+	sort.Slice(views, func(i, j int) bool {
+		return views[i].NamePascal < views[j].NamePascal
+	})
+
+	return views
+}
+
+func collectUsedEmbedTables(byFile map[string][]QueryView) map[string]struct{} {
+	tables := make(map[string]struct{})
+	for _, views := range byFile {
+		for _, query := range views {
+			for _, group := range query.EmbedGroups {
+				tables[group.TableName] = struct{}{}
+			}
+		}
+	}
+	return tables
+}
+
+func (e *Effect4) buildTableRows(catalog *models.Catalog, usedTables map[string]struct{}) []TableRowView {
+	tableRows := make([]TableRowView, 0, len(usedTables))
+	for _, table := range catalog.Tables {
+		if _, ok := usedTables[table.Name]; !ok {
+			continue
+		}
+
+		fields := make([]SchemaField, len(table.Columns))
+		for i, column := range table.Columns {
+			fields[i] = SchemaField{
+				Name:   column.Name,
+				Schema: e.sqlTypeToEffectSchemaForResults(column.Type),
+			}
+		}
+
+		tableRows = append(tableRows, TableRowView{
+			NamePascal: toPascalCase(table.Name),
+			Fields:     fields,
+		})
+	}
+
+	sort.Slice(tableRows, func(i, j int) bool {
+		return tableRows[i].NamePascal < tableRows[j].NamePascal
+	})
+
+	return tableRows
+}
+
+func extractSchemaReferences(schema string) []string {
+	var refs []string
+	tokens := strings.FieldsFunc(schema, func(r rune) bool {
+		return !(r == '_' || (r >= '0' && r <= '9') || (r >= 'A' && r <= 'Z') || (r >= 'a' && r <= 'z'))
+	})
+
+	for _, token := range tokens {
+		if strings.HasSuffix(token, "Schema") && token != "Schema" {
+			if strings.HasPrefix(token, "Schema") {
+				continue
+			}
+			refs = append(refs, token)
+		}
+	}
+
+	return uniqueSorted(refs)
+}
+
+func (e *Effect4) buildRequestImports(queryViews []QueryView) Imports {
+	imports := Imports{
+		"effect": []string{"Schema"},
+	}
+
+	var modelSymbols []string
+	for _, query := range queryViews {
+		for _, field := range query.ParamFields {
+			modelSymbols = append(modelSymbols, extractSchemaReferences(field.Schema)...)
+		}
+	}
+
+	if symbols := uniqueSorted(modelSymbols); len(symbols) > 0 {
+		imports[e.localImportPath("./models")] = symbols
+	}
+
+	return imports
+}
+
+func (e *Effect4) buildResponseImports(queryViews []QueryView) Imports {
+	imports := Imports{
+		"effect": []string{"Schema"},
+	}
+
+	needsSchemaTransformation := false
+	modelSymbols := []string{}
+
+	for _, query := range queryViews {
+		for _, field := range query.ResultFields {
+			if strings.Contains(field.Schema, "BigIntFromString") {
+				modelSymbols = append(modelSymbols, "BigIntFromString")
+			}
+			modelSymbols = append(modelSymbols, extractSchemaReferences(field.Schema)...)
+		}
+
+		if query.HasEmbeds {
+			needsSchemaTransformation = true
+			for _, group := range query.EmbedGroups {
+				modelSymbols = append(modelSymbols, group.RowSchema)
+			}
+			for _, field := range query.RowFields {
+				modelSymbols = append(modelSymbols, extractSchemaReferences(field.Schema)...)
+			}
+		}
+	}
+
+	if needsSchemaTransformation {
+		imports["effect"] = append(imports["effect"], "SchemaTransformation")
+	}
+
+	if symbols := uniqueSorted(modelSymbols); len(symbols) > 0 {
+		imports[e.localImportPath("./models")] = symbols
+	}
+
+	return imports
+}
+
+func (e *Effect4) buildRepositoryImports(repoName string, queryViews []QueryView) Imports {
+	imports := Imports{
+		"effect":              []string{"ServiceMap", "Effect", "Layer", "Schema", "Option"},
+		"effect/unstable/sql": []string{"SqlClient", "SqlError", "SqlSchema"},
+	}
+
+	requestSymbols := make([]string, 0, len(queryViews))
+	responseSymbols := make([]string, 0, len(queryViews))
+	needsExecRows := false
+
+	for _, query := range queryViews {
+		if query.HasParams {
+			requestSymbols = append(requestSymbols, query.NamePascal+"Params")
+		}
+		if query.HasResults {
+			responseSymbols = append(responseSymbols, query.NamePascal+"Result")
+		}
+		if query.Command == ":execrows" {
+			needsExecRows = true
+		}
+	}
+
+	if symbols := uniqueSorted(requestSymbols); len(symbols) > 0 {
+		imports[e.localImportPath("./"+repoName+"Request")] = symbols
+	}
+	if symbols := uniqueSorted(responseSymbols); len(symbols) > 0 {
+		imports[e.localImportPath("./"+repoName+"Response")] = symbols
+	}
+	if needsExecRows {
+		imports[e.localImportPath("./models")] = []string{"execRows"}
+	}
+
+	return imports
+}
+
+func (e *Effect4) localImportPath(path string) string {
+	ext := e.cfg.ImportExtension
+
+	if ext == "" {
+		return path
+	}
+	if !strings.HasPrefix(path, "./") {
+		return path
+	}
+	if strings.HasSuffix(path, ".js") || strings.HasSuffix(path, ".ts") {
+		return path
+	}
+
+	return path + ext
 }
 
 // buildQueryViews transforms a slice of queries into QueryViews with pre-computed values
@@ -634,6 +1037,7 @@ func (e *Effect4) buildEmbedGroup(group models.EmbedGroup, queryName string) Emb
 	return EmbedGroupView{
 		TableName:    group.TableName,
 		FieldName:    fieldName,
+		RowSchema:    toPascalCase(group.TableName) + "Row",
 		SchemaName:   schemaName,
 		Fields:       fields,
 		FieldMapping: fieldMappings,

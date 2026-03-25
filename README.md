@@ -395,6 +395,7 @@ sql:
 |--------|------|----------|---------|-------------|
 | `builder` | string | Yes | - | The code generation builder to use. Must be one of the available builders (e.g., `effect-v4-unstable`). |
 | `disable_template_literals` | boolean | No | `false` | Preserve original sqlc SQL using `sql.unsafe()` instead of transforming to template literals. See [Preserving Original SQL](#preserving-original-sql). |
+| `import_extension` | string | No | `""` | Explicit extension for generated relative imports. Allowed: `""`, `.js`, `.ts`. Use `.js` for Node ESM (`moduleResolution: nodenext`/`node16`). |
 | `debug` | boolean | No | `false` | Enable debug mode to output intermediate representations and detailed logs during code generation. |
 | `debug_dir` | string | No | `"debug"` | Directory where debug output files are written when debug mode is enabled. |
 

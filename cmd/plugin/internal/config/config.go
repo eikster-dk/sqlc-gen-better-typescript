@@ -12,6 +12,7 @@ type Config struct {
 	Debug                   bool   `json:"debug"`                     // Enable debug mode
 	DebugDir                string `json:"debug_dir"`                 // Optional, defaults to "debug"
 	DisableTemplateLiterals bool   `json:"disable_template_literals"` // Opt-out: use sql.unsafe instead of template literals
+	ImportExtension         string `json:"import_extension"`          // Optional relative import extension: "", ".js", ".ts"
 }
 
 var ValidBuilders = []string{
@@ -32,7 +33,10 @@ func GetConfig(req *plugin.GenerateRequest) (Config, error) {
 func Validate(cfg Config) error {
 	for _, builder := range ValidBuilders {
 		if cfg.Builder == builder {
-			return nil
+			if cfg.ImportExtension == "" || cfg.ImportExtension == ".js" || cfg.ImportExtension == ".ts" {
+				return nil
+			}
+			return fmt.Errorf("Option: import_extension value is %s but can only be one of [\"\", \".js\", \".ts\"]", cfg.ImportExtension)
 		}
 	}
 	return fmt.Errorf("Option: builder value is %s but can only be one of %v", cfg.Builder, ValidBuilders)

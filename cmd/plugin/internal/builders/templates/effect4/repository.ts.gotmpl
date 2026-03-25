@@ -6,7 +6,7 @@
      imports - Effect and SQL client imports (conditional)
      ------------------------------------------------------------ */}}
 {{define "imports" -}}
-import { ServiceMap, Effect, Layer, Schema, Option, SchemaTransformation{{if .NeedsBigInt}}, SchemaGetter{{end}} } from "effect"
+import { ServiceMap, Effect, Layer, Schema, Option{{if .NeedsSchemaTransformation}}, SchemaTransformation{{end}}{{if .NeedsBigInt}}, SchemaGetter{{end}} } from "effect"
 import { SqlClient, SqlError, SqlSchema } from "effect/unstable/sql"
 {{- end}}
 

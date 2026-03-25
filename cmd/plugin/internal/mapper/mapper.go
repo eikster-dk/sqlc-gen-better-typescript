@@ -26,6 +26,16 @@ func New(req *plugin.GenerateRequest, log *logger.Logger) *Mapper {
 		enumSet[e.Name] = true
 	}
 
+	// Enrich catalog columns with enum info (needed for embed expansion)
+	for i := range catalog.Tables {
+		for j := range catalog.Tables[i].Columns {
+			col := &catalog.Tables[i].Columns[j]
+			if enumSet[col.Type.Name] {
+				col.Type.IsEnum = true
+			}
+		}
+	}
+
 	m := &Mapper{
 		catalog: catalog,
 		enumSet: enumSet,
@@ -71,7 +81,8 @@ func (m *Mapper) MapQueries(req *plugin.GenerateRequest) []models.Query {
 
 func (m *Mapper) mapQuery(q *plugin.Query) models.Query {
 	params := m.mapParams(q.Params)
-	results := m.mapResults(q.Columns)
+	results, embedGroups := m.mapResults(q.Columns)
+	hasEmbeds := len(embedGroups) > 0
 
 	// Rewrite SQL if needed (adds explicit column aliases for duplicates)
 	rewrittenSQL := models.RewriteSQLWithAliases(q.Text, results)
@@ -91,6 +102,8 @@ func (m *Mapper) mapQuery(q *plugin.Query) models.Query {
 		Results:      results,
 		Tables:       extractTables(q.Columns),
 		HasEnum:      hasEnumInResults(results, m.enumSet),
+		HasEmbeds:    hasEmbeds,
+		EmbedGroups:  embedGroups,
 		Filename:     q.Filename,
 	}
 }
@@ -134,14 +147,44 @@ func (m *Mapper) mapParams(params []*plugin.Parameter) []models.Param {
 	return result
 }
 
-func (m *Mapper) mapResults(columns []*plugin.Column) []models.ResultField {
+func (m *Mapper) mapResults(columns []*plugin.Column) ([]models.ResultField, []models.EmbedGroup) {
 	var result []models.ResultField
 	fieldCount := make(map[string]int) // Track field name occurrences
+
+	// Track embed groups
+	embedMap := make(map[string]*models.EmbedGroup)
+	var embedOrder []string // preserve order of first appearance
 
 	for _, col := range columns {
 		tableName := ""
 		if col.Table != nil {
 			tableName = col.Table.Name
+		}
+
+		// Check for embed table
+		embedTableName := ""
+		if embedTable := col.GetEmbedTable(); embedTable != nil {
+			embedTableName = embedTable.GetName()
+
+			// Add to embed group
+			if _, exists := embedMap[embedTableName]; !exists {
+				embedMap[embedTableName] = &models.EmbedGroup{
+					TableName: embedTableName,
+				}
+				embedOrder = append(embedOrder, embedTableName)
+			}
+
+			// Expand embed columns from catalog
+			embedFields := m.expandEmbedColumns(embedTableName)
+			for _, field := range embedFields {
+				// Add table prefix to avoid conflicts: orders_id, customers_id, etc.
+				field.Name = fmt.Sprintf("%s_%s", embedTableName, field.OriginalName)
+				field.IsAliased = true
+				field.EmbedTable = embedTableName
+				result = append(result, field)
+				embedMap[embedTableName].Fields = append(embedMap[embedTableName].Fields, field)
+			}
+			continue // Skip the pseudo-column itself
 		}
 
 		// Get original column name
@@ -162,16 +205,54 @@ func (m *Mapper) mapResults(columns []*plugin.Column) []models.ResultField {
 				logger.F("table", tableName))
 		}
 
-		result = append(result, models.ResultField{
+		field := models.ResultField{
 			Name:         uniqueName,
 			OriginalName: originalName,
 			Type:         m.mapSqlTypeFromColumn(col),
 			Table:        tableName,
 			IsAliased:    isAliased,
-		})
+			EmbedTable:   embedTableName,
+		}
+
+		result = append(result, field)
 	}
 
-	return result
+	// Build ordered embed groups
+	var embedGroups []models.EmbedGroup
+	for _, tableName := range embedOrder {
+		embedGroups = append(embedGroups, *embedMap[tableName])
+	}
+
+	return result, embedGroups
+}
+
+// expandEmbedColumns returns the columns for an embedded table from the catalog
+func (m *Mapper) expandEmbedColumns(tableName string) []models.ResultField {
+	var fields []models.ResultField
+
+	// Find the table in the catalog
+	for _, table := range m.catalog.Tables {
+		if table.Name == tableName {
+			for _, col := range table.Columns {
+				fields = append(fields, models.ResultField{
+					Name:         col.Name,
+					OriginalName: col.Name,
+					Type:         col.Type,
+					Table:        tableName,
+					IsAliased:    false,
+					EmbedTable:   "", // Will be set by caller
+				})
+			}
+			break
+		}
+	}
+
+	if len(fields) == 0 {
+		m.logger.Warn("Could not find embed table in catalog",
+			logger.F("table", tableName))
+	}
+
+	return fields
 }
 
 func mapCatalog(c *plugin.Catalog) *models.Catalog {

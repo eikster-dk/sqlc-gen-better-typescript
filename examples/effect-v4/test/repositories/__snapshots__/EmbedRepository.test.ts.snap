@@ -1,0 +1,668 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`EmbedRepository > getOrderWithCustomerEmbed > returns nested order and customer when found 1`] = `
+{
+  "customer": {
+    "created_at": 2024-01-01T10:00:00.000Z,
+    "email": "alice@example.com",
+    "id": 1,
+    "name": "Alice Johnson",
+    "phone": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "+1-555-0101",
+    },
+    "updated_at": 2024-01-01T10:00:00.000Z,
+  },
+  "order": {
+    "billing_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "123 Main St, New York, NY 10001",
+    },
+    "created_at": 2024-01-15T10:00:00.000Z,
+    "customer_id": 1,
+    "id": 1,
+    "notes": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "Leave at door",
+    },
+    "search_vector": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "'10001':7,14 '123':1,8 'door':17 'leav':15 'main':2,9 'new':4,11 'ny':6,13 'st':3,10 'york':5,12",
+    },
+    "shipping_address": {
+      "_id": "Option",
+      "_tag": "Some",
+      "value": "123 Main St, New York, NY 10001",
+    },
+    "status": "delivered",
+    "total_cents": 19998,
+    "updated_at": 2024-01-15T10:00:00.000Z,
+  },
+}
+`;
+
+exports[`EmbedRepository > listOrdersWithCustomerEmbed > returns all embedded rows with nested mapping and ordering 1`] = `
+[
+  {
+    "customer": {
+      "created_at": 2024-01-10T15:00:00.000Z,
+      "email": "jack@example.com",
+      "id": 10,
+      "name": "Jack Anderson",
+      "phone": {
+        "_id": "Option",
+        "_tag": "Some",
+        "value": "+1-555-0110",
+      },
+      "updated_at": 2024-01-10T15:00:00.000Z,
+    },
+    "order": {
+      "billing_address": {
+        "_id": "Option",
+        "_tag": "Some",
+        "value": "741 Aspen Pl, San Jose, CA 95101",
+      },
+      "created_at": 2024-01-29T16:15:00.000Z,
+      "customer_id": 10,
+      "id": 15,
+      "notes": {
+        "_id": "Option",
+        "_tag": "Some",
+        "value": "Large order - verify stock",
+      },
+      "search_vector": {
+        "_id": "Option",
+        "_tag": "Some",
+        "value": "'741':1,8 '95101':7,14 'aspen':2,9 'ca':6,13 'jose':5,12 'larg':15 'order':16 'pl':3,10 'san':4,11 'stock':18 'verifi':17",
+      },
+      "shipping_address": {
+        "_id": "Option",
+        "_tag": "Some",
+        "value": "741 Aspen Pl, San Jose, CA 95101",
+      },
+      "status": "pending",
+      "total_cents": 27495,
+      "updated_at": 2024-01-29T16:15:00.000Z,
+    },
+  },
+  {
+    "customer": {
+      "created_at": 2024-01-09T10:10:00.000Z,
+      "email": "ivy@example.com",
+      "id": 9,
+      "name": "Ivy Taylor",
+      "phone": {
+        "_id": "Option",
+        "_tag": "Some",
+        "value": "+1-555-0109",
+      },
+      "updated_at": 2024-01-09T10:10:00.000Z,
+    },
+    "order": {
+      "billing_address": {
+        "_id": "Option",
+        "_tag": "Some",
+        "value": "369 Willow Blvd, Dallas, TX 75201",
+      },
+      "created_at": 2024-01-28T08:30:00.000Z,
+      "customer_id": 9,
+      "id": 14,
+      "notes": {
+        "_id": "Option",
+        "_tag": "Some",
+        "value": "Fragile items",
+      },
+      "search_vector": {
+        "_id": "Option",
+        "_tag": "Some",
+        "value": "'369':1,7 '75201':6,12 'blvd':3,9 'dalla':4,10 'fragil':13 'item':14 'tx':5,11 'willow':2,8",
+      },
+      "shipping_address": {
+        "_id": "Option",
+        "_tag": "Some",
+        "value": "369 Willow Blvd, Dallas, TX 75201",
+      },
+      "status": "shipped",
+      "total_cents": 3999,
+      "updated_at": 2024-01-28T08:30:00.000Z,
+    },
+  },
+  {
+    "customer": {
+      "created_at": 2024-01-08T17:45:00.000Z,
+      "email": "henry@example.com",
+      "id": 8,
+      "name": "Henry Moore",
+      "phone": {
+        "_id": "Option",
+        "_tag": "None",
+      },
+      "updated_at": 2024-01-08T17:45:00.000Z,
+    },
+    "order": {
+      "billing_address": {
+        "_id": "Option",
+        "_tag": "Some",
+        "value": "258 Spruce Ct, San Diego, CA 92101",
+      },
+      "created_at": 2024-01-27T12:45:00.000Z,
+      "customer_id": 8,
+      "id": 13,
+      "notes": {
+        "_id": "Option",
+        "_tag": "None",
+      },
+      "search_vector": {
+        "_id": "Option",
+        "_tag": "Some",
+        "value": "'258':1,8 '92101':7,14 'ca':6,13 'ct':3,10 'diego':5,12 'san':4,11 'spruce':2,9",
+      },
+      "shipping_address": {
+        "_id": "Option",
+        "_tag": "Some",
+        "value": "258 Spruce Ct, San Diego, CA 92101",
+      },
+      "status": "confirmed",
+      "total_cents": 10998,
+      "updated_at": 2024-01-27T12:45:00.000Z,
+    },
+  },
+  {
+    "customer": {
+      "created_at": 2024-01-08T17:45:00.000Z,
+      "email": "henry@example.com",
+      "id": 8,
+      "name": "Henry Moore",
+      "phone": {
+        "_id": "Option",
+        "_tag": "None",
+      },
+      "updated_at": 2024-01-08T17:45:00.000Z,
+    },
+    "order": {
+      "billing_address": {
+        "_id": "Option",
+        "_tag": "Some",
+        "value": "258 Spruce Ct, San Diego, CA 92101",
+      },
+      "created_at": 2024-01-26T17:00:00.000Z,
+      "customer_id": 8,
+      "id": 12,
+      "notes": {
+        "_id": "Option",
+        "_tag": "Some",
+        "value": "Refunded due to damage",
+      },
+      "search_vector": {
+        "_id": "Option",
+        "_tag": "Some",
+        "value": "'258':1,8 '92101':7,14 'ca':6,13 'ct':3,10 'damag':18 'diego':5,12 'due':16 'refund':15 'san':4,11 'spruce':2,9",
+      },
+      "shipping_address": {
+        "_id": "Option",
+        "_tag": "Some",
+        "value": "258 Spruce Ct, San Diego, CA 92101",
+      },
+      "status": "refunded",
+      "total_cents": 7998,
+      "updated_at": 2024-01-26T17:00:00.000Z,
+    },
+  },
+  {
+    "customer": {
+      "created_at": 2024-01-07T12:30:00.000Z,
+      "email": "grace@example.com",
+      "id": 7,
+      "name": "Grace Wilson",
+      "phone": {
+        "_id": "Option",
+        "_tag": "Some",
+        "value": "+1-555-0107",
+      },
+      "updated_at": 2024-01-07T12:30:00.000Z,
+    },
+    "order": {
+      "billing_address": {
+        "_id": "Option",
+        "_tag": "None",
+      },
+      "created_at": 2024-01-25T09:00:00.000Z,
+      "customer_id": 7,
+      "id": 11,
+      "notes": {
+        "_id": "Option",
+        "_tag": "None",
+      },
+      "search_vector": {
+        "_id": "Option",
+        "_tag": "Some",
+        "value": "'147':1 '78201':7 'antonio':5 'birch':2 'san':4 'tx':6 'way':3",
+      },
+      "shipping_address": {
+        "_id": "Option",
+        "_tag": "Some",
+        "value": "147 Birch Way, San Antonio, TX 78201",
+      },
+      "status": "pending",
+      "total_cents": 4999,
+      "updated_at": 2024-01-25T09:00:00.000Z,
+    },
+  },
+  {
+    "customer": {
+      "created_at": 2024-01-06T08:00:00.000Z,
+      "email": "frank@example.com",
+      "id": 6,
+      "name": "Frank Miller",
+      "phone": {
+        "_id": "Option",
+        "_tag": "Some",
+        "value": "+1-555-0106",
+      },
+      "updated_at": 2024-01-06T08:00:00.000Z,
+    },
+    "order": {
+      "billing_address": {
+        "_id": "Option",
+        "_tag": "Some",
+        "value": "987 Cedar Ln, Philadelphia, PA 19101",
+      },
+      "created_at": 2024-01-24T14:30:00.000Z,
+      "customer_id": 6,
+      "id": 10,
+      "notes": {
+        "_id": "Option",
+        "_tag": "Some",
+        "value": "Call before delivery",
+      },
+      "search_vector": {
+        "_id": "Option",
+        "_tag": "Some",
+        "value": "'19101':6,12 '987':1,7 'call':13 'cedar':2,8 'deliveri':15 'ln':3,9 'pa':5,11 'philadelphia':4,10",
+      },
+      "shipping_address": {
+        "_id": "Option",
+        "_tag": "Some",
+        "value": "987 Cedar Ln, Philadelphia, PA 19101",
+      },
+      "status": "processing",
+      "total_cents": 9498,
+      "updated_at": 2024-01-24T14:30:00.000Z,
+    },
+  },
+  {
+    "customer": {
+      "created_at": 2024-01-05T16:20:00.000Z,
+      "email": "eve@example.com",
+      "id": 5,
+      "name": "Eve Davis",
+      "phone": {
+        "_id": "Option",
+        "_tag": "None",
+      },
+      "updated_at": 2024-01-05T16:20:00.000Z,
+    },
+    "order": {
+      "billing_address": {
+        "_id": "Option",
+        "_tag": "Some",
+        "value": "654 Maple Dr, Phoenix, AZ 85001",
+      },
+      "created_at": 2024-01-23T11:00:00.000Z,
+      "customer_id": 5,
+      "id": 9,
+      "notes": {
+        "_id": "Option",
+        "_tag": "None",
+      },
+      "search_vector": {
+        "_id": "Option",
+        "_tag": "Some",
+        "value": "'654':1,7 '85001':6,12 'az':5,11 'dr':3,9 'mapl':2,8 'phoenix':4,10",
+      },
+      "shipping_address": {
+        "_id": "Option",
+        "_tag": "Some",
+        "value": "654 Maple Dr, Phoenix, AZ 85001",
+      },
+      "status": "shipped",
+      "total_cents": 2999,
+      "updated_at": 2024-01-23T11:00:00.000Z,
+    },
+  },
+  {
+    "customer": {
+      "created_at": 2024-01-05T16:20:00.000Z,
+      "email": "eve@example.com",
+      "id": 5,
+      "name": "Eve Davis",
+      "phone": {
+        "_id": "Option",
+        "_tag": "None",
+      },
+      "updated_at": 2024-01-05T16:20:00.000Z,
+    },
+    "order": {
+      "billing_address": {
+        "_id": "Option",
+        "_tag": "Some",
+        "value": "654 Maple Dr, Phoenix, AZ 85001",
+      },
+      "created_at": 2024-01-22T15:20:00.000Z,
+      "customer_id": 5,
+      "id": 8,
+      "notes": {
+        "_id": "Option",
+        "_tag": "Some",
+        "value": "Second floor apartment",
+      },
+      "search_vector": {
+        "_id": "Option",
+        "_tag": "Some",
+        "value": "'654':1,7 '85001':6,12 'apart':15 'az':5,11 'dr':3,9 'floor':14 'mapl':2,8 'phoenix':4,10 'second':13",
+      },
+      "shipping_address": {
+        "_id": "Option",
+        "_tag": "Some",
+        "value": "654 Maple Dr, Phoenix, AZ 85001",
+      },
+      "status": "delivered",
+      "total_cents": 15996,
+      "updated_at": 2024-01-22T15:20:00.000Z,
+    },
+  },
+  {
+    "customer": {
+      "created_at": 2024-01-04T14:45:00.000Z,
+      "email": "david@example.com",
+      "id": 4,
+      "name": "David Brown",
+      "phone": {
+        "_id": "Option",
+        "_tag": "Some",
+        "value": "+1-555-0104",
+      },
+      "updated_at": 2024-01-04T14:45:00.000Z,
+    },
+    "order": {
+      "billing_address": {
+        "_id": "Option",
+        "_tag": "Some",
+        "value": "321 Elm St, Houston, TX 77001",
+      },
+      "created_at": 2024-01-21T10:45:00.000Z,
+      "customer_id": 4,
+      "id": 7,
+      "notes": {
+        "_id": "Option",
+        "_tag": "Some",
+        "value": "Customer requested cancellation",
+      },
+      "search_vector": {
+        "_id": "Option",
+        "_tag": "Some",
+        "value": "'321':1,7 '77001':6,12 'cancel':15 'custom':13 'elm':2,8 'houston':4,10 'request':14 'st':3,9 'tx':5,11",
+      },
+      "shipping_address": {
+        "_id": "Option",
+        "_tag": "Some",
+        "value": "321 Elm St, Houston, TX 77001",
+      },
+      "status": "cancelled",
+      "total_cents": 14999,
+      "updated_at": 2024-01-21T10:45:00.000Z,
+    },
+  },
+  {
+    "customer": {
+      "created_at": 2024-01-04T14:45:00.000Z,
+      "email": "david@example.com",
+      "id": 4,
+      "name": "David Brown",
+      "phone": {
+        "_id": "Option",
+        "_tag": "Some",
+        "value": "+1-555-0104",
+      },
+      "updated_at": 2024-01-04T14:45:00.000Z,
+    },
+    "order": {
+      "billing_address": {
+        "_id": "Option",
+        "_tag": "Some",
+        "value": "321 Elm St, Houston, TX 77001",
+      },
+      "created_at": 2024-01-20T13:15:00.000Z,
+      "customer_id": 4,
+      "id": 6,
+      "notes": {
+        "_id": "Option",
+        "_tag": "None",
+      },
+      "search_vector": {
+        "_id": "Option",
+        "_tag": "Some",
+        "value": "'321':1,7 '77001':6,12 'elm':2,8 'houston':4,10 'st':3,9 'tx':5,11",
+      },
+      "shipping_address": {
+        "_id": "Option",
+        "_tag": "Some",
+        "value": "321 Elm St, Houston, TX 77001",
+      },
+      "status": "delivered",
+      "total_cents": 3999,
+      "updated_at": 2024-01-20T13:15:00.000Z,
+    },
+  },
+  {
+    "customer": {
+      "created_at": 2024-01-03T09:15:00.000Z,
+      "email": "carol@example.com",
+      "id": 3,
+      "name": "Carol Williams",
+      "phone": {
+        "_id": "Option",
+        "_tag": "None",
+      },
+      "updated_at": 2024-01-03T09:15:00.000Z,
+    },
+    "order": {
+      "billing_address": {
+        "_id": "Option",
+        "_tag": "Some",
+        "value": "789 Pine Rd, Chicago, IL 60601",
+      },
+      "created_at": 2024-01-19T16:30:00.000Z,
+      "customer_id": 3,
+      "id": 5,
+      "notes": {
+        "_id": "Option",
+        "_tag": "Some",
+        "value": "Express delivery",
+      },
+      "search_vector": {
+        "_id": "Option",
+        "_tag": "Some",
+        "value": "'60601':6,12 '789':1,7 'chicago':4,10 'deliveri':14 'express':13 'il':5,11 'pine':2,8 'rd':3,9",
+      },
+      "shipping_address": {
+        "_id": "Option",
+        "_tag": "Some",
+        "value": "789 Pine Rd, Chicago, IL 60601",
+      },
+      "status": "confirmed",
+      "total_cents": 11998,
+      "updated_at": 2024-01-19T16:30:00.000Z,
+    },
+  },
+  {
+    "customer": {
+      "created_at": 2024-01-02T11:30:00.000Z,
+      "email": "bob@example.com",
+      "id": 2,
+      "name": "Bob Smith",
+      "phone": {
+        "_id": "Option",
+        "_tag": "Some",
+        "value": "+1-555-0102",
+      },
+      "updated_at": 2024-01-02T11:30:00.000Z,
+    },
+    "order": {
+      "billing_address": {
+        "_id": "Option",
+        "_tag": "None",
+      },
+      "created_at": 2024-01-18T09:45:00.000Z,
+      "customer_id": 2,
+      "id": 4,
+      "notes": {
+        "_id": "Option",
+        "_tag": "None",
+      },
+      "search_vector": {
+        "_id": "Option",
+        "_tag": "Some",
+        "value": "'456':1 '90001':7 'angel':5 'ave':3 'ca':6 'los':4 'oak':2",
+      },
+      "shipping_address": {
+        "_id": "Option",
+        "_tag": "Some",
+        "value": "456 Oak Ave, Los Angeles, CA 90001",
+      },
+      "status": "pending",
+      "total_cents": 7999,
+      "updated_at": 2024-01-18T09:45:00.000Z,
+    },
+  },
+  {
+    "customer": {
+      "created_at": 2024-01-02T11:30:00.000Z,
+      "email": "bob@example.com",
+      "id": 2,
+      "name": "Bob Smith",
+      "phone": {
+        "_id": "Option",
+        "_tag": "Some",
+        "value": "+1-555-0102",
+      },
+      "updated_at": 2024-01-02T11:30:00.000Z,
+    },
+    "order": {
+      "billing_address": {
+        "_id": "Option",
+        "_tag": "Some",
+        "value": "456 Oak Ave, Los Angeles, CA 90001",
+      },
+      "created_at": 2024-01-17T14:00:00.000Z,
+      "customer_id": 2,
+      "id": 3,
+      "notes": {
+        "_id": "Option",
+        "_tag": "Some",
+        "value": "Gift wrapping requested",
+      },
+      "search_vector": {
+        "_id": "Option",
+        "_tag": "Some",
+        "value": "'456':1,8 '90001':7,14 'angel':5,12 'ave':3,10 'ca':6,13 'gift':15 'los':4,11 'oak':2,9 'request':17 'wrap':16",
+      },
+      "shipping_address": {
+        "_id": "Option",
+        "_tag": "Some",
+        "value": "456 Oak Ave, Los Angeles, CA 90001",
+      },
+      "status": "processing",
+      "total_cents": 25997,
+      "updated_at": 2024-01-17T14:00:00.000Z,
+    },
+  },
+  {
+    "customer": {
+      "created_at": 2024-01-01T10:00:00.000Z,
+      "email": "alice@example.com",
+      "id": 1,
+      "name": "Alice Johnson",
+      "phone": {
+        "_id": "Option",
+        "_tag": "Some",
+        "value": "+1-555-0101",
+      },
+      "updated_at": 2024-01-01T10:00:00.000Z,
+    },
+    "order": {
+      "billing_address": {
+        "_id": "Option",
+        "_tag": "Some",
+        "value": "123 Main St, New York, NY 10001",
+      },
+      "created_at": 2024-01-16T11:30:00.000Z,
+      "customer_id": 1,
+      "id": 2,
+      "notes": {
+        "_id": "Option",
+        "_tag": "None",
+      },
+      "search_vector": {
+        "_id": "Option",
+        "_tag": "Some",
+        "value": "'10001':7,14 '123':1,8 'main':2,9 'new':4,11 'ny':6,13 'st':3,10 'york':5,12",
+      },
+      "shipping_address": {
+        "_id": "Option",
+        "_tag": "Some",
+        "value": "123 Main St, New York, NY 10001",
+      },
+      "status": "shipped",
+      "total_cents": 4999,
+      "updated_at": 2024-01-16T11:30:00.000Z,
+    },
+  },
+  {
+    "customer": {
+      "created_at": 2024-01-01T10:00:00.000Z,
+      "email": "alice@example.com",
+      "id": 1,
+      "name": "Alice Johnson",
+      "phone": {
+        "_id": "Option",
+        "_tag": "Some",
+        "value": "+1-555-0101",
+      },
+      "updated_at": 2024-01-01T10:00:00.000Z,
+    },
+    "order": {
+      "billing_address": {
+        "_id": "Option",
+        "_tag": "Some",
+        "value": "123 Main St, New York, NY 10001",
+      },
+      "created_at": 2024-01-15T10:00:00.000Z,
+      "customer_id": 1,
+      "id": 1,
+      "notes": {
+        "_id": "Option",
+        "_tag": "Some",
+        "value": "Leave at door",
+      },
+      "search_vector": {
+        "_id": "Option",
+        "_tag": "Some",
+        "value": "'10001':7,14 '123':1,8 'door':17 'leav':15 'main':2,9 'new':4,11 'ny':6,13 'st':3,10 'york':5,12",
+      },
+      "shipping_address": {
+        "_id": "Option",
+        "_tag": "Some",
+        "value": "123 Main St, New York, NY 10001",
+      },
+      "status": "delivered",
+      "total_cents": 19998,
+      "updated_at": 2024-01-15T10:00:00.000Z,
+    },
+  },
+]
+`;

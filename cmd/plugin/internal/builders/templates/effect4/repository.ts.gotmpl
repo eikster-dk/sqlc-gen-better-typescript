@@ -6,7 +6,7 @@
      imports - Effect and SQL client imports (conditional)
      ------------------------------------------------------------ */}}
 {{define "imports" -}}
-import { ServiceMap, Effect, Layer, Schema, Option{{if .NeedsBigInt}}, SchemaGetter{{end}} } from "effect"
+import { ServiceMap, Effect, Layer, Schema, Option{{if .NeedsSchemaTransformation}}, SchemaTransformation{{end}}{{if .NeedsBigInt}}, SchemaGetter{{end}} } from "effect"
 import { SqlClient, SqlError, SqlSchema } from "effect/unstable/sql"
 {{- end}}
 
@@ -70,6 +70,53 @@ Schema.Struct({
 {{- end}}
 
 {{/* ------------------------------------------------------------
+     embed-result-schema - Generate embedded result schema with transform
+     Context: QueryView (when HasEmbeds is true)
+     ------------------------------------------------------------ */}}
+{{define "embed-result-schema" -}}
+// {{.Name}} - Row Schema (flat database result)
+const {{.NamePascal}}Row = {{template "schema-struct" .RowFields}}
+
+{{range .EmbedGroups -}}
+// {{.TableName}} embed schema
+const {{.SchemaName}} = Schema.Struct({
+{{- range .Fields}}
+  {{.Name}}: {{.Schema}},
+{{- end}}
+})
+{{end}}
+
+// {{.Name}} - Nested Result Schema
+const {{.NamePascal}}ResultNested = Schema.Struct({
+{{- range .EmbedGroups}}
+  {{.FieldName}}: {{.SchemaName}},
+{{- end}}
+})
+
+// {{.Name}} - Result Schema (transformed to nested structure)
+export const {{.NamePascal}}Result = {{.NamePascal}}Row.pipe(
+  Schema.decodeTo(
+    {{.NamePascal}}ResultNested,
+    SchemaTransformation.transform({
+      decode: (row) => ({
+{{- range .EmbedGroups}}
+        {{.FieldName}}: {
+{{- range .FieldMapping}}
+          {{.EmbedFieldName}}: row.{{.RowFieldName}},
+{{- end}}
+        },
+{{- end}}
+      }),
+      // Encode is never used for sqlc.embed queries (read-only), but required by the API
+      encode: (_nested) => { throw new Error("Encode not supported for sqlc.embed queries"); },
+    })
+  )
+)
+
+export type {{.NamePascal}}Result = typeof {{.NamePascal}}Result.Type
+{{end}}
+
+{{/* ------------------------------------------------------------
      query-schemas - Generate Params and Result schemas for each query
      Context: RepositoryData
      ------------------------------------------------------------ */}}
@@ -82,13 +129,17 @@ export const {{.NamePascal}}Params = {{template "schema-struct" .ParamFields}}
 export type {{.NamePascal}}Params = typeof {{.NamePascal}}Params.Type
 {{end -}}
 {{- if .HasResults }}
+{{- if .HasEmbeds }}
+{{template "embed-result-schema" .}}
+{{- else }}
 // {{.Name}} - Result Schema
 export const {{.NamePascal}}Result = {{template "schema-struct" .ResultFields}}
 
 export type {{.NamePascal}}Result = typeof {{.NamePascal}}Result.Type
-{{end -}}
-{{- end}}
-{{- end}}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}
 
 {{/* ------------------------------------------------------------
      repository-interface - Generate the repository shape interface

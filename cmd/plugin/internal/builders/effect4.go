@@ -14,6 +14,7 @@ import (
 	"github.com/eikster-dk/sqlc-gen-better-typescript/cmd/plugin/internal/logger"
 	"github.com/eikster-dk/sqlc-gen-better-typescript/cmd/plugin/internal/models"
 	"github.com/eikster-dk/sqlc-gen-better-typescript/cmd/plugin/internal/version"
+	"github.com/jinzhu/inflection"
 )
 
 //go:embed templates/**/*.gotmpl
@@ -138,6 +139,21 @@ type SchemaField struct {
 	Schema string // e.g., "Schema.Int", "Schema.optional(Schema.String)"
 }
 
+// EmbedGroupView represents an embed group for template rendering
+type EmbedGroupView struct {
+	TableName    string        // Original table name, e.g., "orders"
+	FieldName    string        // Singularized field name, e.g., "order"
+	SchemaName   string        // Internal schema name, e.g., "OrderEmbed"
+	Fields       []SchemaField // Fields in this embed group
+	FieldMapping []FieldMap    // Maps row fields to embed fields
+}
+
+// FieldMap represents a single field mapping in the transform
+type FieldMap struct {
+	RowFieldName   string // e.g., "customers_id"
+	EmbedFieldName string // e.g., "id"
+}
+
 // QueryView is a pre-computed view of a Query for templates
 // This moves computation logic from templates to Go for better readability
 type QueryView struct {
@@ -152,6 +168,7 @@ type QueryView struct {
 	// Flags
 	HasParams  bool
 	HasResults bool
+	HasEmbeds  bool // True if this query uses sqlc.embed
 
 	// Pre-computed template strings
 	ReturnType      string // "void" | "number" | "Option.Option<GetUserResult>" | "GetUserResult[]"
@@ -161,6 +178,10 @@ type QueryView struct {
 	// Pre-computed schema fields for cleaner template iteration
 	ParamFields  []SchemaField // For params schema
 	ResultFields []SchemaField // For result schema
+
+	// Embed-related fields
+	EmbedGroups []EmbedGroupView // Embed groups for this query
+	RowFields   []SchemaField    // All fields for the row schema (when HasEmbeds)
 
 	// SQL-related fields
 	OriginalSQL         string // The SQL (with explicit column aliases if needed)
@@ -179,9 +200,10 @@ type RepositoryData struct {
 	SqlcVersion         string
 	PluginVersion       string
 
-	// Helper flags - only include helpers that are actually used
-	NeedsBigInt   bool // True if any field uses BigIntFromString
-	NeedsExecRows bool // True if any query uses :execrows command
+	// Helper flags - only include imports/helpers that are actually used
+	NeedsBigInt               bool // True if any field uses BigIntFromString
+	NeedsExecRows             bool // True if any query uses :execrows command
+	NeedsSchemaTransformation bool // True if any query uses sqlc.embed transform
 }
 
 func (e *Effect4) generateRepository(tmpl *template.Template, filename string, queries []models.Query, catalog *models.Catalog, sqlcVersion string, log *logger.Logger) (string, error) {
@@ -189,19 +211,20 @@ func (e *Effect4) generateRepository(tmpl *template.Template, filename string, q
 	queryViews := e.buildQueryViews(queries, log)
 
 	// Compute which helpers are needed
-	needsBigInt, needsExecRows := e.computeHelperFlags(queryViews)
+	needsBigInt, needsExecRows, needsSchemaTransformation := e.computeHelperFlags(queryViews)
 
 	data := RepositoryData{
-		RepositoryName:      repoName,
-		RepositoryNameCamel: toCamelCase(repoName),
-		Filename:            filename,
-		QueryViews:          queryViews,
-		Catalog:             catalog,
-		Config:              e.cfg,
-		SqlcVersion:         sqlcVersion,
-		PluginVersion:       version.Version,
-		NeedsBigInt:         needsBigInt,
-		NeedsExecRows:       needsExecRows,
+		RepositoryName:            repoName,
+		RepositoryNameCamel:       toCamelCase(repoName),
+		Filename:                  filename,
+		QueryViews:                queryViews,
+		Catalog:                   catalog,
+		Config:                    e.cfg,
+		SqlcVersion:               sqlcVersion,
+		PluginVersion:             version.Version,
+		NeedsBigInt:               needsBigInt,
+		NeedsExecRows:             needsExecRows,
+		NeedsSchemaTransformation: needsSchemaTransformation,
 	}
 
 	var buf bytes.Buffer
@@ -216,8 +239,8 @@ func (e *Effect4) generateRepository(tmpl *template.Template, filename string, q
 // cleanWhitespace removes excessive blank lines (more than 2 consecutive)
 // and ensures single blank lines between major sections
 func cleanWhitespace(content string) string {
-	// Replace 4 or more consecutive newlines with 2 newlines (preserve section breaks)
-	re := regexp.MustCompile(`\n{4,}`)
+	// Replace 3 or more consecutive newlines with 2 newlines (preserve section breaks)
+	re := regexp.MustCompile(`\n{3,}`)
 	content = re.ReplaceAllString(content, "\n\n")
 
 	// Replace trailing whitespace at end of lines
@@ -228,11 +251,16 @@ func cleanWhitespace(content string) string {
 }
 
 // computeHelperFlags analyzes query views to determine which helpers are needed
-func (e *Effect4) computeHelperFlags(views []QueryView) (needsBigInt, needsExecRows bool) {
+func (e *Effect4) computeHelperFlags(views []QueryView) (needsBigInt, needsExecRows, needsSchemaTransformation bool) {
 	for _, v := range views {
 		// Check if any query uses :execrows
 		if v.Command == ":execrows" {
 			needsExecRows = true
+		}
+
+		// Check if any query uses embed transformation
+		if v.HasEmbeds {
+			needsSchemaTransformation = true
 		}
 
 		// Check if any schema field uses BigIntFromString
@@ -247,8 +275,8 @@ func (e *Effect4) computeHelperFlags(views []QueryView) (needsBigInt, needsExecR
 			}
 		}
 
-		// Early exit if both flags are set
-		if needsBigInt && needsExecRows {
+		// Early exit if all flags are set
+		if needsBigInt && needsExecRows && needsSchemaTransformation {
 			return
 		}
 	}
@@ -270,6 +298,7 @@ func (e *Effect4) buildQueryView(q models.Query, log *logger.Logger) QueryView {
 	nameCamel := toCamelCase(q.Name)
 	hasParams := len(q.Params) > 0
 	hasResults := len(q.Results) > 0
+	hasEmbeds := q.HasEmbeds
 
 	// Compute return type based on command
 	var returnType string
@@ -306,6 +335,14 @@ func (e *Effect4) buildQueryView(q models.Query, log *logger.Logger) QueryView {
 	// Template literals are enabled by default, disabled via config
 	useTemplateLiterals := !e.cfg.DisableTemplateLiterals
 
+	// Build embed groups if applicable
+	var embedGroups []EmbedGroupView
+	var rowFields []SchemaField
+	if hasEmbeds {
+		embedGroups = e.buildEmbedGroups(q.EmbedGroups, q.Name)
+		rowFields = e.buildEmbedRowFields(q.Results) // Use NullOr for embed row fields
+	}
+
 	view := QueryView{
 		Name:                q.Name,
 		NamePascal:          namePascal,
@@ -313,11 +350,14 @@ func (e *Effect4) buildQueryView(q models.Query, log *logger.Logger) QueryView {
 		Command:             q.Command,
 		HasParams:           hasParams,
 		HasResults:          hasResults,
+		HasEmbeds:           hasEmbeds,
 		ReturnType:          returnType,
 		SqlSchemaMethod:     sqlSchemaMethod,
 		RequestSchema:       requestSchema,
 		ParamFields:         e.buildParamFields(q.Params),
 		ResultFields:        e.buildResultFields(q.Results),
+		EmbedGroups:         embedGroups,
+		RowFields:           rowFields,
 		OriginalSQL:         q.RewrittenSQL,
 		ParamList:           e.generateParamList(q.Params),
 		UseTemplateLiterals: useTemplateLiterals,
@@ -386,6 +426,22 @@ func (e *Effect4) generateParamList(params []models.Param) string {
 	}
 
 	return strings.Join(parts, ", ")
+}
+
+// buildEmbedRowFields builds row fields for embed queries using NullOr instead of OptionFromNullOr
+func (e *Effect4) buildEmbedRowFields(results []models.ResultField) []SchemaField {
+	fields := make([]SchemaField, len(results))
+	for i, r := range results {
+		schema := e.sqlTypeToEffectSchemaBase(r.Type)
+		if r.Type.IsNullable {
+			schema = fmt.Sprintf("Schema.NullOr(%s)", schema)
+		}
+		fields[i] = SchemaField{
+			Name:   r.Name,
+			Schema: schema,
+		}
+	}
+	return fields
 }
 
 // sqlTypeToEffectSchemaBase converts internal SqlType to Effect Schema expression
@@ -533,6 +589,86 @@ func toCamelCase(s string) string {
 // splitLines splits a string into lines for template rendering
 func splitLines(s string) []string {
 	return strings.Split(s, "\n")
+}
+
+// buildEmbedGroups converts model embed groups to view embed groups
+func (e *Effect4) buildEmbedGroups(groups []models.EmbedGroup, queryName string) []EmbedGroupView {
+	views := make([]EmbedGroupView, len(groups))
+	for i, group := range groups {
+		views[i] = e.buildEmbedGroup(group, queryName)
+	}
+	return views
+}
+
+// buildEmbedGroup creates an EmbedGroupView from a model EmbedGroup
+func (e *Effect4) buildEmbedGroup(group models.EmbedGroup, queryName string) EmbedGroupView {
+	// Singularize the table name for the field name (e.g., "orders" -> "order")
+	fieldName := toCamelCase(singular(group.TableName))
+	// Make schema name unique per query to avoid duplicate declarations
+	schemaName := toPascalCase(queryName) + toPascalCase(group.TableName) + "Embed"
+
+	// Build fields for this embed group
+	fields := make([]SchemaField, len(group.Fields))
+	fieldMappings := make([]FieldMap, len(group.Fields))
+	for i, field := range group.Fields {
+		// For the embed schema, strip the table prefix from the field name
+		embedFieldName := field.Name
+		if strings.HasPrefix(field.Name, group.TableName+"_") {
+			embedFieldName = strings.TrimPrefix(field.Name, group.TableName+"_")
+		}
+
+		// For embed schemas (user-facing), use OptionFromNullOr for nullable fields
+		// This provides consistent API with non-embed queries
+		schema := e.sqlTypeToEffectSchemaForResults(field.Type)
+
+		fields[i] = SchemaField{
+			Name:   embedFieldName,
+			Schema: schema,
+		}
+		fieldMappings[i] = FieldMap{
+			RowFieldName:   field.Name,
+			EmbedFieldName: embedFieldName,
+		}
+	}
+
+	return EmbedGroupView{
+		TableName:    group.TableName,
+		FieldName:    fieldName,
+		SchemaName:   schemaName,
+		Fields:       fields,
+		FieldMapping: fieldMappings,
+	}
+}
+
+// singular converts a plural word to singular form, handling known edge cases
+// in the inflection library before falling back to it.
+// See: https://github.com/jinzhu/inflection/issues
+func singular(name string) string {
+	lower := strings.ToLower(name)
+
+	// Known inflection library bugs
+	switch lower {
+	// https://github.com/sqlc-dev/sqlc/issues/430
+	// https://github.com/jinzhu/inflection/issues/13
+	case "campus":
+		return name
+
+	// https://github.com/sqlc-dev/sqlc/issues/1217
+	// https://github.com/jinzhu/inflection/issues/21
+	case "meta", "metadata":
+		return name
+
+	// https://github.com/sqlc-dev/sqlc/issues/2017
+	// https://github.com/jinzhu/inflection/issues/23
+	case "calories":
+		return "calorie"
+
+	// Incorrect handling of "-ves" suffix
+	case "waves":
+		return "wave"
+	}
+
+	return inflection.Singular(name)
 }
 
 var _ Builder = (*Effect4)(nil)

@@ -2,7 +2,6 @@
 import { ServiceMap, Effect, Layer, Schema, Option, SchemaGetter } from "effect"
 import { SqlClient, SqlError, SqlSchema } from "effect/unstable/sql"
 
-
 // PostgreSQL returns bigint as string to preserve precision, so we need to transform it
 const BigIntFromString = Schema.String.pipe(
   Schema.decodeTo(
@@ -14,10 +13,8 @@ const BigIntFromString = Schema.String.pipe(
   )
 )
 
-
 // order_status enum schema
 export const OrderStatusSchema = Schema.Literals(["pending", "confirmed", "processing", "shipped", "delivered", "cancelled", "refunded"])
-
 
 // GetCustomer - Parameters Schema
 export const GetCustomerParams = Schema.Struct({
@@ -37,7 +34,6 @@ export const GetCustomerResult = Schema.Struct({
 })
 
 export type GetCustomerResult = typeof GetCustomerResult.Type
-
 // GetCustomerByEmail - Parameters Schema
 export const GetCustomerByEmailParams = Schema.Struct({
   email: Schema.String,
@@ -56,7 +52,6 @@ export const GetCustomerByEmailResult = Schema.Struct({
 })
 
 export type GetCustomerByEmailResult = typeof GetCustomerByEmailResult.Type
-
 // ListCustomers - Result Schema
 export const ListCustomersResult = Schema.Struct({
   id: Schema.Int,
@@ -68,7 +63,6 @@ export const ListCustomersResult = Schema.Struct({
 })
 
 export type ListCustomersResult = typeof ListCustomersResult.Type
-
 // ListCustomersPaginated - Parameters Schema
 export const ListCustomersPaginatedParams = Schema.Struct({
   limit: Schema.Int,
@@ -88,7 +82,6 @@ export const ListCustomersPaginatedResult = Schema.Struct({
 })
 
 export type ListCustomersPaginatedResult = typeof ListCustomersPaginatedResult.Type
-
 // SearchCustomersByName - Parameters Schema
 export const SearchCustomersByNameParams = Schema.Struct({
   arg1: Schema.optional(Schema.String),
@@ -107,7 +100,6 @@ export const SearchCustomersByNameResult = Schema.Struct({
 })
 
 export type SearchCustomersByNameResult = typeof SearchCustomersByNameResult.Type
-
 // CreateCustomer - Parameters Schema
 export const CreateCustomerParams = Schema.Struct({
   email: Schema.String,
@@ -128,7 +120,6 @@ export const CreateCustomerResult = Schema.Struct({
 })
 
 export type CreateCustomerResult = typeof CreateCustomerResult.Type
-
 // UpdateCustomer - Parameters Schema
 export const UpdateCustomerParams = Schema.Struct({
   id: Schema.Int,
@@ -150,7 +141,6 @@ export const UpdateCustomerResult = Schema.Struct({
 })
 
 export type UpdateCustomerResult = typeof UpdateCustomerResult.Type
-
 // UpdateCustomerEmail - Parameters Schema
 export const UpdateCustomerEmailParams = Schema.Struct({
   id: Schema.Int,
@@ -172,7 +162,6 @@ export const CountCustomersResult = Schema.Struct({
 })
 
 export type CountCustomersResult = typeof CountCustomersResult.Type
-
 // GetCustomersByIds - Parameters Schema
 export const GetCustomersByIdsParams = Schema.Struct({
   ids: Schema.Array(Schema.Int),
@@ -191,7 +180,6 @@ export const GetCustomersByIdsResult = Schema.Struct({
 })
 
 export type GetCustomersByIdsResult = typeof GetCustomersByIdsResult.Type
-
 
 // Repository interface for customers.sql
 export interface CustomersRepositoryShape {
@@ -247,7 +235,6 @@ export class CustomersRepository extends ServiceMap.Service<CustomersRepository,
 // Implementation
 const customersRepositoryImpl = Effect.gen(function* () {
   const sql = yield* SqlClient.SqlClient
-
 
   // GetCustomer
   // SELECT id, email, name, phone, created_at, updated_at

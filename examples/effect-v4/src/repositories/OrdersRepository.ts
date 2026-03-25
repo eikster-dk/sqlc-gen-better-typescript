@@ -2,7 +2,6 @@
 import { ServiceMap, Effect, Layer, Schema, Option, SchemaGetter } from "effect"
 import { SqlClient, SqlError, SqlSchema } from "effect/unstable/sql"
 
-
 // PostgreSQL returns bigint as string to preserve precision, so we need to transform it
 const BigIntFromString = Schema.String.pipe(
   Schema.decodeTo(
@@ -31,10 +30,8 @@ const execRows = <Req extends Schema.Top, E, R>(options: {
     )
 }
 
-
 // order_status enum schema
 export const OrderStatusSchema = Schema.Literals(["pending", "confirmed", "processing", "shipped", "delivered", "cancelled", "refunded"])
-
 
 // GetOrder - Parameters Schema
 export const GetOrderParams = Schema.Struct({
@@ -57,7 +54,6 @@ export const GetOrderResult = Schema.Struct({
 })
 
 export type GetOrderResult = typeof GetOrderResult.Type
-
 // GetOrderWithCustomer - Parameters Schema
 export const GetOrderWithCustomerParams = Schema.Struct({
   id: Schema.Int,
@@ -82,7 +78,6 @@ export const GetOrderWithCustomerResult = Schema.Struct({
 })
 
 export type GetOrderWithCustomerResult = typeof GetOrderWithCustomerResult.Type
-
 // ListOrders - Result Schema
 export const ListOrdersResult = Schema.Struct({
   id: Schema.Int,
@@ -97,7 +92,6 @@ export const ListOrdersResult = Schema.Struct({
 })
 
 export type ListOrdersResult = typeof ListOrdersResult.Type
-
 // ListOrdersByCustomer - Parameters Schema
 export const ListOrdersByCustomerParams = Schema.Struct({
   customerId: Schema.Int,
@@ -119,7 +113,6 @@ export const ListOrdersByCustomerResult = Schema.Struct({
 })
 
 export type ListOrdersByCustomerResult = typeof ListOrdersByCustomerResult.Type
-
 // ListOrdersByStatus - Parameters Schema
 export const ListOrdersByStatusParams = Schema.Struct({
   status: OrderStatusSchema,
@@ -141,7 +134,6 @@ export const ListOrdersByStatusResult = Schema.Struct({
 })
 
 export type ListOrdersByStatusResult = typeof ListOrdersByStatusResult.Type
-
 // ListOrdersPaginated - Parameters Schema
 export const ListOrdersPaginatedParams = Schema.Struct({
   limit: Schema.Int,
@@ -164,7 +156,6 @@ export const ListOrdersPaginatedResult = Schema.Struct({
 })
 
 export type ListOrdersPaginatedResult = typeof ListOrdersPaginatedResult.Type
-
 // ListOrdersByDateRange - Parameters Schema
 export const ListOrdersByDateRangeParams = Schema.Struct({
   createdAt: Schema.Date,
@@ -187,7 +178,6 @@ export const ListOrdersByDateRangeResult = Schema.Struct({
 })
 
 export type ListOrdersByDateRangeResult = typeof ListOrdersByDateRangeResult.Type
-
 // ListOrdersByDateRangeNamed - Parameters Schema
 export const ListOrdersByDateRangeNamedParams = Schema.Struct({
   startDate: Schema.Date,
@@ -210,7 +200,6 @@ export const ListOrdersByDateRangeNamedResult = Schema.Struct({
 })
 
 export type ListOrdersByDateRangeNamedResult = typeof ListOrdersByDateRangeNamedResult.Type
-
 // ListRecentOrdersWithCustomer - Parameters Schema
 export const ListRecentOrdersWithCustomerParams = Schema.Struct({
   limit: Schema.Int,
@@ -229,7 +218,6 @@ export const ListRecentOrdersWithCustomerResult = Schema.Struct({
 })
 
 export type ListRecentOrdersWithCustomerResult = typeof ListRecentOrdersWithCustomerResult.Type
-
 // SearchOrders - Parameters Schema
 export const SearchOrdersParams = Schema.Struct({
   websearchToTsquery: Schema.String,
@@ -249,7 +237,6 @@ export const SearchOrdersResult = Schema.Struct({
 })
 
 export type SearchOrdersResult = typeof SearchOrdersResult.Type
-
 // CreateOrder - Parameters Schema
 export const CreateOrderParams = Schema.Struct({
   customerId: Schema.Int,
@@ -275,7 +262,6 @@ export const CreateOrderResult = Schema.Struct({
 })
 
 export type CreateOrderResult = typeof CreateOrderResult.Type
-
 // UpdateOrderStatus - Parameters Schema
 export const UpdateOrderStatusParams = Schema.Struct({
   id: Schema.Int,
@@ -314,7 +300,6 @@ export const CountOrdersByStatusResult = Schema.Struct({
 })
 
 export type CountOrdersByStatusResult = typeof CountOrdersByStatusResult.Type
-
 // GetCustomerOrderStats - Parameters Schema
 export const GetCustomerOrderStatsParams = Schema.Struct({
   customerId: Schema.Int,
@@ -330,7 +315,6 @@ export const GetCustomerOrderStatsResult = Schema.Struct({
 })
 
 export type GetCustomerOrderStatsResult = typeof GetCustomerOrderStatsResult.Type
-
 // GetOrdersWithLineCount - Parameters Schema
 export const GetOrdersWithLineCountParams = Schema.Struct({
   limit: Schema.Int,
@@ -350,7 +334,6 @@ export const GetOrdersWithLineCountResult = Schema.Struct({
 })
 
 export type GetOrdersWithLineCountResult = typeof GetOrdersWithLineCountResult.Type
-
 // GetOrderLine - Parameters Schema
 export const GetOrderLineParams = Schema.Struct({
   id: Schema.Int,
@@ -370,7 +353,6 @@ export const GetOrderLineResult = Schema.Struct({
 })
 
 export type GetOrderLineResult = typeof GetOrderLineResult.Type
-
 // ListOrderLines - Parameters Schema
 export const ListOrderLinesParams = Schema.Struct({
   orderId: Schema.Int,
@@ -390,7 +372,6 @@ export const ListOrderLinesResult = Schema.Struct({
 })
 
 export type ListOrderLinesResult = typeof ListOrderLinesResult.Type
-
 // ListOrderLinesWithProduct - Parameters Schema
 export const ListOrderLinesWithProductParams = Schema.Struct({
   orderId: Schema.Int,
@@ -412,7 +393,6 @@ export const ListOrderLinesWithProductResult = Schema.Struct({
 })
 
 export type ListOrderLinesWithProductResult = typeof ListOrderLinesWithProductResult.Type
-
 // GetFullOrderDetails - Parameters Schema
 export const GetFullOrderDetailsParams = Schema.Struct({
   id: Schema.Int,
@@ -440,7 +420,6 @@ export const GetFullOrderDetailsResult = Schema.Struct({
 })
 
 export type GetFullOrderDetailsResult = typeof GetFullOrderDetailsResult.Type
-
 // CreateOrderLine - Parameters Schema
 export const CreateOrderLineParams = Schema.Struct({
   orderId: Schema.Int,
@@ -464,7 +443,6 @@ export const CreateOrderLineResult = Schema.Struct({
 })
 
 export type CreateOrderLineResult = typeof CreateOrderLineResult.Type
-
 // UpdateOrderLineQuantity - Parameters Schema
 export const UpdateOrderLineQuantityParams = Schema.Struct({
   id: Schema.Int,
@@ -500,7 +478,6 @@ export const GetOrderLineTotalResult = Schema.Struct({
 })
 
 export type GetOrderLineTotalResult = typeof GetOrderLineTotalResult.Type
-
 // GetProductSalesStats - Parameters Schema
 export const GetProductSalesStatsParams = Schema.Struct({
   id: Schema.Int,
@@ -518,7 +495,6 @@ export const GetProductSalesStatsResult = Schema.Struct({
 })
 
 export type GetProductSalesStatsResult = typeof GetProductSalesStatsResult.Type
-
 // GetTopSellingProducts - Parameters Schema
 export const GetTopSellingProductsParams = Schema.Struct({
   limit: Schema.Int,
@@ -537,7 +513,6 @@ export const GetTopSellingProductsResult = Schema.Struct({
 })
 
 export type GetTopSellingProductsResult = typeof GetTopSellingProductsResult.Type
-
 // GetOrdersByProductIds - Parameters Schema
 export const GetOrdersByProductIdsParams = Schema.Struct({
   productIds: Schema.Array(Schema.Int),
@@ -555,7 +530,6 @@ export const GetOrdersByProductIdsResult = Schema.Struct({
 })
 
 export type GetOrdersByProductIdsResult = typeof GetOrdersByProductIdsResult.Type
-
 
 // Repository interface for orders.sql
 export interface OrdersRepositoryShape {
@@ -687,7 +661,6 @@ export class OrdersRepository extends ServiceMap.Service<OrdersRepository, Order
 // Implementation
 const ordersRepositoryImpl = Effect.gen(function* () {
   const sql = yield* SqlClient.SqlClient
-
 
   // GetOrder
   // SELECT id, customer_id, status, total_cents, shipping_address, billing_address, notes, created_at, updated_at

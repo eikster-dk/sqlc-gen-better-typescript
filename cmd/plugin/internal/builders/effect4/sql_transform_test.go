@@ -1,4 +1,4 @@
-package builders
+package effect4
 
 import (
 	"testing"
@@ -102,9 +102,9 @@ WHERE o.id = ${params.id}`,
 			sql:  "SELECT * FROM customers WHERE id = $1",
 			params: []models.Param{
 				{Name: "id", Position: 1},
-				{Name: "name", Position: 2}, // $2 is expected but not in SQL
+				{Name: "name", Position: 2},
 			},
-			expected:             "", // Will error because $2 not found
+			expected:             "",
 			expectError:          true,
 			expectedReplacements: 0,
 		},

@@ -17,7 +17,7 @@ export async function getCustomer(client: SqlClient, params: GetCustomerParams):
     `SELECT id, email, name, phone, created_at, updated_at
 FROM customers
 WHERE id = $1`,
-    [params.id]
+    [inputParsed.data.id]
   )
 
   if (result.rows.length === 0) {

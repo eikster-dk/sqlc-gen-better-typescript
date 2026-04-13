@@ -82,12 +82,22 @@ func (n *Native) zodBaseType(t models.SqlType) string {
 	}
 }
 
+// scalarType returns a copy of t with IsArray and IsNullable cleared,
+// preserving IsEnum and Schema so zodBaseType can dispatch correctly.
+func scalarType(t models.SqlType) models.SqlType {
+	return models.SqlType{
+		Name:   t.Name,
+		Schema: t.Schema,
+		IsEnum: t.IsEnum,
+	}
+}
+
 // zodTypeForParam builds the Zod expression for a query input parameter.
 // Nullable params become optional.
 func (n *Native) zodTypeForParam(t models.SqlType) string {
 	base := n.zodBaseType(t)
 	if t.IsArray {
-		base = fmt.Sprintf("z.array(%s)", n.zodBaseType(models.SqlType{Name: t.Name}))
+		base = fmt.Sprintf("z.array(%s)", n.zodBaseType(scalarType(t)))
 	}
 	if t.IsNullable {
 		return base + ".optional()"
@@ -100,7 +110,7 @@ func (n *Native) zodTypeForParam(t models.SqlType) string {
 func (n *Native) zodTypeForResult(t models.SqlType) string {
 	base := n.zodBaseType(t)
 	if t.IsArray {
-		base = fmt.Sprintf("z.array(%s)", n.zodBaseType(models.SqlType{Name: t.Name}))
+		base = fmt.Sprintf("z.array(%s)", n.zodBaseType(scalarType(t)))
 	}
 	if t.IsNullable {
 		return base + ".nullable()"

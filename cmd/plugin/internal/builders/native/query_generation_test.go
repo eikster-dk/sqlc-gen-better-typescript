@@ -4,6 +4,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/eikster-dk/sqlc-gen-better-typescript/cmd/plugin/internal/config"
 	"github.com/eikster-dk/sqlc-gen-better-typescript/cmd/plugin/internal/logger"
 	"github.com/eikster-dk/sqlc-gen-better-typescript/cmd/plugin/internal/models"
 )
@@ -296,9 +297,48 @@ func TestNative_ZodTypeMapping(t *testing.T) {
 		{"integer", "z.number()"},
 		{"serial", "z.number()"},
 		{"smallint", "z.number()"},
+		{"int", "z.number()"},
+		{"int2", "z.number()"},
+		{"int4", "z.number()"},
+		{"serial2", "z.number()"},
+		{"serial4", "z.number()"},
+		{"smallserial", "z.number()"},
+		{"float", "z.number()"},
+		{"float4", "z.number()"},
+		{"float8", "z.number()"},
+		{"double precision", "z.number()"},
+		{"real", "z.number()"},
 		{"text", "z.string()"},
 		{"varchar", "z.string()"},
+		{"char", "z.string()"},
+		{"bpchar", "z.string()"},
+		{"citext", "z.string()"},
+		{"numeric", "z.string()"},
+		{"money", "z.string()"},
+		{"time", "z.string()"},
+		{"timetz", "z.string()"},
+		{"interval", "z.string()"},
+		{"inet", "z.string()"},
+		{"cidr", "z.string()"},
+		{"macaddr", "z.string()"},
+		{"macaddr8", "z.string()"},
+		{"ltree", "z.string()"},
+		{"lquery", "z.string()"},
+		{"ltxtquery", "z.string()"},
 		{"boolean", "z.boolean()"},
+		{"bool", "z.boolean()"},
+		{"bigint", "z.coerce.bigint()"},
+		{"int8", "z.coerce.bigint()"},
+		{"bigserial", "z.coerce.bigint()"},
+		{"serial8", "z.coerce.bigint()"},
+		{"uuid", "z.string().uuid()"},
+		{"json", "z.unknown()"},
+		{"jsonb", "z.unknown()"},
+		{"bytea", "z.instanceof(Buffer)"},
+		{"blob", "z.instanceof(Buffer)"},
+		{"date", "z.coerce.date()"},
+		{"timestamp", "z.coerce.date()"},
+		{"timestamptz", "z.coerce.date()"},
 	}
 
 	for _, tt := range tests {
@@ -309,6 +349,29 @@ func TestNative_ZodTypeMapping(t *testing.T) {
 			}
 		})
 	}
+
+	t.Run("unknown type maps to z.unknown()", func(t *testing.T) {
+		got := n.zodBaseType(models.SqlType{Name: "some_unknown_type"})
+		if got != "z.unknown()" {
+			t.Errorf("zodBaseType(unknown) = %q, want %q", got, "z.unknown()")
+		}
+	})
+
+	t.Run("enum type maps to z.string()", func(t *testing.T) {
+		got := n.zodBaseType(models.SqlType{Name: "user_role", IsEnum: true})
+		if got != "z.string()" {
+			t.Errorf("zodBaseType(enum) = %q, want %q", got, "z.string()")
+		}
+	})
+
+	t.Run("case insensitive mapping", func(t *testing.T) {
+		for _, name := range []string{"INTEGER", "Integer", "TEXT", "Text", "BOOLEAN", "Boolean"} {
+			got := n.zodBaseType(models.SqlType{Name: name})
+			if got == "z.unknown()" {
+				t.Errorf("zodBaseType(%q) = z.unknown(), expected a known type", name)
+			}
+		}
+	})
 }
 
 func TestNative_ZodTypeMapping_Nullable(t *testing.T) {
@@ -338,6 +401,54 @@ func TestNative_ZodTypeMapping_Nullable(t *testing.T) {
 		want := "z.string()"
 		if got != want {
 			t.Errorf("zodTypeForResult(non-nullable text) = %q, want %q", got, want)
+		}
+	})
+}
+
+func TestNative_ZodTypeMapping_Array(t *testing.T) {
+	n := New(defaultConfig())
+
+	t.Run("array of text", func(t *testing.T) {
+		got := n.zodTypeForParam(models.SqlType{Name: "text", IsArray: true})
+		if got != "z.array(z.string())" {
+			t.Errorf("zodTypeForParam(text[]) = %q, want %q", got, "z.array(z.string())")
+		}
+	})
+
+	t.Run("array of integer", func(t *testing.T) {
+		got := n.zodTypeForResult(models.SqlType{Name: "integer", IsArray: true})
+		if got != "z.array(z.number())" {
+			t.Errorf("zodTypeForResult(integer[]) = %q, want %q", got, "z.array(z.number())")
+		}
+	})
+
+	t.Run("nullable array param", func(t *testing.T) {
+		got := n.zodTypeForParam(models.SqlType{Name: "text", IsArray: true, IsNullable: true})
+		if got != "z.array(z.string()).optional()" {
+			t.Errorf("zodTypeForParam(nullable text[]) = %q, want %q", got, "z.array(z.string()).optional()")
+		}
+	})
+
+	t.Run("nullable array result", func(t *testing.T) {
+		got := n.zodTypeForResult(models.SqlType{Name: "text", IsArray: true, IsNullable: true})
+		if got != "z.array(z.string()).nullable()" {
+			t.Errorf("zodTypeForResult(nullable text[]) = %q, want %q", got, "z.array(z.string()).nullable()")
+		}
+	})
+
+	t.Run("array of enum preserves enum flag", func(t *testing.T) {
+		got := n.zodTypeForParam(models.SqlType{Name: "user_role", IsArray: true, IsEnum: true})
+		want := "z.array(z.string())"
+		if got != want {
+			t.Errorf("zodTypeForParam(enum[]) = %q, want %q", got, want)
+		}
+	})
+
+	t.Run("nullable array of enum preserves enum flag", func(t *testing.T) {
+		got := n.zodTypeForResult(models.SqlType{Name: "user_role", IsArray: true, IsEnum: true, IsNullable: true})
+		want := "z.array(z.string()).nullable()"
+		if got != want {
+			t.Errorf("zodTypeForResult(nullable enum[]) = %q, want %q", got, want)
 		}
 	})
 }
@@ -441,5 +552,336 @@ func TestNative_Build_MultipleFiles(t *testing.T) {
 			names[i] = f.Name
 		}
 		t.Fatalf("expected 7 files, got %d: %v", len(files), names)
+	}
+}
+
+func TestNative_Build_EmptyQuerySlice(t *testing.T) {
+	n := New(defaultConfig())
+	log := logger.New(false)
+
+	files, err := n.Build(defaultCatalog(), []models.Query{}, log, "1.0.0")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	// Empty query slice should produce only models.ts
+	if len(files) != 1 {
+		names := make([]string, len(files))
+		for i, f := range files {
+			names[i] = f.Name
+		}
+		t.Fatalf("expected 1 file, got %d: %v", len(files), names)
+	}
+	if files[0].Name != "models.ts" {
+		t.Errorf("expected models.ts, got %q", files[0].Name)
+	}
+}
+
+func TestNative_Build_NilImportExtension(t *testing.T) {
+	cfg := config.Config{Builder: "native", Driver: "pg", Validator: "zod", ImportExtension: nil}
+	n := New(cfg)
+	log := logger.New(false)
+
+	queries := []models.Query{oneQuery()}
+	files, err := n.Build(defaultCatalog(), queries, log, "1.0.0")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	var queriesFile *File
+	for i := range files {
+		if files[i].Name == "customersQueries.ts" {
+			queriesFile = &files[i]
+			break
+		}
+	}
+	if queriesFile == nil {
+		t.Fatal("expected customersQueries.ts")
+	}
+
+	content := string(queriesFile.Content)
+
+	// With nil import extension, imports should have no extension
+	if !strings.Contains(content, `"./models"`) {
+		t.Errorf("expected import from ./models (no ext), got:\n%s", content)
+	}
+}
+
+func TestNative_Build_EmptyImportExtension(t *testing.T) {
+	ext := ""
+	cfg := config.Config{Builder: "native", Driver: "pg", Validator: "zod", ImportExtension: &ext}
+	n := New(cfg)
+	log := logger.New(false)
+
+	queries := []models.Query{oneQuery()}
+	files, err := n.Build(defaultCatalog(), queries, log, "1.0.0")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	var queriesFile *File
+	for i := range files {
+		if files[i].Name == "customersQueries.ts" {
+			queriesFile = &files[i]
+			break
+		}
+	}
+	if queriesFile == nil {
+		t.Fatal("expected customersQueries.ts")
+	}
+
+	content := string(queriesFile.Content)
+
+	// With empty import extension, imports should have no extension
+	if !strings.Contains(content, `"./models"`) {
+		t.Errorf("expected import from ./models (no ext), got:\n%s", content)
+	}
+}
+
+func TestNative_Build_RewrittenSQLFallback(t *testing.T) {
+	n := New(defaultConfig())
+	log := logger.New(false)
+
+	// Query with empty RewrittenSQL should fall back to SQL
+	q := models.Query{
+		Name:         "GetCustomer",
+		SQL:          "SELECT id FROM customers WHERE id = $1",
+		RewrittenSQL: "",
+		Command:      ":one",
+		Filename:     "customers.sql",
+		Params:       []models.Param{{Name: "id", Position: 1, Type: models.SqlType{Name: "integer"}}},
+		Results:      []models.ResultField{{Name: "id", Type: models.SqlType{Name: "integer"}}},
+	}
+
+	files, err := n.Build(defaultCatalog(), []models.Query{q}, log, "1.0.0")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	var queriesFile *File
+	for i := range files {
+		if files[i].Name == "customersQueries.ts" {
+			queriesFile = &files[i]
+			break
+		}
+	}
+	if queriesFile == nil {
+		t.Fatal("expected customersQueries.ts")
+	}
+
+	content := string(queriesFile.Content)
+
+	if !strings.Contains(content, "SELECT id FROM customers WHERE id = $1") {
+		t.Errorf("expected SQL fallback when RewrittenSQL is empty, got:\n%s", content)
+	}
+}
+
+func TestNative_Build_QueryWithNoResults(t *testing.T) {
+	n := New(defaultConfig())
+	log := logger.New(false)
+
+	q := models.Query{
+		Name:         "GetEmpty",
+		SQL:          "SELECT 1 WHERE false",
+		RewrittenSQL: "SELECT 1 WHERE false",
+		Command:      ":one",
+		Filename:     "empty.sql",
+		Params:       []models.Param{},
+		Results:      []models.ResultField{},
+	}
+
+	files, err := n.Build(defaultCatalog(), []models.Query{q}, log, "1.0.0")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	var queriesFile *File
+	for i := range files {
+		if files[i].Name == "emptyQueries.ts" {
+			queriesFile = &files[i]
+			break
+		}
+	}
+	if queriesFile == nil {
+		t.Fatal("expected emptyQueries.ts")
+	}
+
+	content := string(queriesFile.Content)
+
+	// No results means return type should be null, not a type | null
+	if !strings.Contains(content, "Promise<QueryResult<null>>") {
+		t.Errorf("expected Promise<QueryResult<null>> for no-result query, got:\n%s", content)
+	}
+
+	// Should not have output validation
+	if strings.Contains(content, `phase: "output"`) {
+		t.Errorf("expected no output validation for no-result query, got:\n%s", content)
+	}
+}
+
+func TestNative_CaseConversion(t *testing.T) {
+	tests := []struct {
+		input      string
+		wantPascal string
+		wantCamel  string
+	}{
+		{"get_customer", "GetCustomer", "getCustomer"},
+		{"GetCustomer", "GetCustomer", "getCustomer"},
+		{"customer", "Customer", "customer"},
+		{"a", "A", "a"},
+		{"", "", ""},
+		{"get_customer_by_id", "GetCustomerById", "getCustomerById"},
+		{"_leading", "Leading", "leading"},
+		{"trailing_", "Trailing", "trailing"},
+		{"__double__under__", "DoubleUnder", "doubleUnder"},
+		{"ALL_CAPS", "ALLCAPS", "aLLCAPS"},
+	}
+
+	for _, tt := range tests {
+		t.Run("pascal_"+tt.input, func(t *testing.T) {
+			got := toPascalCase(tt.input)
+			if got != tt.wantPascal {
+				t.Errorf("toPascalCase(%q) = %q, want %q", tt.input, got, tt.wantPascal)
+			}
+		})
+		t.Run("camel_"+tt.input, func(t *testing.T) {
+			got := toCamelCase(tt.input)
+			if got != tt.wantCamel {
+				t.Errorf("toCamelCase(%q) = %q, want %q", tt.input, got, tt.wantCamel)
+			}
+		})
+	}
+}
+
+func TestNative_FilenameToStem(t *testing.T) {
+	tests := []struct {
+		input string
+		want  string
+	}{
+		{"customers.sql", "customers"},
+		{"queries.sql", "queries"},
+		{"my_queries.sql", "my_queries"},
+		{"path/to/queries.sql", "queries"},
+		{"noext", "noext"},
+		{".hidden", ""}, // filepath.Ext(".hidden") = ".hidden", so stem is empty
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.input, func(t *testing.T) {
+			got := filenameToStem(tt.input)
+			if got != tt.want {
+				t.Errorf("filenameToStem(%q) = %q, want %q", tt.input, got, tt.want)
+			}
+		})
+	}
+}
+
+func TestNative_BuildParamList(t *testing.T) {
+	t.Run("empty params", func(t *testing.T) {
+		got := buildParamList(nil)
+		if got != "" {
+			t.Errorf("buildParamList(nil) = %q, want %q", got, "")
+		}
+	})
+
+	t.Run("single param", func(t *testing.T) {
+		params := []models.Param{{Name: "id", Position: 1, Type: models.SqlType{Name: "integer"}}}
+		got := buildParamList(params)
+		if got != "inputParsed.data.id" {
+			t.Errorf("buildParamList = %q, want %q", got, "inputParsed.data.id")
+		}
+	})
+
+	t.Run("multiple params", func(t *testing.T) {
+		params := []models.Param{
+			{Name: "id", Position: 1, Type: models.SqlType{Name: "integer"}},
+			{Name: "name", Position: 2, Type: models.SqlType{Name: "text"}},
+		}
+		got := buildParamList(params)
+		if got != "inputParsed.data.id, inputParsed.data.name" {
+			t.Errorf("buildParamList = %q, want %q", got, "inputParsed.data.id, inputParsed.data.name")
+		}
+	})
+
+	t.Run("snake_case param names are camelCased", func(t *testing.T) {
+		params := []models.Param{
+			{Name: "user_id", Position: 1, Type: models.SqlType{Name: "integer"}},
+		}
+		got := buildParamList(params)
+		if got != "inputParsed.data.userId" {
+			t.Errorf("buildParamList = %q, want %q", got, "inputParsed.data.userId")
+		}
+	})
+}
+
+func TestNative_Build_QueryImportExtension(t *testing.T) {
+	ext := ".ts"
+	cfg := config.Config{Builder: "native", Driver: "pg", Validator: "zod", ImportExtension: &ext}
+	n := New(cfg)
+	log := logger.New(false)
+
+	queries := []models.Query{oneQuery()}
+	files, err := n.Build(defaultCatalog(), queries, log, "1.0.0")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	var queriesFile *File
+	for i := range files {
+		if files[i].Name == "customersQueries.ts" {
+			queriesFile = &files[i]
+			break
+		}
+	}
+	if queriesFile == nil {
+		t.Fatal("expected customersQueries.ts")
+	}
+
+	content := string(queriesFile.Content)
+
+	// .ts extension should be applied to all local imports
+	if !strings.Contains(content, `"./models.ts"`) {
+		t.Errorf("expected .ts extension on models import, got:\n%s", content)
+	}
+	if !strings.Contains(content, `"./customersRequests.ts"`) {
+		t.Errorf("expected .ts extension on requests import, got:\n%s", content)
+	}
+	if !strings.Contains(content, `"./customersResponses.ts"`) {
+		t.Errorf("expected .ts extension on responses import, got:\n%s", content)
+	}
+}
+
+func TestNative_Build_QueryWithEmptyFilename(t *testing.T) {
+	n := New(defaultConfig())
+	log := logger.New(false)
+
+	q := models.Query{
+		Name:         "GetThing",
+		SQL:          "SELECT id FROM things WHERE id = $1",
+		RewrittenSQL: "SELECT id FROM things WHERE id = $1",
+		Command:      ":one",
+		Filename:     "", // Empty filename
+		Params:       []models.Param{{Name: "id", Position: 1, Type: models.SqlType{Name: "integer"}}},
+		Results:      []models.ResultField{{Name: "id", Type: models.SqlType{Name: "integer"}}},
+	}
+
+	files, err := n.Build(defaultCatalog(), []models.Query{q}, log, "1.0.0")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	// Should default to "queries.sql" -> "queries" stem
+	var queriesFile *File
+	for i := range files {
+		if files[i].Name == "queriesQueries.ts" {
+			queriesFile = &files[i]
+			break
+		}
+	}
+	if queriesFile == nil {
+		names := make([]string, len(files))
+		for i, f := range files {
+			names[i] = f.Name
+		}
+		t.Fatalf("expected queriesQueries.ts for empty filename, got files: %v", names)
 	}
 }

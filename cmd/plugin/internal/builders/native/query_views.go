@@ -57,6 +57,11 @@ func (n *Native) buildQueryView(q models.Query, log *logger.Logger) QueryView {
 	paramFields := n.buildParamFields(q.Params)
 	resultFields := n.buildResultFields(q.Results)
 
+	sql := q.RewrittenSQL
+	if sql == "" {
+		sql = q.SQL
+	}
+
 	return QueryView{
 		Name:         q.Name,
 		NamePascal:   namePascal,
@@ -66,7 +71,7 @@ func (n *Native) buildQueryView(q models.Query, log *logger.Logger) QueryView {
 		HasResults:   hasResults,
 		ParamFields:  paramFields,
 		ResultFields: resultFields,
-		SQL:          q.RewrittenSQL,
+		SQL:          sql,
 		ParamList:    buildParamList(q.Params),
 	}
 }
@@ -99,7 +104,7 @@ func buildParamList(params []models.Param) string {
 	}
 	parts := make([]string, len(params))
 	for i, p := range params {
-		parts[i] = fmt.Sprintf("params.%s", toCamelCase(p.Name))
+		parts[i] = fmt.Sprintf("inputParsed.data.%s", toCamelCase(p.Name))
 	}
 	return strings.Join(parts, ", ")
 }

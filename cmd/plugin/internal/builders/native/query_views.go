@@ -11,6 +11,15 @@ import (
 	"github.com/eikster-dk/sqlc-gen-better-typescript/cmd/plugin/internal/models"
 )
 
+// toSQLComment prefixes each line of sql with "// ".
+func toSQLComment(sql string) string {
+	lines := strings.Split(sql, "\n")
+	for i, line := range lines {
+		lines[i] = "// " + line
+	}
+	return strings.Join(lines, "\n")
+}
+
 func (n *Native) groupQueriesByFile(queries []models.Query, log *logger.Logger) map[string][]models.Query {
 	groups := make(map[string][]models.Query)
 	for _, q := range queries {
@@ -72,6 +81,7 @@ func (n *Native) buildQueryView(q models.Query, log *logger.Logger) QueryView {
 		ParamFields:  paramFields,
 		ResultFields: resultFields,
 		SQL:          sql,
+		SQLComment:   toSQLComment(sql),
 		ParamList:    buildParamList(q.Params),
 	}
 }

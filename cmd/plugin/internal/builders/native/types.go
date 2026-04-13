@@ -18,6 +18,7 @@ type QueryView struct {
 	ParamFields  []ZodField
 	ResultFields []ZodField
 	SQL          string
+	SQLComment   string // SQL with each line prefixed by "// "
 	ParamList    string // comma-separated "params.foo, params.bar"
 }
 

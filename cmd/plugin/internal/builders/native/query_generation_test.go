@@ -236,6 +236,84 @@ func TestNative_Build_QueriesFile(t *testing.T) {
 	})
 }
 
+func TestNative_Build_QueriesFile_SQLComment(t *testing.T) {
+	n := New(defaultConfig())
+	log := logger.New(false)
+
+	queries := []models.Query{oneQuery()}
+	files, err := n.Build(defaultCatalog(), queries, log, "1.0.0")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	var queriesFile *File
+	for i := range files {
+		if files[i].Name == "customersQueries.ts" {
+			queriesFile = &files[i]
+			break
+		}
+	}
+	if queriesFile == nil {
+		t.Fatal("expected customersQueries.ts")
+	}
+
+	content := string(queriesFile.Content)
+
+	t.Run("SQL comment appears above function", func(t *testing.T) {
+		// Each line of the SQL should appear as a // comment before the function
+		if !strings.Contains(content, "// SELECT id, name FROM customers WHERE id = $1") {
+			t.Errorf("expected SQL as comment above function, got:\n%s", content)
+		}
+	})
+
+	t.Run("SQL comment precedes the export keyword", func(t *testing.T) {
+		commentIdx := strings.Index(content, "// SELECT id, name FROM customers WHERE id = $1")
+		funcIdx := strings.Index(content, "export async function getCustomer")
+		if commentIdx == -1 || funcIdx == -1 || commentIdx > funcIdx {
+			t.Errorf("expected SQL comment to appear before function declaration, got:\n%s", content)
+		}
+	})
+
+	t.Run("multiline SQL has each line commented", func(t *testing.T) {
+		multilineQuery := models.Query{
+			Name:         "GetCustomer",
+			SQL:          "SELECT id, name\nFROM customers\nWHERE id = $1",
+			RewrittenSQL: "SELECT id, name\nFROM customers\nWHERE id = $1",
+			Command:      ":one",
+			Filename:     "customers.sql",
+			Params:       []models.Param{{Name: "id", Position: 1, Type: models.SqlType{Name: "integer"}}},
+			Results: []models.ResultField{
+				{Name: "id", Type: models.SqlType{Name: "integer"}},
+				{Name: "name", Type: models.SqlType{Name: "text"}},
+			},
+		}
+		files2, err := n.Build(defaultCatalog(), []models.Query{multilineQuery}, log, "1.0.0")
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		var qf *File
+		for i := range files2 {
+			if files2[i].Name == "customersQueries.ts" {
+				qf = &files2[i]
+				break
+			}
+		}
+		if qf == nil {
+			t.Fatal("expected customersQueries.ts")
+		}
+		c := string(qf.Content)
+		if !strings.Contains(c, "// SELECT id, name") {
+			t.Errorf("expected first SQL line as comment, got:\n%s", c)
+		}
+		if !strings.Contains(c, "// FROM customers") {
+			t.Errorf("expected second SQL line as comment, got:\n%s", c)
+		}
+		if !strings.Contains(c, "// WHERE id = $1") {
+			t.Errorf("expected third SQL line as comment, got:\n%s", c)
+		}
+	})
+}
+
 func TestNative_Build_OneQuery_NoParamQuery(t *testing.T) {
 	n := New(defaultConfig())
 	log := logger.New(false)

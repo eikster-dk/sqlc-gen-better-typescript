@@ -15,6 +15,7 @@ import { {{.NamePascal}}Result as {{.NamePascal}}ResultSchema } from "./{{$stem}
 {{range .QueryViews -}}
 {{if eq .Command ":one"}}
 // {{.Name}}
+{{.SQLComment}}
 export async function {{.NameCamel}}(client: SqlClient{{if .HasParams}}, params: {{.NamePascal}}Params{{end}}): Promise<QueryResult<{{if .HasResults}}{{.NamePascal}}Result | null{{else}}null{{end}}>> {
 {{- if .HasParams}}
   const inputParsed = {{.NamePascal}}ParamsSchema.safeParse(params)
@@ -40,6 +41,66 @@ export async function {{.NameCamel}}(client: SqlClient{{if .HasParams}}, params:
 {{- else}}
   return { success: true, data: null }
 {{- end}}
+}
+{{else if eq .Command ":many"}}
+// {{.Name}}
+{{.SQLComment}}
+export async function {{.NameCamel}}(client: SqlClient{{if .HasParams}}, params: {{.NamePascal}}Params{{end}}): Promise<QueryResult<{{if .HasResults}}{{.NamePascal}}Result[]{{else}}void{{end}}>> {
+{{- if .HasParams}}
+  const inputParsed = {{.NamePascal}}ParamsSchema.safeParse(params)
+  if (!inputParsed.success) {
+    return { success: false, error: inputParsed.error, phase: "input" }
+  }
+{{end}}
+  const result = await client.query(
+    `{{.SQL}}`,
+    {{if .HasParams}}[{{.ParamList}}]{{else}}[]{{end}}
+  )
+
+{{if .HasResults}}
+  const outputParsed = {{.NamePascal}}ResultSchema.array().safeParse(result.rows)
+  if (!outputParsed.success) {
+    return { success: false, error: outputParsed.error, phase: "output" }
+  }
+
+  return { success: true, data: outputParsed.data }
+{{- else}}
+  return { success: true, data: undefined }
+{{- end}}
+}
+{{else if eq .Command ":exec"}}
+// {{.Name}}
+{{.SQLComment}}
+export async function {{.NameCamel}}(client: SqlClient{{if .HasParams}}, params: {{.NamePascal}}Params{{end}}): Promise<QueryResult<void>> {
+{{- if .HasParams}}
+  const inputParsed = {{.NamePascal}}ParamsSchema.safeParse(params)
+  if (!inputParsed.success) {
+    return { success: false, error: inputParsed.error, phase: "input" }
+  }
+{{end}}
+  await client.query(
+    `{{.SQL}}`,
+    {{if .HasParams}}[{{.ParamList}}]{{else}}[]{{end}}
+  )
+
+  return { success: true, data: undefined }
+}
+{{else if eq .Command ":execrows"}}
+// {{.Name}}
+{{.SQLComment}}
+export async function {{.NameCamel}}(client: SqlClient{{if .HasParams}}, params: {{.NamePascal}}Params{{end}}): Promise<QueryResult<number>> {
+{{- if .HasParams}}
+  const inputParsed = {{.NamePascal}}ParamsSchema.safeParse(params)
+  if (!inputParsed.success) {
+    return { success: false, error: inputParsed.error, phase: "input" }
+  }
+{{end}}
+  const result = await client.query(
+    `{{.SQL}}`,
+    {{if .HasParams}}[{{.ParamList}}]{{else}}[]{{end}}
+  )
+
+  return { success: true, data: result.rowCount || 0 }
 }
 {{end -}}
 {{end -}}

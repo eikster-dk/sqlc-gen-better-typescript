@@ -7,3 +7,66 @@ export const GetCustomerParams = z.object({
 })
 
 export type GetCustomerParams = z.infer<typeof GetCustomerParams>
+
+// GetCustomerByEmail - Parameters
+export const GetCustomerByEmailParams = z.object({
+  email: z.string(),
+})
+
+export type GetCustomerByEmailParams = z.infer<typeof GetCustomerByEmailParams>
+
+// ListCustomersPaginated - Parameters
+export const ListCustomersPaginatedParams = z.object({
+  limit: z.number(),
+  offset: z.number(),
+})
+
+export type ListCustomersPaginatedParams = z.infer<typeof ListCustomersPaginatedParams>
+
+// SearchCustomersByName - Parameters
+export const SearchCustomersByNameParams = z.object({
+  arg1: z.string().optional(),
+})
+
+export type SearchCustomersByNameParams = z.infer<typeof SearchCustomersByNameParams>
+
+// CreateCustomer - Parameters
+export const CreateCustomerParams = z.object({
+  email: z.string(),
+  name: z.string(),
+  phone: z.string().optional(),
+})
+
+export type CreateCustomerParams = z.infer<typeof CreateCustomerParams>
+
+// UpdateCustomer - Parameters
+export const UpdateCustomerParams = z.object({
+  id: z.number(),
+  email: z.string(),
+  name: z.string(),
+  phone: z.string().optional(),
+})
+
+export type UpdateCustomerParams = z.infer<typeof UpdateCustomerParams>
+
+// UpdateCustomerEmail - Parameters
+export const UpdateCustomerEmailParams = z.object({
+  id: z.number(),
+  email: z.string(),
+})
+
+export type UpdateCustomerEmailParams = z.infer<typeof UpdateCustomerEmailParams>
+
+// DeleteCustomer - Parameters
+export const DeleteCustomerParams = z.object({
+  id: z.number(),
+})
+
+export type DeleteCustomerParams = z.infer<typeof DeleteCustomerParams>
+
+// GetCustomersByIds - Parameters
+export const GetCustomersByIdsParams = z.object({
+  ids: z.array(z.number()),
+})
+
+export type GetCustomersByIdsParams = z.infer<typeof GetCustomersByIdsParams>

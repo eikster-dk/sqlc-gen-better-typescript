@@ -6,3 +6,6 @@ CREATE TABLE customers (
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+CREATE INDEX customers_email_idx ON customers(email);
+CREATE INDEX customers_created_at_idx ON customers(created_at);

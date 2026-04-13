@@ -6,7 +6,50 @@ import { GetCustomerParams as GetCustomerParamsSchema } from "./customersRequest
 import type { GetCustomerResult } from "./customersResponses.js"
 import { GetCustomerResult as GetCustomerResultSchema } from "./customersResponses.js"
 
+import type { GetCustomerByEmailParams } from "./customersRequests.js"
+import { GetCustomerByEmailParams as GetCustomerByEmailParamsSchema } from "./customersRequests.js"
+import type { GetCustomerByEmailResult } from "./customersResponses.js"
+import { GetCustomerByEmailResult as GetCustomerByEmailResultSchema } from "./customersResponses.js"
+import type { ListCustomersResult } from "./customersResponses.js"
+import { ListCustomersResult as ListCustomersResultSchema } from "./customersResponses.js"
+
+import type { ListCustomersPaginatedParams } from "./customersRequests.js"
+import { ListCustomersPaginatedParams as ListCustomersPaginatedParamsSchema } from "./customersRequests.js"
+import type { ListCustomersPaginatedResult } from "./customersResponses.js"
+import { ListCustomersPaginatedResult as ListCustomersPaginatedResultSchema } from "./customersResponses.js"
+
+import type { SearchCustomersByNameParams } from "./customersRequests.js"
+import { SearchCustomersByNameParams as SearchCustomersByNameParamsSchema } from "./customersRequests.js"
+import type { SearchCustomersByNameResult } from "./customersResponses.js"
+import { SearchCustomersByNameResult as SearchCustomersByNameResultSchema } from "./customersResponses.js"
+
+import type { CreateCustomerParams } from "./customersRequests.js"
+import { CreateCustomerParams as CreateCustomerParamsSchema } from "./customersRequests.js"
+import type { CreateCustomerResult } from "./customersResponses.js"
+import { CreateCustomerResult as CreateCustomerResultSchema } from "./customersResponses.js"
+
+import type { UpdateCustomerParams } from "./customersRequests.js"
+import { UpdateCustomerParams as UpdateCustomerParamsSchema } from "./customersRequests.js"
+import type { UpdateCustomerResult } from "./customersResponses.js"
+import { UpdateCustomerResult as UpdateCustomerResultSchema } from "./customersResponses.js"
+
+import type { UpdateCustomerEmailParams } from "./customersRequests.js"
+import { UpdateCustomerEmailParams as UpdateCustomerEmailParamsSchema } from "./customersRequests.js"
+
+import type { DeleteCustomerParams } from "./customersRequests.js"
+import { DeleteCustomerParams as DeleteCustomerParamsSchema } from "./customersRequests.js"
+import type { CountCustomersResult } from "./customersResponses.js"
+import { CountCustomersResult as CountCustomersResultSchema } from "./customersResponses.js"
+
+import type { GetCustomersByIdsParams } from "./customersRequests.js"
+import { GetCustomersByIdsParams as GetCustomersByIdsParamsSchema } from "./customersRequests.js"
+import type { GetCustomersByIdsResult } from "./customersResponses.js"
+import { GetCustomersByIdsResult as GetCustomersByIdsResultSchema } from "./customersResponses.js"
+
 // GetCustomer
+// SELECT id, email, name, phone, created_at, updated_at
+// FROM customers
+// WHERE id = $1
 export async function getCustomer(client: SqlClient, params: GetCustomerParams): Promise<QueryResult<GetCustomerResult | null>> {
   const inputParsed = GetCustomerParamsSchema.safeParse(params)
   if (!inputParsed.success) {
@@ -25,6 +68,254 @@ WHERE id = $1`,
   }
 
   const outputParsed = GetCustomerResultSchema.safeParse(result.rows[0])
+  if (!outputParsed.success) {
+    return { success: false, error: outputParsed.error, phase: "output" }
+  }
+
+  return { success: true, data: outputParsed.data }
+}
+
+// GetCustomerByEmail
+// SELECT id, email, name, phone, created_at, updated_at
+// FROM customers
+// WHERE email = $1
+export async function getCustomerByEmail(client: SqlClient, params: GetCustomerByEmailParams): Promise<QueryResult<GetCustomerByEmailResult | null>> {
+  const inputParsed = GetCustomerByEmailParamsSchema.safeParse(params)
+  if (!inputParsed.success) {
+    return { success: false, error: inputParsed.error, phase: "input" }
+  }
+
+  const result = await client.query(
+    `SELECT id, email, name, phone, created_at, updated_at
+FROM customers
+WHERE email = $1`,
+    [inputParsed.data.email]
+  )
+
+  if (result.rows.length === 0) {
+    return { success: true, data: null }
+  }
+
+  const outputParsed = GetCustomerByEmailResultSchema.safeParse(result.rows[0])
+  if (!outputParsed.success) {
+    return { success: false, error: outputParsed.error, phase: "output" }
+  }
+
+  return { success: true, data: outputParsed.data }
+}
+
+// ListCustomers
+// SELECT id, email, name, phone, created_at, updated_at
+// FROM customers
+// ORDER BY created_at DESC
+export async function listCustomers(client: SqlClient): Promise<QueryResult<ListCustomersResult[]>> {
+  const result = await client.query(
+    `SELECT id, email, name, phone, created_at, updated_at
+FROM customers
+ORDER BY created_at DESC`,
+    []
+  )
+
+  const outputParsed = ListCustomersResultSchema.array().safeParse(result.rows)
+  if (!outputParsed.success) {
+    return { success: false, error: outputParsed.error, phase: "output" }
+  }
+
+  return { success: true, data: outputParsed.data }
+}
+
+// ListCustomersPaginated
+// SELECT id, email, name, phone, created_at, updated_at
+// FROM customers
+// ORDER BY created_at DESC
+// LIMIT $1 OFFSET $2
+export async function listCustomersPaginated(client: SqlClient, params: ListCustomersPaginatedParams): Promise<QueryResult<ListCustomersPaginatedResult[]>> {
+  const inputParsed = ListCustomersPaginatedParamsSchema.safeParse(params)
+  if (!inputParsed.success) {
+    return { success: false, error: inputParsed.error, phase: "input" }
+  }
+
+  const result = await client.query(
+    `SELECT id, email, name, phone, created_at, updated_at
+FROM customers
+ORDER BY created_at DESC
+LIMIT $1 OFFSET $2`,
+    [inputParsed.data.limit, inputParsed.data.offset]
+  )
+
+  const outputParsed = ListCustomersPaginatedResultSchema.array().safeParse(result.rows)
+  if (!outputParsed.success) {
+    return { success: false, error: outputParsed.error, phase: "output" }
+  }
+
+  return { success: true, data: outputParsed.data }
+}
+
+// SearchCustomersByName
+// SELECT id, email, name, phone, created_at, updated_at
+// FROM customers
+// WHERE name ILIKE '%' || $1 || '%'
+// ORDER BY name
+export async function searchCustomersByName(client: SqlClient, params: SearchCustomersByNameParams): Promise<QueryResult<SearchCustomersByNameResult[]>> {
+  const inputParsed = SearchCustomersByNameParamsSchema.safeParse(params)
+  if (!inputParsed.success) {
+    return { success: false, error: inputParsed.error, phase: "input" }
+  }
+
+  const result = await client.query(
+    `SELECT id, email, name, phone, created_at, updated_at
+FROM customers
+WHERE name ILIKE '%' || $1 || '%'
+ORDER BY name`,
+    [inputParsed.data.arg1]
+  )
+
+  const outputParsed = SearchCustomersByNameResultSchema.array().safeParse(result.rows)
+  if (!outputParsed.success) {
+    return { success: false, error: outputParsed.error, phase: "output" }
+  }
+
+  return { success: true, data: outputParsed.data }
+}
+
+// CreateCustomer
+// INSERT INTO customers (email, name, phone)
+// VALUES ($1, $2, $3)
+// RETURNING id, email, name, phone, created_at, updated_at
+export async function createCustomer(client: SqlClient, params: CreateCustomerParams): Promise<QueryResult<CreateCustomerResult | null>> {
+  const inputParsed = CreateCustomerParamsSchema.safeParse(params)
+  if (!inputParsed.success) {
+    return { success: false, error: inputParsed.error, phase: "input" }
+  }
+
+  const result = await client.query(
+    `INSERT INTO customers (email, name, phone)
+VALUES ($1, $2, $3)
+RETURNING id, email, name, phone, created_at, updated_at`,
+    [inputParsed.data.email, inputParsed.data.name, inputParsed.data.phone]
+  )
+
+  if (result.rows.length === 0) {
+    return { success: true, data: null }
+  }
+
+  const outputParsed = CreateCustomerResultSchema.safeParse(result.rows[0])
+  if (!outputParsed.success) {
+    return { success: false, error: outputParsed.error, phase: "output" }
+  }
+
+  return { success: true, data: outputParsed.data }
+}
+
+// UpdateCustomer
+// UPDATE customers
+// SET email = $2, name = $3, phone = $4, updated_at = NOW()
+// WHERE id = $1
+// RETURNING id, email, name, phone, created_at, updated_at
+export async function updateCustomer(client: SqlClient, params: UpdateCustomerParams): Promise<QueryResult<UpdateCustomerResult | null>> {
+  const inputParsed = UpdateCustomerParamsSchema.safeParse(params)
+  if (!inputParsed.success) {
+    return { success: false, error: inputParsed.error, phase: "input" }
+  }
+
+  const result = await client.query(
+    `UPDATE customers
+SET email = $2, name = $3, phone = $4, updated_at = NOW()
+WHERE id = $1
+RETURNING id, email, name, phone, created_at, updated_at`,
+    [inputParsed.data.id, inputParsed.data.email, inputParsed.data.name, inputParsed.data.phone]
+  )
+
+  if (result.rows.length === 0) {
+    return { success: true, data: null }
+  }
+
+  const outputParsed = UpdateCustomerResultSchema.safeParse(result.rows[0])
+  if (!outputParsed.success) {
+    return { success: false, error: outputParsed.error, phase: "output" }
+  }
+
+  return { success: true, data: outputParsed.data }
+}
+
+// UpdateCustomerEmail
+// UPDATE customers
+// SET email = $2, updated_at = NOW()
+// WHERE id = $1
+export async function updateCustomerEmail(client: SqlClient, params: UpdateCustomerEmailParams): Promise<QueryResult<void>> {
+  const inputParsed = UpdateCustomerEmailParamsSchema.safeParse(params)
+  if (!inputParsed.success) {
+    return { success: false, error: inputParsed.error, phase: "input" }
+  }
+
+  await client.query(
+    `UPDATE customers
+SET email = $2, updated_at = NOW()
+WHERE id = $1`,
+    [inputParsed.data.id, inputParsed.data.email]
+  )
+
+  return { success: true, data: undefined }
+}
+
+// DeleteCustomer
+// DELETE FROM customers
+// WHERE id = $1
+export async function deleteCustomer(client: SqlClient, params: DeleteCustomerParams): Promise<QueryResult<void>> {
+  const inputParsed = DeleteCustomerParamsSchema.safeParse(params)
+  if (!inputParsed.success) {
+    return { success: false, error: inputParsed.error, phase: "input" }
+  }
+
+  await client.query(
+    `DELETE FROM customers
+WHERE id = $1`,
+    [inputParsed.data.id]
+  )
+
+  return { success: true, data: undefined }
+}
+
+// CountCustomers
+// SELECT COUNT(*) AS total
+// FROM customers
+export async function countCustomers(client: SqlClient): Promise<QueryResult<CountCustomersResult | null>> {
+  const result = await client.query(
+    `SELECT COUNT(*) AS total
+FROM customers`,
+    []
+  )
+
+  if (result.rows.length === 0) {
+    return { success: true, data: null }
+  }
+
+  const outputParsed = CountCustomersResultSchema.safeParse(result.rows[0])
+  if (!outputParsed.success) {
+    return { success: false, error: outputParsed.error, phase: "output" }
+  }
+
+  return { success: true, data: outputParsed.data }
+}
+
+// GetCustomersByIds
+// SELECT id, email, name, phone, created_at, updated_at
+// FROM customers
+// WHERE id = ANY($1::int[])
+export async function getCustomersByIds(client: SqlClient, params: GetCustomersByIdsParams): Promise<QueryResult<GetCustomersByIdsResult[]>> {
+  const inputParsed = GetCustomersByIdsParamsSchema.safeParse(params)
+  if (!inputParsed.success) {
+    return { success: false, error: inputParsed.error, phase: "input" }
+  }
+
+  const result = await client.query(
+    `SELECT id, email, name, phone, created_at, updated_at
+FROM customers
+WHERE id = ANY($1::int[])`,
+    [inputParsed.data.ids]
+  )
+
+  const outputParsed = GetCustomersByIdsResultSchema.array().safeParse(result.rows)
   if (!outputParsed.success) {
     return { success: false, error: outputParsed.error, phase: "output" }
   }

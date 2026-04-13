@@ -12,3 +12,94 @@ export const GetCustomerResult = z.object({
 })
 
 export type GetCustomerResult = z.infer<typeof GetCustomerResult>
+
+// GetCustomerByEmail - Result
+export const GetCustomerByEmailResult = z.object({
+  id: z.number(),
+  email: z.string(),
+  name: z.string(),
+  phone: z.string().nullable(),
+  created_at: z.coerce.date(),
+  updated_at: z.coerce.date(),
+})
+
+export type GetCustomerByEmailResult = z.infer<typeof GetCustomerByEmailResult>
+
+// ListCustomers - Result
+export const ListCustomersResult = z.object({
+  id: z.number(),
+  email: z.string(),
+  name: z.string(),
+  phone: z.string().nullable(),
+  created_at: z.coerce.date(),
+  updated_at: z.coerce.date(),
+})
+
+export type ListCustomersResult = z.infer<typeof ListCustomersResult>
+
+// ListCustomersPaginated - Result
+export const ListCustomersPaginatedResult = z.object({
+  id: z.number(),
+  email: z.string(),
+  name: z.string(),
+  phone: z.string().nullable(),
+  created_at: z.coerce.date(),
+  updated_at: z.coerce.date(),
+})
+
+export type ListCustomersPaginatedResult = z.infer<typeof ListCustomersPaginatedResult>
+
+// SearchCustomersByName - Result
+export const SearchCustomersByNameResult = z.object({
+  id: z.number(),
+  email: z.string(),
+  name: z.string(),
+  phone: z.string().nullable(),
+  created_at: z.coerce.date(),
+  updated_at: z.coerce.date(),
+})
+
+export type SearchCustomersByNameResult = z.infer<typeof SearchCustomersByNameResult>
+
+// CreateCustomer - Result
+export const CreateCustomerResult = z.object({
+  id: z.number(),
+  email: z.string(),
+  name: z.string(),
+  phone: z.string().nullable(),
+  created_at: z.coerce.date(),
+  updated_at: z.coerce.date(),
+})
+
+export type CreateCustomerResult = z.infer<typeof CreateCustomerResult>
+
+// UpdateCustomer - Result
+export const UpdateCustomerResult = z.object({
+  id: z.number(),
+  email: z.string(),
+  name: z.string(),
+  phone: z.string().nullable(),
+  created_at: z.coerce.date(),
+  updated_at: z.coerce.date(),
+})
+
+export type UpdateCustomerResult = z.infer<typeof UpdateCustomerResult>
+
+// CountCustomers - Result
+export const CountCustomersResult = z.object({
+  total: z.coerce.bigint(),
+})
+
+export type CountCustomersResult = z.infer<typeof CountCustomersResult>
+
+// GetCustomersByIds - Result
+export const GetCustomersByIdsResult = z.object({
+  id: z.number(),
+  email: z.string(),
+  name: z.string(),
+  phone: z.string().nullable(),
+  created_at: z.coerce.date(),
+  updated_at: z.coerce.date(),
+})
+
+export type GetCustomersByIdsResult = z.infer<typeof GetCustomersByIdsResult>

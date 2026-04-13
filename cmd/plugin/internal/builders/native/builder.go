@@ -17,12 +17,26 @@ type File struct {
 // Native is the native TypeScript builder using plain async functions,
 // Zod validation, and the pg driver.
 type Native struct {
-	cfg config.Config
+	cfg        config.Config
+	enumValues map[string][]string // populated during Build from catalog enums
 }
 
 // New creates a new Native builder with the given config.
 func New(cfg config.Config) *Native {
 	return &Native{cfg: cfg}
+}
+
+// buildEnumValues constructs a lookup map from enum name to its ordered value strings.
+func buildEnumValues(catalog *models.Catalog) map[string][]string {
+	m := make(map[string][]string, len(catalog.Enums))
+	for _, e := range catalog.Enums {
+		values := make([]string, len(e.Values))
+		for i, v := range e.Values {
+			values[i] = v.Value
+		}
+		m[e.Name] = values
+	}
+	return m
 }
 
 // Build generates files from the internal representation.
@@ -32,6 +46,8 @@ func (n *Native) Build(catalog *models.Catalog, queries []models.Query, log *log
 	if catalog == nil {
 		catalog = &models.Catalog{}
 	}
+
+	n.enumValues = buildEnumValues(catalog)
 
 	log.Debug("Catalog info", logger.F("tables", len(catalog.Tables)), logger.F("enums", len(catalog.Enums)))
 

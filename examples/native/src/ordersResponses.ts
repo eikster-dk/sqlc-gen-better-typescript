@@ -5,7 +5,7 @@ import { z } from "zod"
 export const GetOrderResult = z.object({
   id: z.number(),
   customer_id: z.number(),
-  status: z.string(),
+  status: z.union([z.literal("pending"), z.literal("confirmed"), z.literal("processing"), z.literal("shipped"), z.literal("delivered"), z.literal("cancelled"), z.literal("refunded")]),
   total_cents: z.number(),
   shipping_address: z.string().nullable(),
   billing_address: z.string().nullable(),
@@ -19,7 +19,7 @@ export type GetOrderResult = z.infer<typeof GetOrderResult>
 // GetOrderWithCustomer - Result
 export const GetOrderWithCustomerResult = z.object({
   id: z.number(),
-  status: z.string(),
+  status: z.union([z.literal("pending"), z.literal("confirmed"), z.literal("processing"), z.literal("shipped"), z.literal("delivered"), z.literal("cancelled"), z.literal("refunded")]),
   total_cents: z.number(),
   shipping_address: z.string().nullable(),
   billing_address: z.string().nullable(),
@@ -38,7 +38,7 @@ export type GetOrderWithCustomerResult = z.infer<typeof GetOrderWithCustomerResu
 export const ListOrdersResult = z.object({
   id: z.number(),
   customer_id: z.number(),
-  status: z.string(),
+  status: z.union([z.literal("pending"), z.literal("confirmed"), z.literal("processing"), z.literal("shipped"), z.literal("delivered"), z.literal("cancelled"), z.literal("refunded")]),
   total_cents: z.number(),
   shipping_address: z.string().nullable(),
   billing_address: z.string().nullable(),
@@ -53,7 +53,7 @@ export type ListOrdersResult = z.infer<typeof ListOrdersResult>
 export const ListOrdersByCustomerResult = z.object({
   id: z.number(),
   customer_id: z.number(),
-  status: z.string(),
+  status: z.union([z.literal("pending"), z.literal("confirmed"), z.literal("processing"), z.literal("shipped"), z.literal("delivered"), z.literal("cancelled"), z.literal("refunded")]),
   total_cents: z.number(),
   shipping_address: z.string().nullable(),
   billing_address: z.string().nullable(),
@@ -68,7 +68,7 @@ export type ListOrdersByCustomerResult = z.infer<typeof ListOrdersByCustomerResu
 export const ListOrdersByStatusResult = z.object({
   id: z.number(),
   customer_id: z.number(),
-  status: z.string(),
+  status: z.union([z.literal("pending"), z.literal("confirmed"), z.literal("processing"), z.literal("shipped"), z.literal("delivered"), z.literal("cancelled"), z.literal("refunded")]),
   total_cents: z.number(),
   shipping_address: z.string().nullable(),
   billing_address: z.string().nullable(),
@@ -83,7 +83,7 @@ export type ListOrdersByStatusResult = z.infer<typeof ListOrdersByStatusResult>
 export const ListOrdersPaginatedResult = z.object({
   id: z.number(),
   customer_id: z.number(),
-  status: z.string(),
+  status: z.union([z.literal("pending"), z.literal("confirmed"), z.literal("processing"), z.literal("shipped"), z.literal("delivered"), z.literal("cancelled"), z.literal("refunded")]),
   total_cents: z.number(),
   shipping_address: z.string().nullable(),
   billing_address: z.string().nullable(),
@@ -98,7 +98,7 @@ export type ListOrdersPaginatedResult = z.infer<typeof ListOrdersPaginatedResult
 export const ListOrdersByDateRangeResult = z.object({
   id: z.number(),
   customer_id: z.number(),
-  status: z.string(),
+  status: z.union([z.literal("pending"), z.literal("confirmed"), z.literal("processing"), z.literal("shipped"), z.literal("delivered"), z.literal("cancelled"), z.literal("refunded")]),
   total_cents: z.number(),
   shipping_address: z.string().nullable(),
   billing_address: z.string().nullable(),
@@ -113,7 +113,7 @@ export type ListOrdersByDateRangeResult = z.infer<typeof ListOrdersByDateRangeRe
 export const ListOrdersByDateRangeNamedResult = z.object({
   id: z.number(),
   customer_id: z.number(),
-  status: z.string(),
+  status: z.union([z.literal("pending"), z.literal("confirmed"), z.literal("processing"), z.literal("shipped"), z.literal("delivered"), z.literal("cancelled"), z.literal("refunded")]),
   total_cents: z.number(),
   shipping_address: z.string().nullable(),
   billing_address: z.string().nullable(),
@@ -127,7 +127,7 @@ export type ListOrdersByDateRangeNamedResult = z.infer<typeof ListOrdersByDateRa
 // ListRecentOrdersWithCustomer - Result
 export const ListRecentOrdersWithCustomerResult = z.object({
   id: z.number(),
-  status: z.string(),
+  status: z.union([z.literal("pending"), z.literal("confirmed"), z.literal("processing"), z.literal("shipped"), z.literal("delivered"), z.literal("cancelled"), z.literal("refunded")]),
   total_cents: z.number(),
   created_at: z.coerce.date(),
   customer_name: z.string(),
@@ -140,7 +140,7 @@ export type ListRecentOrdersWithCustomerResult = z.infer<typeof ListRecentOrders
 export const SearchOrdersResult = z.object({
   id: z.number(),
   customer_id: z.number(),
-  status: z.string(),
+  status: z.union([z.literal("pending"), z.literal("confirmed"), z.literal("processing"), z.literal("shipped"), z.literal("delivered"), z.literal("cancelled"), z.literal("refunded")]),
   total_cents: z.number(),
   shipping_address: z.string().nullable(),
   notes: z.string().nullable(),
@@ -153,7 +153,7 @@ export type SearchOrdersResult = z.infer<typeof SearchOrdersResult>
 export const CreateOrderResult = z.object({
   id: z.number(),
   customer_id: z.number(),
-  status: z.string(),
+  status: z.union([z.literal("pending"), z.literal("confirmed"), z.literal("processing"), z.literal("shipped"), z.literal("delivered"), z.literal("cancelled"), z.literal("refunded")]),
   total_cents: z.number(),
   shipping_address: z.string().nullable(),
   billing_address: z.string().nullable(),
@@ -166,7 +166,7 @@ export type CreateOrderResult = z.infer<typeof CreateOrderResult>
 
 // CountOrdersByStatus - Result
 export const CountOrdersByStatusResult = z.object({
-  status: z.string(),
+  status: z.union([z.literal("pending"), z.literal("confirmed"), z.literal("processing"), z.literal("shipped"), z.literal("delivered"), z.literal("cancelled"), z.literal("refunded")]),
   order_count: z.coerce.bigint(),
 })
 
@@ -185,7 +185,7 @@ export type GetCustomerOrderStatsResult = z.infer<typeof GetCustomerOrderStatsRe
 export const GetOrdersWithLineCountResult = z.object({
   id: z.number(),
   customer_id: z.number(),
-  status: z.string(),
+  status: z.union([z.literal("pending"), z.literal("confirmed"), z.literal("processing"), z.literal("shipped"), z.literal("delivered"), z.literal("cancelled"), z.literal("refunded")]),
   total_cents: z.number(),
   created_at: z.coerce.date(),
   line_count: z.coerce.bigint(),
@@ -237,7 +237,7 @@ export type ListOrderLinesWithProductResult = z.infer<typeof ListOrderLinesWithP
 // GetFullOrderDetails - Result
 export const GetFullOrderDetailsResult = z.object({
   order_id: z.number(),
-  status: z.string(),
+  status: z.union([z.literal("pending"), z.literal("confirmed"), z.literal("processing"), z.literal("shipped"), z.literal("delivered"), z.literal("cancelled"), z.literal("refunded")]),
   order_total: z.number(),
   shipping_address: z.string().nullable(),
   order_date: z.coerce.date(),
@@ -302,7 +302,7 @@ export type GetTopSellingProductsResult = z.infer<typeof GetTopSellingProductsRe
 export const GetOrdersByProductIdsResult = z.object({
   id: z.number(),
   customer_id: z.number(),
-  status: z.string(),
+  status: z.union([z.literal("pending"), z.literal("confirmed"), z.literal("processing"), z.literal("shipped"), z.literal("delivered"), z.literal("cancelled"), z.literal("refunded")]),
   total_cents: z.number(),
   created_at: z.coerce.date(),
 })

@@ -435,10 +435,10 @@ func TestNative_ZodTypeMapping(t *testing.T) {
 		}
 	})
 
-	t.Run("enum type maps to z.string()", func(t *testing.T) {
+	t.Run("enum type without catalog falls back to z.string()", func(t *testing.T) {
 		got := n.zodBaseType(models.SqlType{Name: "user_role", IsEnum: true})
 		if got != "z.string()" {
-			t.Errorf("zodBaseType(enum) = %q, want %q", got, "z.string()")
+			t.Errorf("zodBaseType(enum without catalog) = %q, want %q", got, "z.string()")
 		}
 	})
 
@@ -926,6 +926,279 @@ func TestNative_Build_QueryImportExtension(t *testing.T) {
 	if !strings.Contains(content, `"./customersResponses.ts"`) {
 		t.Errorf("expected .ts extension on responses import, got:\n%s", content)
 	}
+}
+
+func TestNative_Build_EnumUnionGeneration(t *testing.T) {
+	n := New(defaultConfig())
+	log := logger.New(false)
+
+	catalog := &models.Catalog{
+		Enums: []models.Enum{
+			{
+				Name: "order_status",
+				Values: []models.EnumValue{
+					{Name: "Pending", Value: "pending"},
+					{Name: "Confirmed", Value: "confirmed"},
+					{Name: "Cancelled", Value: "cancelled"},
+				},
+			},
+		},
+	}
+
+	q := models.Query{
+		Name:         "ListOrdersByStatus",
+		SQL:          "SELECT id, status FROM orders WHERE status = $1",
+		RewrittenSQL: "SELECT id, status FROM orders WHERE status = $1",
+		Command:      ":many",
+		Filename:     "orders.sql",
+		Params: []models.Param{
+			{Name: "status", Position: 1, Type: models.SqlType{Name: "order_status", IsEnum: true}},
+		},
+		Results: []models.ResultField{
+			{Name: "id", Type: models.SqlType{Name: "integer"}},
+			{Name: "status", Type: models.SqlType{Name: "order_status", IsEnum: true}},
+		},
+	}
+
+	files, err := n.Build(catalog, []models.Query{q}, log, "1.0.0")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	var requestsFile, responsesFile *File
+	for i := range files {
+		switch files[i].Name {
+		case "ordersRequests.ts":
+			requestsFile = &files[i]
+		case "ordersResponses.ts":
+			responsesFile = &files[i]
+		}
+	}
+	if requestsFile == nil {
+		t.Fatal("expected ordersRequests.ts")
+	}
+	if responsesFile == nil {
+		t.Fatal("expected ordersResponses.ts")
+	}
+
+	wantUnion := `z.union([z.literal("pending"), z.literal("confirmed"), z.literal("cancelled")])`
+
+	t.Run("enum param generates z.union literal", func(t *testing.T) {
+		if !strings.Contains(string(requestsFile.Content), wantUnion) {
+			t.Errorf("expected enum union in requests, got:\n%s", requestsFile.Content)
+		}
+	})
+
+	t.Run("enum result generates z.union literal", func(t *testing.T) {
+		if !strings.Contains(string(responsesFile.Content), wantUnion) {
+			t.Errorf("expected enum union in responses, got:\n%s", responsesFile.Content)
+		}
+	})
+}
+
+func TestNative_Build_EnumUnion_EdgeCases(t *testing.T) {
+	n := New(defaultConfig())
+	log := logger.New(false)
+
+	t.Run("single enum value generates z.literal", func(t *testing.T) {
+		catalog := &models.Catalog{
+			Enums: []models.Enum{
+				{Name: "singleton", Values: []models.EnumValue{{Name: "Only", Value: "only"}}},
+			},
+		}
+		q := models.Query{
+			Name: "GetSingleton", SQL: "SELECT id FROM t WHERE e = $1",
+			RewrittenSQL: "SELECT id FROM t WHERE e = $1",
+			Command:      ":one", Filename: "t.sql",
+			Params:  []models.Param{{Name: "e", Position: 1, Type: models.SqlType{Name: "singleton", IsEnum: true}}},
+			Results: []models.ResultField{{Name: "id", Type: models.SqlType{Name: "integer"}}},
+		}
+		files, err := n.Build(catalog, []models.Query{q}, log, "1.0.0")
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		var rf *File
+		for i := range files {
+			if files[i].Name == "tRequests.ts" {
+				rf = &files[i]
+			}
+		}
+		if rf == nil {
+			t.Fatal("expected tRequests.ts")
+		}
+		if !strings.Contains(string(rf.Content), `z.literal("only")`) {
+			t.Errorf("expected z.literal for single-value enum, got:\n%s", rf.Content)
+		}
+	})
+
+	t.Run("zero enum values generates z.never", func(t *testing.T) {
+		catalog := &models.Catalog{
+			Enums: []models.Enum{
+				{Name: "empty_enum", Values: []models.EnumValue{}},
+			},
+		}
+		q := models.Query{
+			Name: "GetEmpty", SQL: "SELECT id FROM t WHERE e = $1",
+			RewrittenSQL: "SELECT id FROM t WHERE e = $1",
+			Command:      ":one", Filename: "t.sql",
+			Params:  []models.Param{{Name: "e", Position: 1, Type: models.SqlType{Name: "empty_enum", IsEnum: true}}},
+			Results: []models.ResultField{{Name: "id", Type: models.SqlType{Name: "integer"}}},
+		}
+		files, err := n.Build(catalog, []models.Query{q}, log, "1.0.0")
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		var rf *File
+		for i := range files {
+			if files[i].Name == "tRequests.ts" {
+				rf = &files[i]
+			}
+		}
+		if rf == nil {
+			t.Fatal("expected tRequests.ts")
+		}
+		if !strings.Contains(string(rf.Content), `z.never()`) {
+			t.Errorf("expected z.never() for zero-value enum, got:\n%s", rf.Content)
+		}
+	})
+
+	t.Run("nullable enum param generates .optional()", func(t *testing.T) {
+		catalog := &models.Catalog{
+			Enums: []models.Enum{
+				{Name: "order_status", Values: []models.EnumValue{
+					{Name: "Pending", Value: "pending"},
+					{Name: "Done", Value: "done"},
+				}},
+			},
+		}
+		q := models.Query{
+			Name: "FilterOrders", SQL: "SELECT id FROM t WHERE status = $1",
+			RewrittenSQL: "SELECT id FROM t WHERE status = $1",
+			Command:      ":many", Filename: "t.sql",
+			Params: []models.Param{
+				{Name: "status", Position: 1, Type: models.SqlType{Name: "order_status", IsEnum: true, IsNullable: true}},
+			},
+			Results: []models.ResultField{{Name: "id", Type: models.SqlType{Name: "integer"}}},
+		}
+		files, err := n.Build(catalog, []models.Query{q}, log, "1.0.0")
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		var rf *File
+		for i := range files {
+			if files[i].Name == "tRequests.ts" {
+				rf = &files[i]
+			}
+		}
+		if rf == nil {
+			t.Fatal("expected tRequests.ts")
+		}
+		content := string(rf.Content)
+		if !strings.Contains(content, `z.union([z.literal("pending"), z.literal("done")]).optional()`) {
+			t.Errorf("expected z.union(...).optional() for nullable enum param, got:\n%s", content)
+		}
+	})
+
+	t.Run("nullable enum result generates .nullable()", func(t *testing.T) {
+		catalog := &models.Catalog{
+			Enums: []models.Enum{
+				{Name: "order_status", Values: []models.EnumValue{
+					{Name: "Pending", Value: "pending"},
+					{Name: "Done", Value: "done"},
+				}},
+			},
+		}
+		q := models.Query{
+			Name: "GetStatus", SQL: "SELECT status FROM t WHERE id = $1",
+			RewrittenSQL: "SELECT status FROM t WHERE id = $1",
+			Command:      ":one", Filename: "t.sql",
+			Params: []models.Param{{Name: "id", Position: 1, Type: models.SqlType{Name: "integer"}}},
+			Results: []models.ResultField{
+				{Name: "status", Type: models.SqlType{Name: "order_status", IsEnum: true, IsNullable: true}},
+			},
+		}
+		files, err := n.Build(catalog, []models.Query{q}, log, "1.0.0")
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		var rf *File
+		for i := range files {
+			if files[i].Name == "tResponses.ts" {
+				rf = &files[i]
+			}
+		}
+		if rf == nil {
+			t.Fatal("expected tResponses.ts")
+		}
+		content := string(rf.Content)
+		if !strings.Contains(content, `z.union([z.literal("pending"), z.literal("done")]).nullable()`) {
+			t.Errorf("expected z.union(...).nullable() for nullable enum result, got:\n%s", content)
+		}
+	})
+
+	t.Run("array of enum generates z.array(z.union(...))", func(t *testing.T) {
+		catalog := &models.Catalog{
+			Enums: []models.Enum{
+				{Name: "order_status", Values: []models.EnumValue{
+					{Name: "Pending", Value: "pending"},
+					{Name: "Done", Value: "done"},
+				}},
+			},
+		}
+		q := models.Query{
+			Name: "GetByStatuses", SQL: "SELECT id FROM t WHERE status = ANY($1)",
+			RewrittenSQL: "SELECT id FROM t WHERE status = ANY($1)",
+			Command:      ":many", Filename: "t.sql",
+			Params: []models.Param{
+				{Name: "statuses", Position: 1, Type: models.SqlType{Name: "order_status", IsEnum: true, IsArray: true}},
+			},
+			Results: []models.ResultField{{Name: "id", Type: models.SqlType{Name: "integer"}}},
+		}
+		files, err := n.Build(catalog, []models.Query{q}, log, "1.0.0")
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		var rf *File
+		for i := range files {
+			if files[i].Name == "tRequests.ts" {
+				rf = &files[i]
+			}
+		}
+		if rf == nil {
+			t.Fatal("expected tRequests.ts")
+		}
+		content := string(rf.Content)
+		if !strings.Contains(content, `z.array(z.union([z.literal("pending"), z.literal("done")]))`) {
+			t.Errorf("expected z.array(z.union(...)) for array enum, got:\n%s", content)
+		}
+	})
+
+	t.Run("enum not in catalog falls back to z.string()", func(t *testing.T) {
+		emptyCatalog := &models.Catalog{}
+		q := models.Query{
+			Name: "GetThing", SQL: "SELECT id FROM t WHERE e = $1",
+			RewrittenSQL: "SELECT id FROM t WHERE e = $1",
+			Command:      ":one", Filename: "t.sql",
+			Params:  []models.Param{{Name: "e", Position: 1, Type: models.SqlType{Name: "unknown_enum", IsEnum: true}}},
+			Results: []models.ResultField{{Name: "id", Type: models.SqlType{Name: "integer"}}},
+		}
+		files, err := n.Build(emptyCatalog, []models.Query{q}, log, "1.0.0")
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		var rf *File
+		for i := range files {
+			if files[i].Name == "tRequests.ts" {
+				rf = &files[i]
+			}
+		}
+		if rf == nil {
+			t.Fatal("expected tRequests.ts")
+		}
+		if !strings.Contains(string(rf.Content), `z.string()`) {
+			t.Errorf("expected z.string() fallback for unknown enum, got:\n%s", rf.Content)
+		}
+	})
 }
 
 func TestNative_Build_QueryWithEmptyFilename(t *testing.T) {

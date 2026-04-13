@@ -51,6 +51,23 @@ type ResponsesData struct {
 	QueryViews    []QueryView
 }
 
+// zodEnumUnion builds a Zod union, literal, or never type from a slice of enum values.
+// 0 values → z.never(), 1 value → z.literal("x"), 2+ values → z.union([z.literal("a"), ...]).
+func zodEnumUnion(values []string) string {
+	switch len(values) {
+	case 0:
+		return "z.never()"
+	case 1:
+		return fmt.Sprintf(`z.literal(%q)`, values[0])
+	default:
+		parts := make([]string, len(values))
+		for i, v := range values {
+			parts[i] = fmt.Sprintf(`z.literal(%q)`, v)
+		}
+		return fmt.Sprintf("z.union([%s])", strings.Join(parts, ", "))
+	}
+}
+
 // zodBaseType maps a SqlType to its base Zod expression (no nullable/optional modifier).
 func (n *Native) zodBaseType(t models.SqlType) string {
 	switch strings.ToLower(t.Name) {
@@ -76,7 +93,10 @@ func (n *Native) zodBaseType(t models.SqlType) string {
 		return "z.coerce.date()"
 	default:
 		if t.IsEnum {
-			// Will be handled in later phase
+			if values, ok := n.enumValues[t.Name]; ok {
+				return zodEnumUnion(values)
+			}
+			// Fallback when enum is not in the catalog (e.g. unknown type source).
 			return "z.string()"
 		}
 		return "z.unknown()"

@@ -24,7 +24,7 @@ export type ListOrdersByCustomerParams = z.infer<typeof ListOrdersByCustomerPara
 
 // ListOrdersByStatus - Parameters
 export const ListOrdersByStatusParams = z.object({
-  status: z.string(),
+  status: z.union([z.literal("pending"), z.literal("confirmed"), z.literal("processing"), z.literal("shipped"), z.literal("delivered"), z.literal("cancelled"), z.literal("refunded")]),
 })
 
 export type ListOrdersByStatusParams = z.infer<typeof ListOrdersByStatusParams>
@@ -70,7 +70,7 @@ export type SearchOrdersParams = z.infer<typeof SearchOrdersParams>
 // CreateOrder - Parameters
 export const CreateOrderParams = z.object({
   customerId: z.number(),
-  status: z.string(),
+  status: z.union([z.literal("pending"), z.literal("confirmed"), z.literal("processing"), z.literal("shipped"), z.literal("delivered"), z.literal("cancelled"), z.literal("refunded")]),
   shippingAddress: z.string().optional(),
   billingAddress: z.string().optional(),
   notes: z.string().optional(),
@@ -81,7 +81,7 @@ export type CreateOrderParams = z.infer<typeof CreateOrderParams>
 // UpdateOrderStatus - Parameters
 export const UpdateOrderStatusParams = z.object({
   id: z.number(),
-  status: z.string(),
+  status: z.union([z.literal("pending"), z.literal("confirmed"), z.literal("processing"), z.literal("shipped"), z.literal("delivered"), z.literal("cancelled"), z.literal("refunded")]),
 })
 
 export type UpdateOrderStatusParams = z.infer<typeof UpdateOrderStatusParams>

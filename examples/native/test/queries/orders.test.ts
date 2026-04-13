@@ -124,6 +124,19 @@ describe("OrdersQueries", () => {
   })
 
   describe("listOrdersByStatus", () => {
+    it("rejects invalid enum value with input validation error", async () => {
+      // "INVALID_STATUS" is not a valid order_status enum value.
+      // The generated Zod schema is z.union([z.literal("pending"), ...]) so it
+      // should reject the input before any DB IO.
+      const result = await listOrdersByStatus(pool, {
+        status: "INVALID_STATUS" as unknown as "pending",
+      })
+
+      expect(result.success).toBe(false)
+      if (result.success) throw new Error("expected failure")
+      expect(result.phase).toBe("input")
+    })
+
     it("returns orders with pending status", async () => {
       const result = await listOrdersByStatus(pool, { status: "pending" })
 

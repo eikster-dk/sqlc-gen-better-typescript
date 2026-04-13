@@ -35,12 +35,43 @@ func (n *Native) Build(catalog *models.Catalog, queries []models.Query, log *log
 
 	log.Debug("Catalog info", logger.F("tables", len(catalog.Tables)), logger.F("enums", len(catalog.Enums)))
 
-	modelsFile, err := n.generateModelsFile(catalog, sqlcVersion)
+	tmpls, err := loadAllTemplates()
+	if err != nil {
+		return nil, fmt.Errorf("failed to load templates: %w", err)
+	}
+
+	modelsFile, err := n.generateModelsFileFromTemplates(tmpls, catalog, sqlcVersion)
 	if err != nil {
 		return nil, fmt.Errorf("failed to generate models file: %w", err)
 	}
 
 	files := []File{modelsFile}
+
+	if len(queries) > 0 {
+		queryGroups := n.groupQueriesByFile(queries, log)
+		filenames := sortedGroupKeys(queryGroups)
+
+		for _, filename := range filenames {
+			fileQueries := queryGroups[filename]
+			stem := filenameToStem(filename)
+			viewName := toCamelCase(stem) // "customers" -> "customers"
+			queryViews := n.buildQueryViews(fileQueries, log)
+
+			log.Info("Generating query files", logger.F("file", filename), logger.F("queries", len(fileQueries)))
+
+			requestsFile, responsesFile, queriesFile, err := n.generateQueryFiles(viewName, queryViews, tmpls, sqlcVersion)
+			if err != nil {
+				return nil, fmt.Errorf("failed to generate query files for %s: %w", filename, err)
+			}
+
+			files = append(files, requestsFile, responsesFile, queriesFile)
+			log.Info("Generated query files",
+				logger.F("requests", requestsFile.Name),
+				logger.F("responses", responsesFile.Name),
+				logger.F("queries", queriesFile.Name))
+		}
+	}
+
 	log.Info("Native code generation complete", logger.F("files", len(files)))
 	return files, nil
 }

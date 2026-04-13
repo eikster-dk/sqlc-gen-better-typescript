@@ -132,18 +132,27 @@ func TestNative_Build_WithQueries(t *testing.T) {
 
 	t.Run("generates models.ts even with queries present", func(t *testing.T) {
 		queries := []models.Query{
-			{Name: "GetUser", SQL: "SELECT id FROM users WHERE id = $1", Command: ":one"},
-			{Name: "ListUsers", SQL: "SELECT id FROM users", Command: ":many"},
+			{Name: "GetUser", SQL: "SELECT id FROM users WHERE id = $1", Command: ":one", Filename: "queries.sql"},
+			{Name: "ListUsers", SQL: "SELECT id FROM users", Command: ":many", Filename: "queries.sql"},
 		}
 		files, err := n.Build(defaultCatalog(), queries, log, "1.0.0")
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
-		if len(files) != 1 {
-			t.Errorf("expected 1 file, got %d", len(files))
+		// models.ts + queriesRequests.ts + queriesResponses.ts + queriesQueries.ts
+		hasModels := false
+		for _, f := range files {
+			if f.Name == "models.ts" {
+				hasModels = true
+				break
+			}
 		}
-		if files[0].Name != "models.ts" {
-			t.Errorf("expected models.ts, got %q", files[0].Name)
+		if !hasModels {
+			names := make([]string, len(files))
+			for i, f := range files {
+				names[i] = f.Name
+			}
+			t.Errorf("expected models.ts in output, got files: %v", names)
 		}
 	})
 
@@ -250,14 +259,15 @@ func TestNative_Build_NilCatalog(t *testing.T) {
 
 	t.Run("nil catalog with queries does not panic", func(t *testing.T) {
 		queries := []models.Query{
-			{Name: "GetUser", SQL: "SELECT id FROM users WHERE id = $1", Command: ":one"},
+			{Name: "GetUser", SQL: "SELECT id FROM users WHERE id = $1", Command: ":one", Filename: "queries.sql"},
 		}
 		files, err := n.Build(nil, queries, log, "1.0.0")
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
-		if len(files) != 1 {
-			t.Errorf("expected 1 file, got %d", len(files))
+		// Should produce models.ts + query files
+		if len(files) == 0 {
+			t.Errorf("expected at least 1 file, got 0")
 		}
 	})
 }

@@ -1,0 +1,15 @@
+version: '2'
+plugins:
+- name: native
+  wasm:
+    url: file://../../dist/plugin
+sql:
+- schema: schema/
+  queries: queries/
+  engine: postgresql
+  codegen:
+  - out: src
+    plugin: native
+    options:
+      builder: native
+      import_extension: ".js"

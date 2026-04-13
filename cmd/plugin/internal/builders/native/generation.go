@@ -15,6 +15,11 @@ import (
 //go:embed templates/*.gotmpl
 var templateFiles embed.FS
 
+var (
+	reExcessiveNewlines  = regexp.MustCompile(`\n{3,}`)
+	reTrailingWhitespace = regexp.MustCompile(`[ \t]+\n`)
+)
+
 // modelsData holds the data passed to the models.ts template.
 type modelsData struct {
 	SqlcVersion   string
@@ -66,11 +71,8 @@ func executeTemplate(tmpl *template.Template, data any) (string, error) {
 }
 
 func cleanWhitespace(content string) string {
-	re := regexp.MustCompile(`\n{3,}`)
-	content = re.ReplaceAllString(content, "\n\n")
-
-	re = regexp.MustCompile(`[ \t]+\n`)
-	content = re.ReplaceAllString(content, "\n")
+	content = reExcessiveNewlines.ReplaceAllString(content, "\n\n")
+	content = reTrailingWhitespace.ReplaceAllString(content, "\n")
 
 	return strings.TrimSpace(content) + "\n"
 }

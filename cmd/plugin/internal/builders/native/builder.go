@@ -28,6 +28,11 @@ func New(cfg config.Config) *Native {
 // Build generates files from the internal representation.
 func (n *Native) Build(catalog *models.Catalog, queries []models.Query, log *logger.Logger, sqlcVersion string) ([]File, error) {
 	log.Info("Starting native code generation", logger.F("builder", "native"))
+
+	if catalog == nil {
+		catalog = &models.Catalog{}
+	}
+
 	log.Debug("Catalog info", logger.F("tables", len(catalog.Tables)), logger.F("enums", len(catalog.Enums)))
 
 	modelsFile, err := n.generateModelsFile(catalog, sqlcVersion)

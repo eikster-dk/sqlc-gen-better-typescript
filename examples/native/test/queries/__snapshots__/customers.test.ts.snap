@@ -1,0 +1,195 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`CustomersQueries > getCustomer > returns customer when found 1`] = `
+{
+  "created_at": 2024-01-01T10:00:00.000Z,
+  "email": "alice@example.com",
+  "id": 1,
+  "name": "Alice Johnson",
+  "phone": "+1-555-0101",
+  "updated_at": 2024-01-01T10:00:00.000Z,
+}
+`;
+
+exports[`CustomersQueries > getCustomerByEmail > returns customer when found by email 1`] = `
+{
+  "created_at": 2024-01-01T10:00:00.000Z,
+  "email": "alice@example.com",
+  "id": 1,
+  "name": "Alice Johnson",
+  "phone": "+1-555-0101",
+  "updated_at": 2024-01-01T10:00:00.000Z,
+}
+`;
+
+exports[`CustomersQueries > listCustomers > returns all customers ordered by created_at DESC 1`] = `
+[
+  {
+    "created_at": 2024-01-10T15:00:00.000Z,
+    "email": "jack@example.com",
+    "id": 10,
+    "name": "Jack Anderson",
+    "phone": "+1-555-0110",
+    "updated_at": 2024-01-10T15:00:00.000Z,
+  },
+  {
+    "created_at": 2024-01-09T10:10:00.000Z,
+    "email": "ivy@example.com",
+    "id": 9,
+    "name": "Ivy Taylor",
+    "phone": "+1-555-0109",
+    "updated_at": 2024-01-09T10:10:00.000Z,
+  },
+  {
+    "created_at": 2024-01-08T17:45:00.000Z,
+    "email": "henry@example.com",
+    "id": 8,
+    "name": "Henry Moore",
+    "phone": null,
+    "updated_at": 2024-01-08T17:45:00.000Z,
+  },
+  {
+    "created_at": 2024-01-07T12:30:00.000Z,
+    "email": "grace@example.com",
+    "id": 7,
+    "name": "Grace Wilson",
+    "phone": "+1-555-0107",
+    "updated_at": 2024-01-07T12:30:00.000Z,
+  },
+  {
+    "created_at": 2024-01-06T08:00:00.000Z,
+    "email": "frank@example.com",
+    "id": 6,
+    "name": "Frank Miller",
+    "phone": "+1-555-0106",
+    "updated_at": 2024-01-06T08:00:00.000Z,
+  },
+  {
+    "created_at": 2024-01-05T16:20:00.000Z,
+    "email": "eve@example.com",
+    "id": 5,
+    "name": "Eve Davis",
+    "phone": null,
+    "updated_at": 2024-01-05T16:20:00.000Z,
+  },
+  {
+    "created_at": 2024-01-04T14:45:00.000Z,
+    "email": "david@example.com",
+    "id": 4,
+    "name": "David Brown",
+    "phone": "+1-555-0104",
+    "updated_at": 2024-01-04T14:45:00.000Z,
+  },
+  {
+    "created_at": 2024-01-03T09:15:00.000Z,
+    "email": "carol@example.com",
+    "id": 3,
+    "name": "Carol Williams",
+    "phone": null,
+    "updated_at": 2024-01-03T09:15:00.000Z,
+  },
+  {
+    "created_at": 2024-01-02T11:30:00.000Z,
+    "email": "bob@example.com",
+    "id": 2,
+    "name": "Bob Smith",
+    "phone": "+1-555-0102",
+    "updated_at": 2024-01-02T11:30:00.000Z,
+  },
+  {
+    "created_at": 2024-01-01T10:00:00.000Z,
+    "email": "alice@example.com",
+    "id": 1,
+    "name": "Alice Johnson",
+    "phone": "+1-555-0101",
+    "updated_at": 2024-01-01T10:00:00.000Z,
+  },
+]
+`;
+
+exports[`CustomersQueries > listCustomersPaginated > returns paginated customers - first page 1`] = `
+[
+  {
+    "created_at": 2024-01-10T15:00:00.000Z,
+    "email": "jack@example.com",
+    "id": 10,
+    "name": "Jack Anderson",
+    "phone": "+1-555-0110",
+    "updated_at": 2024-01-10T15:00:00.000Z,
+  },
+  {
+    "created_at": 2024-01-09T10:10:00.000Z,
+    "email": "ivy@example.com",
+    "id": 9,
+    "name": "Ivy Taylor",
+    "phone": "+1-555-0109",
+    "updated_at": 2024-01-09T10:10:00.000Z,
+  },
+  {
+    "created_at": 2024-01-08T17:45:00.000Z,
+    "email": "henry@example.com",
+    "id": 8,
+    "name": "Henry Moore",
+    "phone": null,
+    "updated_at": 2024-01-08T17:45:00.000Z,
+  },
+]
+`;
+
+exports[`CustomersQueries > listCustomersPaginated > returns paginated customers - second page 1`] = `
+[
+  {
+    "created_at": 2024-01-07T12:30:00.000Z,
+    "email": "grace@example.com",
+    "id": 7,
+    "name": "Grace Wilson",
+    "phone": "+1-555-0107",
+    "updated_at": 2024-01-07T12:30:00.000Z,
+  },
+  {
+    "created_at": 2024-01-06T08:00:00.000Z,
+    "email": "frank@example.com",
+    "id": 6,
+    "name": "Frank Miller",
+    "phone": "+1-555-0106",
+    "updated_at": 2024-01-06T08:00:00.000Z,
+  },
+  {
+    "created_at": 2024-01-05T16:20:00.000Z,
+    "email": "eve@example.com",
+    "id": 5,
+    "name": "Eve Davis",
+    "phone": null,
+    "updated_at": 2024-01-05T16:20:00.000Z,
+  },
+]
+`;
+
+exports[`CustomersQueries > searchCustomersByName > finds customers matching name pattern 1`] = `
+[
+  {
+    "created_at": 2024-01-01T10:00:00.000Z,
+    "email": "alice@example.com",
+    "id": 1,
+    "name": "Alice Johnson",
+    "phone": "+1-555-0101",
+    "updated_at": 2024-01-01T10:00:00.000Z,
+  },
+  {
+    "created_at": 2024-01-07T12:30:00.000Z,
+    "email": "grace@example.com",
+    "id": 7,
+    "name": "Grace Wilson",
+    "phone": "+1-555-0107",
+    "updated_at": 2024-01-07T12:30:00.000Z,
+  },
+  {
+    "created_at": 2024-01-10T15:00:00.000Z,
+    "email": "jack@example.com",
+    "id": 10,
+    "name": "Jack Anderson",
+    "phone": "+1-555-0110",
+    "updated_at": 2024-01-10T15:00:00.000Z,
+  },
+]
+`;

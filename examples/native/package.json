@@ -1,0 +1,24 @@
+{
+  "name": "native",
+  "version": "1.0.0",
+  "description": "Example project for sqlc-gen-better-typescript native builder",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@testcontainers/postgresql": "^10.18.0",
+    "@types/pg": "^8.20.0",
+    "testcontainers": "^10.18.0",
+    "typescript": "^5.9.3",
+    "vitest": "^3.1.4"
+  },
+  "dependencies": {
+    "pg": "^8.14.1",
+    "zod": "^3.24.3"
+  }
+}

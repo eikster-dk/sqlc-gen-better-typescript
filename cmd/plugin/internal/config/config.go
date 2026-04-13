@@ -8,13 +8,13 @@ import (
 )
 
 type Config struct {
-	Builder                 string `json:"builder"`
-	Debug                   bool   `json:"debug"`                     // Enable debug mode
-	DebugDir                string `json:"debug_dir"`                 // Optional, defaults to "debug"
-	DisableTemplateLiterals bool   `json:"disable_template_literals"` // Opt-out: use sql.unsafe instead of template literals
-	ImportExtension         string `json:"import_extension"`          // Optional relative import extension: "", ".js", ".ts"
-	Driver                  string `json:"driver"`                    // DB driver for native builder, default "pg"
-	Validator               string `json:"validator"`                 // Validation library for native builder, default "zod"
+	Builder                 string  `json:"builder"`
+	Debug                   bool    `json:"debug"`                     // Enable debug mode
+	DebugDir                string  `json:"debug_dir"`                 // Optional, defaults to "debug"
+	DisableTemplateLiterals bool    `json:"disable_template_literals"` // Opt-out: use sql.unsafe instead of template literals
+	ImportExtension         *string `json:"import_extension"`          // Optional relative import extension: "", ".js", ".ts" (nil means use default ".js")
+	Driver                  string  `json:"driver"`                    // DB driver for native builder, default "pg"
+	Validator               string  `json:"validator"`                 // Validation library for native builder, default "zod"
 }
 
 var ValidBuilders = []string{
@@ -35,8 +35,9 @@ func GetConfig(req *plugin.GenerateRequest) (Config, error) {
 	if conf.Builder == "" {
 		conf.Builder = "native"
 	}
-	if conf.ImportExtension == "" {
-		conf.ImportExtension = ".js"
+	if conf.ImportExtension == nil {
+		defaultExt := ".js"
+		conf.ImportExtension = &defaultExt
 	}
 	if conf.Driver == "" {
 		conf.Driver = "pg"
@@ -56,10 +57,14 @@ func Validate(cfg Config, req *plugin.GenerateRequest) error {
 
 	for _, builder := range ValidBuilders {
 		if cfg.Builder == builder {
-			if cfg.ImportExtension == "" || cfg.ImportExtension == ".js" || cfg.ImportExtension == ".ts" {
+			ext := ""
+			if cfg.ImportExtension != nil {
+				ext = *cfg.ImportExtension
+			}
+			if ext == "" || ext == ".js" || ext == ".ts" {
 				return nil
 			}
-			return fmt.Errorf("Option: import_extension value is %s but can only be one of [\"\", \".js\", \".ts\"]", cfg.ImportExtension)
+			return fmt.Errorf("Option: import_extension value is %s but can only be one of [\"\", \".js\", \".ts\"]", ext)
 		}
 	}
 	return fmt.Errorf("Option: builder value is %s but can only be one of %v", cfg.Builder, ValidBuilders)

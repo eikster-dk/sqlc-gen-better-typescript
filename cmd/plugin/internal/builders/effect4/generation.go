@@ -248,7 +248,10 @@ func (e *Effect4) buildRepositoryImports(repoName string, queryViews []QueryView
 }
 
 func (e *Effect4) localImportPath(path string) string {
-	ext := e.cfg.ImportExtension
+	ext := ""
+	if e.cfg.ImportExtension != nil {
+		ext = *e.cfg.ImportExtension
+	}
 	if ext == "" {
 		return path
 	}

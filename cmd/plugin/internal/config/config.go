@@ -13,10 +13,13 @@ type Config struct {
 	DebugDir                string `json:"debug_dir"`                 // Optional, defaults to "debug"
 	DisableTemplateLiterals bool   `json:"disable_template_literals"` // Opt-out: use sql.unsafe instead of template literals
 	ImportExtension         string `json:"import_extension"`          // Optional relative import extension: "", ".js", ".ts"
+	Driver                  string `json:"driver"`                    // DB driver for native builder, default "pg"
+	Validator               string `json:"validator"`                 // Validation library for native builder, default "zod"
 }
 
 var ValidBuilders = []string{
 	"effect-v4-unstable",
+	"native",
 }
 
 const SupportedEngine = "postgresql"
@@ -27,6 +30,19 @@ func GetConfig(req *plugin.GenerateRequest) (Config, error) {
 		if err := json.Unmarshal(req.PluginOptions, &conf); err != nil {
 			return conf, err
 		}
+	}
+
+	if conf.Builder == "" {
+		conf.Builder = "native"
+	}
+	if conf.ImportExtension == "" {
+		conf.ImportExtension = ".js"
+	}
+	if conf.Driver == "" {
+		conf.Driver = "pg"
+	}
+	if conf.Validator == "" {
+		conf.Validator = "zod"
 	}
 
 	return conf, nil

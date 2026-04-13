@@ -116,9 +116,9 @@ func scalarType(t models.SqlType) models.SqlType {
 // zodTypeForParam builds the Zod expression for a query input parameter.
 // Nullable params become optional.
 func (n *Native) zodTypeForParam(t models.SqlType) string {
-	base := n.zodBaseType(t)
+	base := n.zodBaseType(scalarType(t))
 	if t.IsArray {
-		base = fmt.Sprintf("z.array(%s)", n.zodBaseType(scalarType(t)))
+		base = fmt.Sprintf("z.array(%s)", base)
 	}
 	if t.IsNullable {
 		return base + ".optional()"
@@ -129,9 +129,9 @@ func (n *Native) zodTypeForParam(t models.SqlType) string {
 // zodTypeForResult builds the Zod expression for a query output column.
 // Nullable result columns become nullable.
 func (n *Native) zodTypeForResult(t models.SqlType) string {
-	base := n.zodBaseType(t)
+	base := n.zodBaseType(scalarType(t))
 	if t.IsArray {
-		base = fmt.Sprintf("z.array(%s)", n.zodBaseType(scalarType(t)))
+		base = fmt.Sprintf("z.array(%s)", base)
 	}
 	if t.IsNullable {
 		return base + ".nullable()"

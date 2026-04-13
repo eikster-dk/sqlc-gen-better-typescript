@@ -514,7 +514,7 @@ func TestNative_ZodTypeMapping_Array(t *testing.T) {
 		}
 	})
 
-	t.Run("array of enum preserves enum flag", func(t *testing.T) {
+	t.Run("array of enum without catalog falls back to z.array(z.string())", func(t *testing.T) {
 		got := n.zodTypeForParam(models.SqlType{Name: "user_role", IsArray: true, IsEnum: true})
 		want := "z.array(z.string())"
 		if got != want {
@@ -522,7 +522,7 @@ func TestNative_ZodTypeMapping_Array(t *testing.T) {
 		}
 	})
 
-	t.Run("nullable array of enum preserves enum flag", func(t *testing.T) {
+	t.Run("nullable array of enum without catalog falls back to z.array(z.string()).nullable()", func(t *testing.T) {
 		got := n.zodTypeForResult(models.SqlType{Name: "user_role", IsArray: true, IsEnum: true, IsNullable: true})
 		want := "z.array(z.string()).nullable()"
 		if got != want {
@@ -1199,6 +1199,165 @@ func TestNative_Build_EnumUnion_EdgeCases(t *testing.T) {
 			t.Errorf("expected z.string() fallback for unknown enum, got:\n%s", rf.Content)
 		}
 	})
+}
+
+func TestZodEnumUnion(t *testing.T) {
+	tests := []struct {
+		name   string
+		values []string
+		want   string
+	}{
+		{"zero values", []string{}, "z.never()"},
+		{"single value", []string{"active"}, `z.literal("active")`},
+		{"two values", []string{"a", "b"}, `z.union([z.literal("a"), z.literal("b")])`},
+		{"three values", []string{"pending", "active", "closed"}, `z.union([z.literal("pending"), z.literal("active"), z.literal("closed")])`},
+		{"value with double quote", []string{`say "hello"`}, `z.literal("say \"hello\"")`},
+		{"value with backslash", []string{`back\slash`}, `z.literal("back\\slash")`},
+		{"value with newline", []string{"line1\nline2"}, `z.literal("line1\nline2")`},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := zodEnumUnion(tt.values)
+			if got != tt.want {
+				t.Errorf("zodEnumUnion(%v) = %q, want %q", tt.values, got, tt.want)
+			}
+		})
+	}
+}
+
+func TestBuildEnumValues(t *testing.T) {
+	t.Run("empty catalog produces empty map", func(t *testing.T) {
+		m := buildEnumValues(&models.Catalog{})
+		if len(m) != 0 {
+			t.Errorf("expected empty map, got %v", m)
+		}
+	})
+
+	t.Run("single enum", func(t *testing.T) {
+		catalog := &models.Catalog{
+			Enums: []models.Enum{
+				{Name: "status", Values: []models.EnumValue{
+					{Name: "Active", Value: "active"},
+					{Name: "Inactive", Value: "inactive"},
+				}},
+			},
+		}
+		m := buildEnumValues(catalog)
+		if len(m) != 1 {
+			t.Fatalf("expected 1 entry, got %d", len(m))
+		}
+		vals, ok := m["status"]
+		if !ok {
+			t.Fatal("expected 'status' key in map")
+		}
+		if len(vals) != 2 || vals[0] != "active" || vals[1] != "inactive" {
+			t.Errorf("expected [active inactive], got %v", vals)
+		}
+	})
+
+	t.Run("multiple enums", func(t *testing.T) {
+		catalog := &models.Catalog{
+			Enums: []models.Enum{
+				{Name: "color", Values: []models.EnumValue{{Name: "Red", Value: "red"}}},
+				{Name: "size", Values: []models.EnumValue{{Name: "Large", Value: "large"}, {Name: "Small", Value: "small"}}},
+			},
+		}
+		m := buildEnumValues(catalog)
+		if len(m) != 2 {
+			t.Fatalf("expected 2 entries, got %d", len(m))
+		}
+		if colorVals := m["color"]; len(colorVals) != 1 || colorVals[0] != "red" {
+			t.Errorf("color: expected [red], got %v", colorVals)
+		}
+		if sizeVals := m["size"]; len(sizeVals) != 2 || sizeVals[0] != "large" || sizeVals[1] != "small" {
+			t.Errorf("size: expected [large small], got %v", sizeVals)
+		}
+	})
+
+	t.Run("enum with no values", func(t *testing.T) {
+		catalog := &models.Catalog{
+			Enums: []models.Enum{
+				{Name: "empty", Values: []models.EnumValue{}},
+			},
+		}
+		m := buildEnumValues(catalog)
+		vals, ok := m["empty"]
+		if !ok {
+			t.Fatal("expected 'empty' key in map")
+		}
+		if len(vals) != 0 {
+			t.Errorf("expected empty slice, got %v", vals)
+		}
+	})
+}
+
+func TestNative_Build_MultipleEnumsCorrectLookup(t *testing.T) {
+	n := New(defaultConfig())
+	log := logger.New(false)
+
+	catalog := &models.Catalog{
+		Enums: []models.Enum{
+			{Name: "color", Values: []models.EnumValue{
+				{Name: "Red", Value: "red"},
+				{Name: "Blue", Value: "blue"},
+			}},
+			{Name: "size", Values: []models.EnumValue{
+				{Name: "Small", Value: "small"},
+				{Name: "Large", Value: "large"},
+			}},
+		},
+	}
+
+	q := models.Query{
+		Name:         "GetItem",
+		SQL:          "SELECT id FROM items WHERE color = $1 AND size = $2",
+		RewrittenSQL: "SELECT id FROM items WHERE color = $1 AND size = $2",
+		Command:      ":one",
+		Filename:     "items.sql",
+		Params: []models.Param{
+			{Name: "color", Position: 1, Type: models.SqlType{Name: "color", IsEnum: true}},
+			{Name: "size", Position: 2, Type: models.SqlType{Name: "size", IsEnum: true}},
+		},
+		Results: []models.ResultField{
+			{Name: "id", Type: models.SqlType{Name: "integer"}},
+		},
+	}
+
+	files, err := n.Build(catalog, []models.Query{q}, log, "1.0.0")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	var rf *File
+	for i := range files {
+		if files[i].Name == "itemsRequests.ts" {
+			rf = &files[i]
+		}
+	}
+	if rf == nil {
+		t.Fatal("expected itemsRequests.ts")
+	}
+
+	content := string(rf.Content)
+
+	wantColor := `z.union([z.literal("red"), z.literal("blue")])`
+	wantSize := `z.union([z.literal("small"), z.literal("large")])`
+
+	if !strings.Contains(content, wantColor) {
+		t.Errorf("expected color enum union %q in requests, got:\n%s", wantColor, content)
+	}
+	if !strings.Contains(content, wantSize) {
+		t.Errorf("expected size enum union %q in requests, got:\n%s", wantSize, content)
+	}
+
+	// Verify they're NOT swapped: color should NOT contain "small"/"large"
+	// and size should NOT contain "red"/"blue" in the field positions
+	colorIdx := strings.Index(content, "color:")
+	sizeIdx := strings.Index(content, "size:")
+	if colorIdx == -1 || sizeIdx == -1 {
+		t.Fatal("expected both color: and size: fields in output")
+	}
 }
 
 func TestNative_Build_QueryWithEmptyFilename(t *testing.T) {

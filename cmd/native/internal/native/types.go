@@ -30,11 +30,12 @@ type ZodField struct {
 
 // QueriesData is passed to the Queries template.
 type QueriesData struct {
-	FileStem      string // e.g. "customers" — used for import paths
-	ImportExt     string // e.g. ".js"
-	QueryViews    []QueryView
-	SqlcVersion   string
-	PluginVersion string
+	FileStem        string // e.g. "customers" — used for import paths
+	ImportExt       string // e.g. ".js"
+	NeedsExecResult bool
+	QueryViews      []QueryView
+	SqlcVersion     string
+	PluginVersion   string
 }
 
 // RequestsData is passed to the Requests template.

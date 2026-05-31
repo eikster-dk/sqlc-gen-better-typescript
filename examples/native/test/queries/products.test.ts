@@ -19,6 +19,7 @@ import {
   updateProduct,
   updateProductStock,
   deactivateProduct,
+  deactivateProductsByCategory,
   deleteProduct,
   getProductsByIds,
   countProductsByCategory,
@@ -360,6 +361,35 @@ describe("ProductsQueries", () => {
       expect(result.success).toBe(true)
       if (!result.success) throw new Error("expected success")
       expect(result.data!.is_active).toBe(false)
+    })
+  })
+
+  describe("deactivateProductsByCategory", () => {
+    it("returns exec result metadata", async () => {
+      await createProduct(pool, {
+        sku: "EXECRESULT-001",
+        name: "Exec Result One",
+        priceCents: 100,
+        stockQuantity: 1,
+        isActive: true,
+        category: "ExecResult",
+      })
+      await createProduct(pool, {
+        sku: "EXECRESULT-002",
+        name: "Exec Result Two",
+        priceCents: 100,
+        stockQuantity: 1,
+        isActive: true,
+        category: "ExecResult",
+      })
+
+      const result = await deactivateProductsByCategory(pool, { category: "ExecResult" })
+
+      expect(result.success).toBe(true)
+      if (!result.success) throw new Error("expected success")
+
+      expect(result.data.command).toBe("UPDATE")
+      expect(result.data.rowCount).toBe(2)
     })
   })
 

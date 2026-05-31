@@ -115,11 +115,12 @@ func (n *Native) generateQueryFiles(fileStem string, queryViews []QueryView, tmp
 	responsesFile := toolbelt.File{Name: fileStem + "Responses.ts", Content: []byte(responsesContent)}
 
 	queriesData := QueriesData{
-		FileStem:      fileStem,
-		ImportExt:     importExt,
-		SqlcVersion:   sqlcVersion,
-		PluginVersion: version.Version,
-		QueryViews:    queryViews,
+		FileStem:        fileStem,
+		ImportExt:       importExt,
+		NeedsExecResult: needsExecResult(queryViews),
+		SqlcVersion:     sqlcVersion,
+		PluginVersion:   version.Version,
+		QueryViews:      queryViews,
 	}
 	queriesContent, err := executeTemplate(tmpls.queries, queriesData)
 	if err != nil {
@@ -128,6 +129,15 @@ func (n *Native) generateQueryFiles(fileStem string, queryViews []QueryView, tmp
 	queriesFile := toolbelt.File{Name: fileStem + "Queries.ts", Content: []byte(queriesContent)}
 
 	return requestsFile, responsesFile, queriesFile, nil
+}
+
+func needsExecResult(queryViews []QueryView) bool {
+	for _, query := range queryViews {
+		if query.Command == ":execresult" {
+			return true
+		}
+	}
+	return false
 }
 
 func executeTemplate(tmpl *template.Template, data any) (string, error) {

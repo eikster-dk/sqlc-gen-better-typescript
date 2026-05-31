@@ -110,6 +110,13 @@ export const DeactivateProductParams = z.object({
 
 export type DeactivateProductParams = z.infer<typeof DeactivateProductParams>
 
+// DeactivateProductsByCategory - Parameters
+export const DeactivateProductsByCategoryParams = z.object({
+  category: z.string().optional(),
+})
+
+export type DeactivateProductsByCategoryParams = z.infer<typeof DeactivateProductsByCategoryParams>
+
 // DeleteProduct - Parameters
 export const DeleteProductParams = z.object({
   id: z.number(),

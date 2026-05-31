@@ -91,6 +91,11 @@ UPDATE products
 SET is_active = FALSE, updated_at = NOW()
 WHERE id = $1;
 
+-- name: DeactivateProductsByCategory :execresult
+UPDATE products
+SET is_active = FALSE, updated_at = NOW()
+WHERE category = $1 AND is_active = TRUE;
+
 -- name: DeleteProduct :exec
 DELETE FROM products
 WHERE id = $1;

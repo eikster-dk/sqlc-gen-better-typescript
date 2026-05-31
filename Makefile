@@ -1,41 +1,67 @@
-.PHONY: all build build-wasm clean test generate generate-example lint
+.PHONY: all build build-effect build-native clean test generate generate-effect generate-native generate-fast-effect generate-fast-native lint
 
 # Variables
-PLUGIN_NAME := sqlc-gen-effect
 WASM_DIR := dist
-WASM_FILE := $(WASM_DIR)/$(PLUGIN_NAME).wasm
-EXAMPLE_DIR := examples/effect-v4
+EFFECT_WASM_FILE := $(WASM_DIR)/sqlc-gen-effect.wasm
+NATIVE_WASM_FILE := $(WASM_DIR)/sqlc-gen-native.wasm
+EFFECT_EXAMPLE_DIR := examples/effect-v4
+NATIVE_EXAMPLE_DIR := examples/native
+EFFECT_SOURCES := cmd/effect/main.go $(shell find cmd/effect/internal toolbelt -type f \( -name '*.go' -o -name '*.gotmpl' \))
+NATIVE_SOURCES := cmd/native/main.go $(shell find cmd/native/internal toolbelt -type f \( -name '*.go' -o -name '*.gotmpl' \))
 
 # Default target
 all: build
 
-# Build the wasm plugin
-build: build-wasm
+# Build the wasm plugins
+build: build-effect build-native
 
-build-wasm: $(WASM_FILE)
+build-effect: $(EFFECT_WASM_FILE)
 
-$(WASM_FILE): cmd/effect/main.go $(shell find cmd/effect/internal toolbelt -name '*.go')
+build-native: $(NATIVE_WASM_FILE)
+
+$(EFFECT_WASM_FILE): $(EFFECT_SOURCES)
 	@mkdir -p $(WASM_DIR)
-	@echo "Building wasm plugin..."
-	GOOS=wasip1 GOARCH=wasm go build -o $(WASM_FILE) ./cmd/effect
-	@echo "✓ Built: $(WASM_FILE)"
+	@echo "Building Effect wasm plugin..."
+	GOOS=wasip1 GOARCH=wasm go build -o $(EFFECT_WASM_FILE) ./cmd/effect
+	@echo "✓ Built: $(EFFECT_WASM_FILE)"
 
-# Generate code for the example (builds wasm first)
-generate: build
-	@echo "Generating code for example..."
-	cd $(EXAMPLE_DIR) && sqlc generate
+$(NATIVE_WASM_FILE): $(NATIVE_SOURCES)
+	@mkdir -p $(WASM_DIR)
+	@echo "Building native wasm plugin..."
+	GOOS=wasip1 GOARCH=wasm go build -o $(NATIVE_WASM_FILE) ./cmd/native
+	@echo "✓ Built: $(NATIVE_WASM_FILE)"
+
+# Generate code for examples (builds wasm first)
+generate: generate-effect generate-native
+
+generate-effect: build-effect
+	@echo "Generating code for Effect example..."
+	cd $(EFFECT_EXAMPLE_DIR) && sqlc generate
+	@echo "✓ Effect code generation complete"
+
+generate-native: build-native
+	@echo "Generating code for native example..."
+	cd $(NATIVE_EXAMPLE_DIR) && sqlc generate
+	@echo "✓ Native code generation complete"
+
+generate-fast-effect:
+	@echo "Generating Effect code (fast mode)..."
+	cd $(EFFECT_EXAMPLE_DIR) && sqlc generate
+	@echo "✓ Effect code generation complete"
+
+generate-fast-native:
+	@echo "Generating native code (fast mode)..."
+	cd $(NATIVE_EXAMPLE_DIR) && sqlc generate
+	@echo "✓ Native code generation complete"
+
+generate-fast: generate-fast-effect generate-fast-native
 	@echo "✓ Code generation complete"
 
 # Generate with debug mode enabled
 generate-debug: build
 	@echo "Generating code with debug mode..."
-	cd $(EXAMPLE_DIR) && sqlc generate
-	@echo "✓ Code generation complete (check $(EXAMPLE_DIR)/src/models/debug/)"
-
-# Quick generate without rebuilding wasm (use when plugin hasn't changed)
-generate-fast:
-	@echo "Generating code (fast mode)..."
-	cd $(EXAMPLE_DIR) && sqlc generate
+	cd $(EFFECT_EXAMPLE_DIR) && sqlc generate
+	cd $(NATIVE_EXAMPLE_DIR) && sqlc generate
 	@echo "✓ Code generation complete"
 
 # Clean all build artifacts and generated code
@@ -48,7 +74,7 @@ clean-wasm:
 
 # Clean generated code
 clean-generated:
-	rm -rf $(EXAMPLE_DIR)/src/models/
+	rm -rf $(EFFECT_EXAMPLE_DIR)/src/models/ $(NATIVE_EXAMPLE_DIR)/src/*.ts
 	@echo "✓ Cleaned generated code"
 
 # Run tests
@@ -73,7 +99,8 @@ clean-all: clean generate
 dev: generate
 	@echo ""
 	@echo "Generated files:"
-	@ls -la $(EXAMPLE_DIR)/src/models/ 2>/dev/null || echo "(no output directory yet)"
+	@ls -la $(EFFECT_EXAMPLE_DIR)/src/models/ 2>/dev/null || echo "(no Effect output directory yet)"
+	@ls -la $(NATIVE_EXAMPLE_DIR)/src/ 2>/dev/null || echo "(no native output directory yet)"
 
 # Check if sqlc is installed
 check-sqlc:

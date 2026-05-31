@@ -10,7 +10,7 @@ before:
     - go mod tidy
 
 builds:
-  - id: plugin
+  - id: effect
     main: ./cmd/effect
     env:
       - CGO_ENABLED=0
@@ -21,6 +21,18 @@ builds:
     ldflags:
       - -s -w
       - -X github.com/eikster-dk/sqlc-gen-better-typescript/cmd/effect/internal/version.Version={{.Version}}
+  - id: native
+    main: ./cmd/native
+    binary: sqlc-gen-native
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - wasip1
+    goarch:
+      - wasm
+    ldflags:
+      - -s -w
+      - -X github.com/eikster-dk/sqlc-gen-better-typescript/cmd/native/internal/version.Version={{.Version}}
 
 archives:
   - id: dist

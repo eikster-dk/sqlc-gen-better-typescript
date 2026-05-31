@@ -11,10 +11,13 @@ A [sqlc](https://sqlc.dev) WASM plugin that generates type-safe TypeScript code 
 
 ## What is this?
 
-**sqlc-gen-effect** currently contains the Effect v4 sqlc plugin and a shared `toolbelt` package that normalizes sqlc plugin requests into a stable intermediate representation. Instead of writing boilerplate database access code, you write SQL and the plugin generates fully typed TypeScript code tailored to Effect.
+**sqlc-gen-effect** contains two sqlc WASM plugins backed by a shared `toolbelt` package that normalizes sqlc plugin requests into a stable intermediate representation. Instead of writing boilerplate database access code, you write SQL and generate typed TypeScript code for either Effect v4 or plain async functions.
 
-The current focus is on [Effect v4](https://effect.website) code generation, with planned support for:
-- Native TypeScript (no external dependencies)
+Current builders:
+- **Effect v4**: repository services using `effect/unstable/sql` and Effect Schema
+- **Native TypeScript**: plain async functions using a small `SqlClient` interface and Zod validation
+
+Planned support:
 - Zod v4 schema validation
 - Effect v3 compatibility
 
@@ -24,6 +27,14 @@ The Effect plugin generates:
 - **Type-safe result schemas** with proper null handling via `Option`
 - **Repository services** with Effect's dependency injection via `Layer`
 - **Automatic SQL type mapping** to TypeScript/Effect types
+
+The native plugin generates:
+
+- **Plain async query functions** grouped by SQL file
+- **Zod request/result schemas** and inferred TypeScript types
+- **A small database client interface** compatible with `pg.Pool` / `pg.Client`
+- **Shared enum schemas** in `models.ts`
+- **Nested `sqlc.embed` result transforms** for joined table structures
 
 ### Effect v4 example
 
@@ -282,7 +293,7 @@ const runnable = program.pipe(
 | `:many` | Yes | `Result[]` | Returns zero or more rows |
 | `:exec` | Yes | `void` | Executes without returning data |
 | `:execrows` | Yes | `number` | Returns the number of affected rows |
-| `:execresult` | No | - | Not yet implemented |
+| `:execresult` | Yes | `SqlExecResult` | Returns command tag and affected row count |
 | `:copyfrom` | No | - | Not yet implemented |
 | `:batchexec` | No | - | Not yet implemented |
 | `:batchone` | No | - | Not yet implemented |
@@ -300,12 +311,69 @@ const runnable = program.pipe(
 
 `sqlc.slice` generates array request schemas and expands to Effect SQL's column-aware `sql.in` helper. Empty slices compile to a false predicate through Effect SQL.
 
+### Native TypeScript Plugin
+
+The native plugin generates plain TypeScript functions with Zod validation and no Effect dependency. It targets PostgreSQL clients that implement this interface:
+
+```typescript
+export interface SqlClient {
+  query(queryText: string, values?: unknown[]): Promise<SqlQueryResult>
+}
+```
+
+For each SQL file, the native builder generates three files:
+
+- `*Requests.ts`: Zod input schemas
+- `*Responses.ts`: Zod row/result schemas
+- `*Queries.ts`: async query functions
+
+Example generated query:
+
+```typescript
+const result = await getCustomer(pool, { id: 1 })
+
+if (result.success) {
+  console.log(result.data)
+}
+```
+
+Native query functions return `QueryResult<T>`:
+
+```typescript
+export type QueryResult<T> =
+  | { success: true; data: T }
+  | { success: false; error: ZodError; phase: "input" | "output" }
+```
+
+#### Native Supported sqlc Commands
+
+| Command | Supported | Native Return Type | Description |
+|---------|-----------|--------------------|-------------|
+| `:one` | Yes | `QueryResult<Result | null>` | Returns at most one row |
+| `:many` | Yes | `QueryResult<Result[]>` | Returns zero or more rows |
+| `:exec` | Yes | `QueryResult<void>` | Executes without returning data |
+| `:execrows` | Yes | `QueryResult<number>` | Returns the number of affected rows |
+| `:execresult` | Yes | `QueryResult<SqlExecResult>` | Returns command tag and affected row count |
+| `:copyfrom` | No | - | Explicitly rejected during generation |
+| `:batchexec` | No | - | Explicitly rejected during generation |
+| `:batchone` | No | - | Explicitly rejected during generation |
+| `:batchmany` | No | - | Explicitly rejected during generation |
+
+#### Native Supported sqlc Macros
+
+| Macro | Supported | Description |
+|-------|-----------|-------------|
+| `sqlc.arg('name')` | Yes | Explicit parameter naming |
+| `@name` | Yes | PostgreSQL shorthand for `sqlc.arg(name)` |
+| `sqlc.narg('name')` | Yes | Explicit nullable parameter naming |
+| `sqlc.slice('name')` | Yes | Dynamic `IN` list expansion; empty slices become `IN (NULL)` |
+| `sqlc.embed(table)` | Yes | Embed table columns into nested result objects |
+
 ### Future Builders (Planned)
 
 | Builder | Description |
 |---------|-------------|
 | `effect-v3` | Effect v3 compatible code generation |
-| `typescript` | Plain TypeScript with no Effect dependency |
 | `zod-v4` | TypeScript with Zod v4 schemas for validation |
 
 ## Supported Database Engines
@@ -355,6 +423,10 @@ plugins:
   wasm:
     url: https://github.com/eikster-dk/sqlc-gen-better-typescript/releases/download/v[version]/sqlc-gen-effect.wasm
     sha256: [calculatedSha]
+- name: native
+  wasm:
+    url: https://github.com/eikster-dk/sqlc-gen-better-typescript/releases/download/v[version]/sqlc-gen-native.wasm
+    sha256: [calculatedSha]
 
 sql:
 - schema: schema/
@@ -366,14 +438,21 @@ sql:
     options:
       # debug: true
       # debug_dir: debug
+  # Or use the native builder:
+  # - out: src/db
+  #   plugin: native
+  #   options:
+  #     import_extension: ".js"
 ```
 
 ### Plugin Options
 
-| Option | Type | Required | Default | Description |
-|--------|------|----------|---------|-------------|
-| `disable_template_literals` | boolean | No | `false` | Preserve original sqlc SQL using `sql.unsafe()` instead of transforming to template literals. See [Preserving Original SQL](#preserving-original-sql). |
-| `import_extension` | string | No | `""` | Explicit extension for generated relative imports. Allowed: `""`, `.js`, `.ts`. Use `.js` for Node ESM (`moduleResolution: nodenext`/`node16`). |
+| Option | Builder | Type | Required | Default | Description |
+|--------|---------|------|----------|---------|-------------|
+| `disable_template_literals` | Effect | boolean | No | `false` | Preserve original sqlc SQL using `sql.unsafe()` instead of transforming to template literals. See [Preserving Original SQL](#preserving-original-sql). |
+| `import_extension` | Effect, native | string | No | Effect: `""`, native: `.js` | Explicit extension for generated relative imports. Allowed: `""`, `.js`, `.ts`. Use `.js` for Node ESM (`moduleResolution: nodenext`/`node16`). |
+| `driver` | native | string | No | `pg` | Database driver target. Currently only `pg` is supported. |
+| `validator` | native | string | No | `zod` | Runtime validator target. Currently only `zod` is supported. |
 | `debug` | boolean | No | `false` | Enable debug mode to output intermediate representations and detailed logs during code generation. |
 | `debug_dir` | string | No | `"debug"` | Directory where debug output files are written when debug mode is enabled. |
 
@@ -415,12 +494,18 @@ make test
 │   └── internal/
 │       ├── config/       # Plugin configuration
 │       └── effect4/      # Effect v4 code generation
+├── cmd/native/           # Native TypeScript plugin source code
+│   ├── main.go           # Entry point
+│   └── internal/
+│       ├── config/       # Plugin configuration
+│       └── native/       # Native TypeScript code generation
 ├── toolbelt/             # Shared sqlc mapping/generation helpers
 │   ├── mapper/           # sqlc to IR mapping
 │   ├── models/           # Public intermediate representation
 │   └── logger/           # Structured logging
 ├── examples/             # Example projects
-│   └── effect-v4/        # Effect v4 example
+│   ├── effect-v4/        # Effect v4 example
+│   └── native/           # Native TypeScript example
 └── dist/                 # Built plugin artifacts
 ```
 

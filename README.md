@@ -1,4 +1,4 @@
-# sqlc-gen-better-typescript
+# sqlc-gen-effect
 
 A [sqlc](https://sqlc.dev) WASM plugin that generates type-safe TypeScript code from your SQL queries.
 
@@ -11,7 +11,7 @@ A [sqlc](https://sqlc.dev) WASM plugin that generates type-safe TypeScript code 
 
 ## What is this?
 
-**sqlc-gen-better-typescript** currently contains the Effect v4 sqlc plugin and a shared `toolbelt` package that normalizes sqlc plugin requests into a stable intermediate representation. Instead of writing boilerplate database access code, you write SQL and the plugin generates fully typed TypeScript code tailored to Effect.
+**sqlc-gen-effect** currently contains the Effect v4 sqlc plugin and a shared `toolbelt` package that normalizes sqlc plugin requests into a stable intermediate representation. Instead of writing boilerplate database access code, you write SQL and the plugin generates fully typed TypeScript code tailored to Effect.
 
 The current focus is on [Effect v4](https://effect.website) code generation, with planned support for:
 - Native TypeScript (no external dependencies)
@@ -356,9 +356,9 @@ Configure the plugin in your `sqlc.yaml`:
 ```yaml
 version: '2'
 plugins:
-- name: better-typescript
+- name: effect
   wasm:
-    url: https://github.com/eikster-dk/sqlc-gen-better-typescript/releases/download/v[version]/plugin.wasm
+    url: https://github.com/eikster-dk/sqlc-gen-better-typescript/releases/download/v[version]/sqlc-gen-effect.wasm
     sha256: [calculatedSha]
 
 sql:
@@ -367,7 +367,7 @@ sql:
   engine: postgresql
   codegen:
   - out: src/repositories
-    plugin: better-typescript
+    plugin: effect
     options:
       # debug: true
       # debug_dir: debug

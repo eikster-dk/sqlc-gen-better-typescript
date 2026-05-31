@@ -2,7 +2,7 @@ version: '2'
 plugins:
 - name: effect
   wasm:
-    url: file://../../dist/plugin
+    url: file://../../dist/sqlc-gen-effect.wasm
 sql:
 - schema: schema/
   queries: queries/

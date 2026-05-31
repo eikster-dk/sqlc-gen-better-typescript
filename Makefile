@@ -1,9 +1,9 @@
 .PHONY: all build build-wasm clean test generate generate-example lint
 
 # Variables
-PLUGIN_NAME := sqlc-effect
+PLUGIN_NAME := sqlc-gen-effect
 WASM_DIR := dist
-WASM_FILE := $(WASM_DIR)/plugin
+WASM_FILE := $(WASM_DIR)/$(PLUGIN_NAME).wasm
 EXAMPLE_DIR := examples/effect-v4
 
 # Default target

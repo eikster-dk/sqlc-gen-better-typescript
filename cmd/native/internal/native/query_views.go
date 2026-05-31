@@ -67,6 +67,7 @@ func (n *Native) buildQueryView(plan models.QueryPlan, log *logger.Logger) Query
 
 	paramFields := n.buildParamFields(plan.Request.Fields)
 	resultFields := n.buildResultFields(plan.Response.Row.Fields)
+	resultMappings := buildResultMappings(plan.Response.Result.Shape.Fields)
 	sql := plan.Source.ExecSQL
 
 	return QueryView{
@@ -79,14 +80,18 @@ func (n *Native) buildQueryView(plan models.QueryPlan, log *logger.Logger) Query
 		HasResultMappings: hasResults,
 		ParamFields:       paramFields,
 		ResultFields:      resultFields,
-		ResultMappings:    buildResultMappings(plan.Response.Result.Shape.Fields),
+		ResultMappings:    resultMappings,
 		SQL:               fmt.Sprintf("%q", sql),
 		SQLComment:        toSQLComment(sql),
 		ParamList:         buildParamList(plan.Source.Parameters),
 		QueryParamList:    buildQueryParamList(plan.Source.Parameters),
 		HasSlices:         plan.Features.UsesSlices,
-		EnumImports:       uniqueSorted(append(enumImports(paramFields), enumImports(resultFields)...)),
+		EnumImports:       queryEnumImportsFromFields(paramFields, resultFields, resultMappings),
 	}
+}
+
+func queryEnumImportsFromFields(paramFields, resultFields []ZodField, resultMappings []ResultMapping) []string {
+	return appendUniqueSorted(enumImports(paramFields), enumImports(resultFields), resultMappingSchemas(resultMappings))
 }
 
 func enumImports(fields []ZodField) []string {
@@ -95,6 +100,17 @@ func enumImports(fields []ZodField) []string {
 		if field.EnumImport != "" {
 			imports = append(imports, field.EnumImport)
 		}
+	}
+	return imports
+}
+
+func resultMappingSchemas(mappings []ResultMapping) []string {
+	imports := make([]string, 0, len(mappings))
+	for _, mapping := range mappings {
+		if mapping.Schema != "" {
+			imports = append(imports, mapping.Schema)
+		}
+		imports = append(imports, resultMappingSchemas(mapping.Object)...)
 	}
 	return imports
 }
@@ -115,7 +131,7 @@ func buildResultMappingsWithIndent(fields []models.ResultShapeField, indent stri
 
 func buildResultMapping(field models.ResultShapeField, indent string) ResultMapping {
 	if field.Kind == models.ResultShapeFieldObject && field.Object != nil {
-		return ResultMapping{Name: toCamelCase(singular(field.Name)), Object: buildResultMappingsWithIndent(field.Object.Fields, indent+"  "), IsObject: true, Indent: indent}
+		return ResultMapping{Name: toCamelCase(singular(field.Name)), Schema: toPascalCase(field.Name) + "Row", Object: buildResultMappingsWithIndent(field.Object.Fields, indent+"  "), IsObject: true, Indent: indent}
 	}
 	rowField := field.Name
 	if field.Source != nil {

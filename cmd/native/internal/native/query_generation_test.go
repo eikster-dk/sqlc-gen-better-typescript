@@ -425,7 +425,7 @@ func TestNative_ZodTypeMapping(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.typeName, func(t *testing.T) {
 			got := n.zodBaseType(models.SqlType{Name: tt.typeName})
-			if got != tt.want {
+			if got.Schema != tt.want {
 				t.Errorf("zodBaseType(%q) = %q, want %q", tt.typeName, got, tt.want)
 			}
 		})
@@ -433,14 +433,14 @@ func TestNative_ZodTypeMapping(t *testing.T) {
 
 	t.Run("unknown type maps to z.unknown()", func(t *testing.T) {
 		got := n.zodBaseType(models.SqlType{Name: "some_unknown_type"})
-		if got != "z.unknown()" {
+		if got.Schema != "z.unknown()" {
 			t.Errorf("zodBaseType(unknown) = %q, want %q", got, "z.unknown()")
 		}
 	})
 
 	t.Run("enum type without catalog falls back to z.string()", func(t *testing.T) {
 		got := n.zodBaseType(models.SqlType{Name: "user_role", IsEnum: true})
-		if got != "z.string()" {
+		if got.Schema != "z.string()" {
 			t.Errorf("zodBaseType(enum without catalog) = %q, want %q", got, "z.string()")
 		}
 	})
@@ -448,7 +448,7 @@ func TestNative_ZodTypeMapping(t *testing.T) {
 	t.Run("case insensitive mapping", func(t *testing.T) {
 		for _, name := range []string{"INTEGER", "Integer", "TEXT", "Text", "BOOLEAN", "Boolean"} {
 			got := n.zodBaseType(models.SqlType{Name: name})
-			if got == "z.unknown()" {
+			if got.Schema == "z.unknown()" {
 				t.Errorf("zodBaseType(%q) = z.unknown(), expected a known type", name)
 			}
 		}

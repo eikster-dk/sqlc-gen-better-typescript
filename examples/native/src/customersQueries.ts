@@ -56,6 +56,11 @@ import { GetCustomersByIdsSliceParams as GetCustomersByIdsSliceParamsSchema } fr
 import type { GetCustomersByIdsSliceResult } from "./customersResponses.js"
 import { GetCustomersByIdsSliceResult as GetCustomersByIdsSliceResultSchema } from "./customersResponses.js"
 
+import type { SearchCustomersAdvancedParams } from "./customersRequests.js"
+import { SearchCustomersAdvancedParams as SearchCustomersAdvancedParamsSchema } from "./customersRequests.js"
+import type { SearchCustomersAdvancedResult } from "./customersResponses.js"
+import { SearchCustomersAdvancedResult as SearchCustomersAdvancedResultSchema } from "./customersResponses.js"
+
 type QueryParam = { value: unknown; slice?: boolean }
 
 function expandSqlSlices(sql: string, params: QueryParam[]): { sql: string; params: unknown[] } {
@@ -389,6 +394,34 @@ export async function getCustomersByIdsSlice(client: SqlClient, params: GetCusto
   )
 
   const outputParsed = GetCustomersByIdsSliceResultSchema.array().safeParse(result.rows)
+  if (!outputParsed.success) {
+    return { success: false, error: outputParsed.error, phase: "output" }
+  }
+
+  return { success: true, data: outputParsed.data }
+}
+
+// SearchCustomersAdvanced
+// SELECT id, email, name, phone, created_at, updated_at
+// FROM customers
+// WHERE (name ILIKE '%' || $2 || '%' OR email ILIKE '%' || $2 || '%')
+//   AND ($3::text IS NULL OR phone = $3)
+//   AND id > $1
+//   AND id IN ($4)
+// ORDER BY id
+export async function searchCustomersAdvanced(client: SqlClient, params: SearchCustomersAdvancedParams): Promise<QueryResult<SearchCustomersAdvancedResult[]>> {
+  const inputParsed = SearchCustomersAdvancedParamsSchema.safeParse(params)
+  if (!inputParsed.success) {
+    return { success: false, error: inputParsed.error, phase: "input" }
+  }
+
+  const query = expandSqlSlices("SELECT id, email, name, phone, created_at, updated_at\nFROM customers\nWHERE (name ILIKE '%' || $2 || '%' OR email ILIKE '%' || $2 || '%')\n  AND ($3::text IS NULL OR phone = $3)\n  AND id > $1\n  AND id IN ($4)\nORDER BY id", [{ value: inputParsed.data.id, slice: false }, { value: inputParsed.data.term, slice: false }, { value: inputParsed.data.phone, slice: false }, { value: inputParsed.data.ids, slice: true }])
+  const result = await client.query(
+    query.sql,
+    query.params
+  )
+
+  const outputParsed = SearchCustomersAdvancedResultSchema.array().safeParse(result.rows)
   if (!outputParsed.success) {
     return { success: false, error: outputParsed.error, phase: "output" }
   }

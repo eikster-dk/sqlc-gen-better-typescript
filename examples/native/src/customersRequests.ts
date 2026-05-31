@@ -87,3 +87,13 @@ export const GetCustomersByIdsSliceParams = z.object({
 })
 
 export type GetCustomersByIdsSliceParams = z.infer<typeof GetCustomersByIdsSliceParams>
+
+// SearchCustomersAdvanced - Parameters
+export const SearchCustomersAdvancedParams = z.object({
+  id: z.number(),
+  term: z.string().optional(),
+  phone: z.string().optional(),
+  ids: z.array(z.number()),
+})
+
+export type SearchCustomersAdvancedParams = z.infer<typeof SearchCustomersAdvancedParams>

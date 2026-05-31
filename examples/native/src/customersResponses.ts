@@ -254,3 +254,27 @@ export const GetCustomersByIdsSliceResult = GetCustomersByIdsSliceRow.transform(
 }))
 
 export type GetCustomersByIdsSliceResult = z.infer<typeof GetCustomersByIdsSliceResult>
+
+// SearchCustomersAdvanced - Row
+export const SearchCustomersAdvancedRow = z.object({
+  id: z.number(),
+  email: z.string(),
+  name: z.string(),
+  phone: z.string().nullable(),
+  created_at: z.coerce.date(),
+  updated_at: z.coerce.date(),
+})
+
+export type SearchCustomersAdvancedRow = z.infer<typeof SearchCustomersAdvancedRow>
+
+// SearchCustomersAdvanced - Result
+export const SearchCustomersAdvancedResult = SearchCustomersAdvancedRow.transform((row) => ({
+  id: row.id,
+  email: row.email,
+  name: row.name,
+  phone: row.phone,
+  created_at: row.created_at,
+  updated_at: row.updated_at,
+}))
+
+export type SearchCustomersAdvancedResult = z.infer<typeof SearchCustomersAdvancedResult>

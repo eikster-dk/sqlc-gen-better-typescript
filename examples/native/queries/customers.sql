@@ -69,3 +69,12 @@ SELECT id, email, name, phone, created_at, updated_at
 FROM customers
 WHERE id IN (sqlc.slice('ids'))
 ORDER BY id;
+
+-- name: SearchCustomersAdvanced :many
+SELECT id, email, name, phone, created_at, updated_at
+FROM customers
+WHERE (name ILIKE '%' || sqlc.arg('term') || '%' OR email ILIKE '%' || sqlc.arg('term') || '%')
+  AND (sqlc.narg('phone')::text IS NULL OR phone = sqlc.narg('phone'))
+  AND id > $1
+  AND id IN (sqlc.slice('ids'))
+ORDER BY id;

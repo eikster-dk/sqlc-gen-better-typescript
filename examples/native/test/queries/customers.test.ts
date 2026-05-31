@@ -17,6 +17,7 @@ import {
   countCustomers,
   getCustomersByIds,
   getCustomersByIdsSlice,
+  searchCustomersAdvanced,
 } from "../../src/customersQueries.js"
 
 describe("CustomersQueries", () => {
@@ -323,6 +324,36 @@ describe("CustomersQueries", () => {
       if (!result.success) throw new Error("expected success")
 
       expect(result.data).toEqual([])
+    })
+  })
+
+  describe("searchCustomersAdvanced", () => {
+    it("supports repeated arg, narg, positional, and slice params together", async () => {
+      const result = await searchCustomersAdvanced(pool, {
+        term: "example.com",
+        phone: "+1-555-0104",
+        id: 0,
+        ids: [1, 2, 3, 4],
+      })
+
+      expect(result.success).toBe(true)
+      if (!result.success) throw new Error("expected success")
+
+      expect(result.data.map(c => c.id)).toEqual([4])
+      expect(result.data[0]!.email).toBe("david@example.com")
+    })
+
+    it("allows omitted nullable args while preserving repeated arg and slice params", async () => {
+      const result = await searchCustomersAdvanced(pool, {
+        term: "example.com",
+        id: 1,
+        ids: [1, 2, 3],
+      })
+
+      expect(result.success).toBe(true)
+      if (!result.success) throw new Error("expected success")
+
+      expect(result.data.map(c => c.id)).toEqual([2, 3])
     })
   })
 })

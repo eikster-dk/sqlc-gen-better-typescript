@@ -35,15 +35,26 @@ type ZodField struct {
 	EnumImport string
 }
 
+type ZodExpr struct {
+	Schema     string
+	ModelNames []string
+}
+
 type EnumView struct {
 	NamePascal string
 	Schema     string
+}
+
+type TableRowView struct {
+	NamePascal string
+	Fields     []ZodField
 }
 
 type ResultMapping struct {
 	Name       string
 	RowField   string
 	Object     []ResultMapping
+	Schema     string
 	IsObject   bool
 	IsLast     bool
 	Indent     string
@@ -65,6 +76,7 @@ type ModelsData struct {
 	SqlcVersion   string
 	PluginVersion string
 	Enums         []EnumView
+	TableRows     []TableRowView
 }
 
 // RequestsData is passed to the Requests template.
@@ -118,39 +130,47 @@ func uniqueSorted(values []string) []string {
 	return result
 }
 
+func appendUniqueSorted(base []string, values ...[]string) []string {
+	all := append([]string{}, base...)
+	for _, set := range values {
+		all = append(all, set...)
+	}
+	return uniqueSorted(all)
+}
+
 // zodBaseType maps a SqlType to its base Zod expression (no nullable/optional modifier).
-func (n *Native) zodBaseType(t models.SqlType) string {
+func (n *Native) zodBaseType(t models.SqlType) ZodExpr {
 	switch strings.ToLower(t.Name) {
 	case "serial", "serial4", "smallserial", "serial2",
 		"integer", "int", "int4", "smallint", "int2",
 		"float", "double precision", "float8", "real", "float4":
-		return "z.number()"
+		return ZodExpr{Schema: "z.number()"}
 	case "bigserial", "serial8", "bigint", "int8":
-		return "z.coerce.bigint()"
+		return ZodExpr{Schema: "z.coerce.bigint()"}
 	case "text", "varchar", "char", "bpchar", "citext",
 		"numeric", "money", "time", "timetz", "interval",
 		"inet", "cidr", "macaddr", "macaddr8", "ltree", "lquery", "ltxtquery":
-		return "z.string()"
+		return ZodExpr{Schema: "z.string()"}
 	case "uuid":
-		return "z.string().uuid()"
+		return ZodExpr{Schema: "z.string().uuid()"}
 	case "boolean", "bool":
-		return "z.boolean()"
+		return ZodExpr{Schema: "z.boolean()"}
 	case "json", "jsonb":
-		return "z.unknown()"
+		return ZodExpr{Schema: "z.unknown()"}
 	case "bytea", "blob":
-		return "z.instanceof(Buffer)"
+		return ZodExpr{Schema: "z.instanceof(Buffer)"}
 	case "date", "timestamp", "timestamptz":
-		return "z.coerce.date()"
+		return ZodExpr{Schema: "z.coerce.date()"}
 	default:
 		if t.IsEnum {
-			if values, ok := n.enumValues[t.Name]; ok {
-				_ = values
-				return toPascalCase(t.Name)
+			if _, ok := n.enumValues[t.Name]; ok {
+				name := toPascalCase(t.Name)
+				return ZodExpr{Schema: name, ModelNames: []string{name}}
 			}
 			// Fallback when enum is not in the catalog (e.g. unknown type source).
-			return "z.string()"
+			return ZodExpr{Schema: "z.string()"}
 		}
-		return "z.unknown()"
+		return ZodExpr{Schema: "z.unknown()"}
 	}
 }
 
@@ -167,7 +187,7 @@ func scalarType(t models.SqlType) models.SqlType {
 // zodTypeForParam builds the Zod expression for a query input parameter.
 // Nullable params become optional.
 func (n *Native) zodTypeForParam(t models.SqlType) string {
-	base := n.zodBaseType(scalarType(t))
+	base := n.zodBaseType(scalarType(t)).Schema
 	if t.IsArray {
 		base = fmt.Sprintf("z.array(%s)", base)
 	}
@@ -180,7 +200,7 @@ func (n *Native) zodTypeForParam(t models.SqlType) string {
 // zodTypeForResult builds the Zod expression for a query output column.
 // Nullable result columns become nullable.
 func (n *Native) zodTypeForResult(t models.SqlType) string {
-	base := n.zodBaseType(scalarType(t))
+	base := n.zodBaseType(scalarType(t)).Schema
 	if t.IsArray {
 		base = fmt.Sprintf("z.array(%s)", base)
 	}

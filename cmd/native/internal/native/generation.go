@@ -68,11 +68,12 @@ func loadAllTemplates() (*templateSet, error) {
 	}, nil
 }
 
-func (n *Native) generateModelsFileFromTemplates(tmpls *templateSet, catalog *models.Catalog, sqlcVersion string) (toolbelt.File, error) {
+func (n *Native) generateModelsFileFromTemplates(tmpls *templateSet, catalog *models.Catalog, usedEmbedTables map[string]struct{}, sqlcVersion string) (toolbelt.File, error) {
 	data := ModelsData{
 		SqlcVersion:   sqlcVersion,
 		PluginVersion: version.Version,
 		Enums:         buildEnumViews(catalog.Enums),
+		TableRows:     n.buildTableRows(catalog, usedEmbedTables),
 	}
 
 	content, err := executeTemplate(tmpls.models, data)
@@ -81,6 +82,24 @@ func (n *Native) generateModelsFileFromTemplates(tmpls *templateSet, catalog *mo
 	}
 
 	return toolbelt.File{Name: "models.ts", Content: []byte(content)}, nil
+}
+
+func (n *Native) buildTableRows(catalog *models.Catalog, usedTables map[string]struct{}) []TableRowView {
+	tableRows := make([]TableRowView, 0, len(usedTables))
+	for _, table := range catalog.Tables {
+		if _, ok := usedTables[table.Name]; !ok {
+			continue
+		}
+		fields := make([]ZodField, len(table.Columns))
+		for i, column := range table.Columns {
+			typeInfo := column.Type
+			typeInfo.IsNullable = column.Nullable
+			fields[i] = ZodField{Name: column.Name, Schema: n.zodTypeForResult(typeInfo), EnumImport: n.enumImport(typeInfo)}
+		}
+		tableRows = append(tableRows, TableRowView{NamePascal: toPascalCase(table.Name), Fields: fields})
+	}
+	sort.Slice(tableRows, func(i, j int) bool { return tableRows[i].NamePascal < tableRows[j].NamePascal })
+	return tableRows
 }
 
 func (n *Native) generateQueryFiles(fileStem string, queryViews []QueryView, tmpls *templateSet, sqlcVersion string) (toolbelt.File, toolbelt.File, toolbelt.File, error) {

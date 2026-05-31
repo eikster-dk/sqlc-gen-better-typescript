@@ -24,7 +24,7 @@ export type {{.NamePascal}}Result = z.infer<typeof {{.NamePascal}}Result>
 {{end -}}
 {{end -}}
 
-{{define "resultMappings"}}{{range .}}{{.Indent}}{{.Name}}: {{if .IsObject}}{
+{{define "resultMappings"}}{{range .}}{{.Indent}}{{.Name}}: {{if .IsObject}}{{.Schema}}.parse({
 {{template "resultMappings" .Object}}
-{{.Indent}}}{{else}}row.{{.RowField}}{{end}},{{if not .IsLast}}
+{{.Indent}}}){{else}}row.{{.RowField}}{{end}},{{if not .IsLast}}
 {{end}}{{end}}{{end}}

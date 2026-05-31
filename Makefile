@@ -6,6 +6,8 @@ EFFECT_WASM_FILE := $(WASM_DIR)/sqlc-gen-effect.wasm
 NATIVE_WASM_FILE := $(WASM_DIR)/sqlc-gen-native.wasm
 EFFECT_EXAMPLE_DIR := examples/effect-v4
 NATIVE_EXAMPLE_DIR := examples/native
+EFFECT_SOURCES := cmd/effect/main.go $(shell find cmd/effect/internal toolbelt -type f \( -name '*.go' -o -name '*.gotmpl' \))
+NATIVE_SOURCES := cmd/native/main.go $(shell find cmd/native/internal toolbelt -type f \( -name '*.go' -o -name '*.gotmpl' \))
 
 # Default target
 all: build
@@ -17,13 +19,13 @@ build-effect: $(EFFECT_WASM_FILE)
 
 build-native: $(NATIVE_WASM_FILE)
 
-$(EFFECT_WASM_FILE): cmd/effect/main.go $(shell find cmd/effect/internal toolbelt -name '*.go')
+$(EFFECT_WASM_FILE): $(EFFECT_SOURCES)
 	@mkdir -p $(WASM_DIR)
 	@echo "Building Effect wasm plugin..."
 	GOOS=wasip1 GOARCH=wasm go build -o $(EFFECT_WASM_FILE) ./cmd/effect
 	@echo "✓ Built: $(EFFECT_WASM_FILE)"
 
-$(NATIVE_WASM_FILE): cmd/native/main.go $(shell find cmd/native/internal toolbelt -name '*.go')
+$(NATIVE_WASM_FILE): $(NATIVE_SOURCES)
 	@mkdir -p $(WASM_DIR)
 	@echo "Building native wasm plugin..."
 	GOOS=wasip1 GOARCH=wasm go build -o $(NATIVE_WASM_FILE) ./cmd/native

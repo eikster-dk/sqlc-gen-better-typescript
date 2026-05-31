@@ -35,7 +35,8 @@ func (e *Effect4) Build(ctx toolbelt.BuildContext) ([]toolbelt.File, error) {
 		return nil, fmt.Errorf("failed to load templates: %w", err)
 	}
 
-	queryGroups := e.groupQueriesByFile(ctx.Queries, log)
+	plans := models.BuildQueryPlans(ctx.Queries)
+	queryGroups := e.groupQueriesByFile(plans, log)
 	filenames := sortedGroupKeys(queryGroups)
 
 	queryViewsByFile := make(map[string][]QueryView, len(queryGroups))
@@ -75,7 +76,7 @@ func (e *Effect4) Build(ctx toolbelt.BuildContext) ([]toolbelt.File, error) {
 	return files, nil
 }
 
-func sortedGroupKeys(groups map[string][]models.Query) []string {
+func sortedGroupKeys(groups map[string][]models.QueryPlan) []string {
 	keys := make([]string, 0, len(groups))
 	for k := range groups {
 		keys = append(keys, k)
@@ -84,15 +85,15 @@ func sortedGroupKeys(groups map[string][]models.Query) []string {
 	return keys
 }
 
-func (e *Effect4) groupQueriesByFile(queries []models.Query, log *logger.Logger) map[string][]models.Query {
-	groups := make(map[string][]models.Query)
-	for _, q := range queries {
-		filename := q.Filename
+func (e *Effect4) groupQueriesByFile(plans []models.QueryPlan, log *logger.Logger) map[string][]models.QueryPlan {
+	groups := make(map[string][]models.QueryPlan)
+	for _, plan := range plans {
+		filename := plan.Filename
 		if filename == "" {
 			filename = "queries.sql"
-			log.Warn("Query has no filename, using default", logger.F("query", q.Name))
+			log.Warn("Query has no filename, using default", logger.F("query", plan.Name))
 		}
-		groups[filename] = append(groups[filename], q)
+		groups[filename] = append(groups[filename], plan)
 	}
 	return groups
 }

@@ -118,3 +118,14 @@ export const GetCustomersByIdsResult = Schema.Struct({
 })
 
 export type GetCustomersByIdsResult = typeof GetCustomersByIdsResult.Type
+// GetCustomersByIdsSlice - Result Schema
+export const GetCustomersByIdsSliceResult = Schema.Struct({
+  id: Schema.Int,
+  email: Schema.String,
+  name: Schema.String,
+  phone: Schema.OptionFromNullOr(Schema.String),
+  created_at: Schema.Date,
+  updated_at: Schema.Date,
+})
+
+export type GetCustomersByIdsSliceResult = typeof GetCustomersByIdsSliceResult.Type

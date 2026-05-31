@@ -87,3 +87,10 @@ export const GetCustomersByIdsParams = Schema.Struct({
 })
 
 export type GetCustomersByIdsParams = typeof GetCustomersByIdsParams.Type
+
+// GetCustomersByIdsSlice - Parameters Schema
+export const GetCustomersByIdsSliceParams = Schema.Struct({
+  ids: Schema.Array(Schema.Int),
+})
+
+export type GetCustomersByIdsSliceParams = typeof GetCustomersByIdsSliceParams.Type

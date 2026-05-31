@@ -86,6 +86,9 @@ func TestBuildQueryPlanNullableSliceFeatures(t *testing.T) {
 	if !plan.Request.Fields[0].Slice || !plan.Source.Parameters[0].Slice {
 		t.Fatalf("expected slice to be represented on request and SQL parameter")
 	}
+	if !plan.Request.Fields[0].Type.IsArray {
+		t.Fatalf("expected slice request field type to be represented as array: %#v", plan.Request.Fields[0].Type)
+	}
 	if !plan.Request.Fields[1].Nullable || !plan.Request.Fields[1].Optional {
 		t.Fatalf("expected nullable param to be optional: %#v", plan.Request.Fields[1])
 	}

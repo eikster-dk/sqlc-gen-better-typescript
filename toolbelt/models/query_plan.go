@@ -57,12 +57,16 @@ func buildRequestPlan(params []Param) RequestPlan {
 			continue
 		}
 		seen[param.Name] = struct{}{}
+		fieldType := param.Type
+		if param.Slice {
+			fieldType.IsArray = true
+		}
 		fields = append(fields, RequestField{
 			Name:     param.Name,
 			Param:    param,
-			Type:     param.Type,
-			Optional: param.Type.IsNullable,
-			Nullable: param.Type.IsNullable,
+			Type:     fieldType,
+			Optional: fieldType.IsNullable,
+			Nullable: fieldType.IsNullable,
 			Slice:    param.Slice,
 			Named:    param.Named,
 		})

@@ -69,3 +69,9 @@ FROM customers;
 SELECT id, email, name, phone, created_at, updated_at
 FROM customers
 WHERE id = ANY(sqlc.arg('ids')::int[]);
+
+-- name: GetCustomersByIdsSlice :many
+SELECT id, email, name, phone, created_at, updated_at
+FROM customers
+WHERE id IN (sqlc.slice('ids'))
+ORDER BY id;

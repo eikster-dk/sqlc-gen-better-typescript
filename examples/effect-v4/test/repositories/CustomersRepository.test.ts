@@ -319,4 +319,24 @@ describe("CustomersRepository", () => {
       }).pipe(Effect.provide(testLayer))
     )
   })
+
+  describe("getCustomersByIdsSlice", () => {
+    it.effect("expands sqlc.slice values for IN clauses", () =>
+      Effect.gen(function* () {
+        const repo = yield* CustomersRepository
+        const result = yield* repo.getCustomersByIdsSlice({ ids: [2, 4, 6] })
+
+        expect(result.map(c => c.id)).toEqual([2, 4, 6])
+      }).pipe(Effect.provide(testLayer))
+    )
+
+    it.effect("returns empty results for an empty sqlc.slice", () =>
+      Effect.gen(function* () {
+        const repo = yield* CustomersRepository
+        const result = yield* repo.getCustomersByIdsSlice({ ids: [] })
+
+        expect(result).toEqual([])
+      }).pipe(Effect.provide(testLayer))
+    )
+  })
 })

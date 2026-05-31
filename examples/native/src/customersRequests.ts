@@ -70,3 +70,10 @@ export const GetCustomersByIdsParams = z.object({
 })
 
 export type GetCustomersByIdsParams = z.infer<typeof GetCustomersByIdsParams>
+
+// GetCustomersByIdsSlice - Parameters
+export const GetCustomersByIdsSliceParams = z.object({
+  ids: z.array(z.number()),
+})
+
+export type GetCustomersByIdsSliceParams = z.infer<typeof GetCustomersByIdsSliceParams>

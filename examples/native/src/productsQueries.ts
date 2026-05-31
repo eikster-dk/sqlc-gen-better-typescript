@@ -143,6 +143,7 @@ export async function getProductBySku(client: SqlClient, params: GetProductBySku
 // FROM products
 // ORDER BY name
 export async function listProducts(client: SqlClient): Promise<QueryResult<ListProductsResult[]>> {
+
   const result = await client.query(
     "SELECT id, sku, name, description, price_cents, stock_quantity, is_active, category, created_at, updated_at\nFROM products\nORDER BY name",
     []
@@ -162,6 +163,7 @@ export async function listProducts(client: SqlClient): Promise<QueryResult<ListP
 // WHERE is_active = TRUE
 // ORDER BY name
 export async function listActiveProducts(client: SqlClient): Promise<QueryResult<ListActiveProductsResult[]>> {
+
   const result = await client.query(
     "SELECT id, sku, name, description, price_cents, stock_quantity, is_active, category, created_at, updated_at\nFROM products\nWHERE is_active = TRUE\nORDER BY name",
     []
@@ -508,6 +510,7 @@ export async function getProductsByIds(client: SqlClient, params: GetProductsByI
 // GROUP BY category
 // ORDER BY product_count DESC
 export async function countProductsByCategory(client: SqlClient): Promise<QueryResult<CountProductsByCategoryResult[]>> {
+
   const result = await client.query(
     "SELECT category, COUNT(*) AS product_count\nFROM products\nWHERE is_active = TRUE\nGROUP BY category\nORDER BY product_count DESC",
     []

@@ -193,6 +193,7 @@ export async function getOrderWithCustomer(client: SqlClient, params: GetOrderWi
 // FROM orders
 // ORDER BY created_at DESC
 export async function listOrders(client: SqlClient): Promise<QueryResult<ListOrdersResult[]>> {
+
   const result = await client.query(
     "SELECT id, customer_id, status, total_cents, shipping_address, billing_address, notes, created_at, updated_at\nFROM orders\nORDER BY created_at DESC",
     []
@@ -485,6 +486,7 @@ export async function deleteOrder(client: SqlClient, params: DeleteOrderParams):
 // GROUP BY status
 // ORDER BY order_count DESC
 export async function countOrdersByStatus(client: SqlClient): Promise<QueryResult<CountOrdersByStatusResult[]>> {
+
   const result = await client.query(
     "SELECT status, COUNT(*) AS order_count\nFROM orders\nGROUP BY status\nORDER BY order_count DESC",
     []

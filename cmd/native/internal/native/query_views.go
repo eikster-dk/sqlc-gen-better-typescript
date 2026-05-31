@@ -83,6 +83,8 @@ func (n *Native) buildQueryView(plan models.QueryPlan, log *logger.Logger) Query
 		SQL:               fmt.Sprintf("%q", sql),
 		SQLComment:        toSQLComment(sql),
 		ParamList:         buildParamList(plan.Source.Parameters),
+		QueryParamList:    buildQueryParamList(plan.Source.Parameters),
+		HasSlices:         plan.Features.UsesSlices,
 	}
 }
 
@@ -153,6 +155,17 @@ func buildParamList(params []models.SQLParameter) string {
 	parts := make([]string, len(params))
 	for i, p := range params {
 		parts[i] = fmt.Sprintf("inputParsed.data.%s", toCamelCase(p.FieldName))
+	}
+	return strings.Join(parts, ", ")
+}
+
+func buildQueryParamList(params []models.SQLParameter) string {
+	if len(params) == 0 {
+		return ""
+	}
+	parts := make([]string, len(params))
+	for i, p := range params {
+		parts[i] = fmt.Sprintf("{ value: inputParsed.data.%s, slice: %t }", toCamelCase(p.FieldName), p.Slice)
 	}
 	return strings.Join(parts, ", ")
 }

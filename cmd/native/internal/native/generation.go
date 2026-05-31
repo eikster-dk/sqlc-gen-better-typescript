@@ -118,6 +118,7 @@ func (n *Native) generateQueryFiles(fileStem string, queryViews []QueryView, tmp
 		FileStem:        fileStem,
 		ImportExt:       importExt,
 		NeedsExecResult: needsExecResult(queryViews),
+		NeedsSlices:     needsSlices(queryViews),
 		SqlcVersion:     sqlcVersion,
 		PluginVersion:   version.Version,
 		QueryViews:      queryViews,
@@ -134,6 +135,15 @@ func (n *Native) generateQueryFiles(fileStem string, queryViews []QueryView, tmp
 func needsExecResult(queryViews []QueryView) bool {
 	for _, query := range queryViews {
 		if query.Command == ":execresult" {
+			return true
+		}
+	}
+	return false
+}
+
+func needsSlices(queryViews []QueryView) bool {
+	for _, query := range queryViews {
+		if query.HasSlices {
 			return true
 		}
 	}

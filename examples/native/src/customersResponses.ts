@@ -206,3 +206,27 @@ export const GetCustomersByIdsResult = GetCustomersByIdsRow.transform((row) => (
 }))
 
 export type GetCustomersByIdsResult = z.infer<typeof GetCustomersByIdsResult>
+
+// GetCustomersByIdsSlice - Row
+export const GetCustomersByIdsSliceRow = z.object({
+  id: z.number(),
+  email: z.string(),
+  name: z.string(),
+  phone: z.string().nullable(),
+  created_at: z.coerce.date(),
+  updated_at: z.coerce.date(),
+})
+
+export type GetCustomersByIdsSliceRow = z.infer<typeof GetCustomersByIdsSliceRow>
+
+// GetCustomersByIdsSlice - Result
+export const GetCustomersByIdsSliceResult = GetCustomersByIdsSliceRow.transform((row) => ({
+  id: row.id,
+  email: row.email,
+  name: row.name,
+  phone: row.phone,
+  created_at: row.created_at,
+  updated_at: row.updated_at,
+}))
+
+export type GetCustomersByIdsSliceResult = z.infer<typeof GetCustomersByIdsSliceResult>

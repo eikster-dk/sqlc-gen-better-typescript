@@ -12,6 +12,35 @@ import type { {{.NamePascal}}Result } from "./{{$stem}}Responses{{$ext}}"
 import { {{.NamePascal}}Result as {{.NamePascal}}ResultSchema } from "./{{$stem}}Responses{{$ext}}"
 {{end -}}
 {{end}}
+{{if .NeedsSlices -}}
+type QueryParam = { value: unknown; slice?: boolean }
+
+function expandSqlSlices(sql: string, params: QueryParam[]): { sql: string; params: unknown[] } {
+  const expandedParams: unknown[] = []
+  const expandedSql = sql.replace(/\$(\d+)/g, (_match, positionText: string) => {
+    const param = params[Number(positionText) - 1]
+    if (!param) {
+      return _match
+    }
+    if (!param.slice) {
+      expandedParams.push(param.value)
+      return `$${expandedParams.length}`
+    }
+
+    const values = param.value as readonly unknown[]
+    if (values.length === 0) {
+      return "NULL"
+    }
+    return values.map((value) => {
+      expandedParams.push(value)
+      return `$${expandedParams.length}`
+    }).join(", ")
+  })
+
+  return { sql: expandedSql, params: expandedParams }
+}
+
+{{end -}}
 {{range .QueryViews -}}
 {{if eq .Command ":one"}}
 // {{.Name}}
@@ -23,10 +52,18 @@ export async function {{.NameCamel}}(client: SqlClient{{if .HasParams}}, params:
     return { success: false, error: inputParsed.error, phase: "input" }
   }
 {{end}}
+{{if .HasSlices}}
+  const query = expandSqlSlices({{.SQL}}, [{{.QueryParamList}}])
+  const result = await client.query(
+    query.sql,
+    query.params
+  )
+{{else}}
   const result = await client.query(
     {{.SQL}},
     {{if .HasParams}}[{{.ParamList}}]{{else}}[]{{end}}
   )
+{{end}}
 
   if (result.rows.length === 0) {
     return { success: true, data: null }
@@ -52,10 +89,18 @@ export async function {{.NameCamel}}(client: SqlClient{{if .HasParams}}, params:
     return { success: false, error: inputParsed.error, phase: "input" }
   }
 {{end}}
+{{if .HasSlices}}
+  const query = expandSqlSlices({{.SQL}}, [{{.QueryParamList}}])
+  const result = await client.query(
+    query.sql,
+    query.params
+  )
+{{else}}
   const result = await client.query(
     {{.SQL}},
     {{if .HasParams}}[{{.ParamList}}]{{else}}[]{{end}}
   )
+{{end}}
 
 {{if .HasResults}}
   const outputParsed = {{.NamePascal}}ResultSchema.array().safeParse(result.rows)
@@ -78,10 +123,18 @@ export async function {{.NameCamel}}(client: SqlClient{{if .HasParams}}, params:
     return { success: false, error: inputParsed.error, phase: "input" }
   }
 {{end}}
+{{if .HasSlices}}
+  const query = expandSqlSlices({{.SQL}}, [{{.QueryParamList}}])
+  await client.query(
+    query.sql,
+    query.params
+  )
+{{else}}
   await client.query(
     {{.SQL}},
     {{if .HasParams}}[{{.ParamList}}]{{else}}[]{{end}}
   )
+{{end}}
 
   return { success: true, data: undefined }
 }
@@ -95,10 +148,18 @@ export async function {{.NameCamel}}(client: SqlClient{{if .HasParams}}, params:
     return { success: false, error: inputParsed.error, phase: "input" }
   }
 {{end}}
+{{if .HasSlices}}
+  const query = expandSqlSlices({{.SQL}}, [{{.QueryParamList}}])
+  const result = await client.query(
+    query.sql,
+    query.params
+  )
+{{else}}
   const result = await client.query(
     {{.SQL}},
     {{if .HasParams}}[{{.ParamList}}]{{else}}[]{{end}}
   )
+{{end}}
 
   return { success: true, data: result.rowCount || 0 }
 }
@@ -112,10 +173,18 @@ export async function {{.NameCamel}}(client: SqlClient{{if .HasParams}}, params:
     return { success: false, error: inputParsed.error, phase: "input" }
   }
 {{end}}
+{{if .HasSlices}}
+  const query = expandSqlSlices({{.SQL}}, [{{.QueryParamList}}])
+  const result = await client.query(
+    query.sql,
+    query.params
+  )
+{{else}}
   const result = await client.query(
     {{.SQL}},
     {{if .HasParams}}[{{.ParamList}}]{{else}}[]{{end}}
   )
+{{end}}
 
   return { success: true, data: { command: result.command || "", rowCount: result.rowCount || 0 } }
 }

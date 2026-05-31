@@ -22,6 +22,8 @@ type QueryView struct {
 	SQL               string
 	SQLComment        string // SQL with each line prefixed by "// "
 	ParamList         string // comma-separated "params.foo, params.bar"
+	QueryParamList    string // comma-separated query param specs for slice expansion
+	HasSlices         bool
 }
 
 // ZodField holds a single field with its Zod schema expression.
@@ -45,6 +47,7 @@ type QueriesData struct {
 	FileStem        string // e.g. "customers" — used for import paths
 	ImportExt       string // e.g. ".js"
 	NeedsExecResult bool
+	NeedsSlices     bool
 	QueryViews      []QueryView
 	SqlcVersion     string
 	PluginVersion   string

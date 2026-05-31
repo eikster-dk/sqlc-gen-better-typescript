@@ -43,6 +43,7 @@ export async function getOrderWithCustomerEmbed(client: SqlClient, params: GetOr
 // JOIN customers ON orders.customer_id = customers.id
 // ORDER BY orders.created_at DESC
 export async function listOrdersWithCustomerEmbed(client: SqlClient): Promise<QueryResult<ListOrdersWithCustomerEmbedResult[]>> {
+
   const result = await client.query(
     "SELECT orders.id AS orders_id, orders.customer_id AS orders_customer_id, orders.status AS orders_status, orders.total_cents AS orders_total_cents, orders.shipping_address AS orders_shipping_address, orders.billing_address AS orders_billing_address, orders.notes AS orders_notes, orders.created_at AS orders_created_at, orders.updated_at AS orders_updated_at, orders.search_vector AS orders_search_vector, customers.id AS customers_id, customers.email AS customers_email, customers.name AS customers_name, customers.phone AS customers_phone, customers.created_at AS customers_created_at, customers.updated_at AS customers_updated_at\nFROM orders\nJOIN customers ON orders.customer_id = customers.id\nORDER BY orders.created_at DESC",
     []

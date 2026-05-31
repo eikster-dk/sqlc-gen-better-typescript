@@ -15,6 +15,7 @@ import {
   deleteCustomer,
   countCustomers,
   getCustomersByIds,
+  getCustomersByIdsSlice,
 } from "../../src/customersQueries.js"
 
 describe("CustomersQueries", () => {
@@ -284,6 +285,26 @@ describe("CustomersQueries", () => {
       if (!result.success) throw new Error("expected success")
 
       expect(result.data.length).toBe(2)
+    })
+  })
+
+  describe("getCustomersByIdsSlice", () => {
+    it("expands sqlc.slice values for IN clauses", async () => {
+      const result = await getCustomersByIdsSlice(pool, { ids: [2, 4, 6] })
+
+      expect(result.success).toBe(true)
+      if (!result.success) throw new Error("expected success")
+
+      expect(result.data.map(c => c.id)).toEqual([2, 4, 6])
+    })
+
+    it("returns empty results for an empty sqlc.slice", async () => {
+      const result = await getCustomersByIdsSlice(pool, { ids: [] })
+
+      expect(result.success).toBe(true)
+      if (!result.success) throw new Error("expected success")
+
+      expect(result.data).toEqual([])
     })
   })
 })

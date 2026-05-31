@@ -46,6 +46,38 @@ import { GetCustomersByIdsParams as GetCustomersByIdsParamsSchema } from "./cust
 import type { GetCustomersByIdsResult } from "./customersResponses.js"
 import { GetCustomersByIdsResult as GetCustomersByIdsResultSchema } from "./customersResponses.js"
 
+import type { GetCustomersByIdsSliceParams } from "./customersRequests.js"
+import { GetCustomersByIdsSliceParams as GetCustomersByIdsSliceParamsSchema } from "./customersRequests.js"
+import type { GetCustomersByIdsSliceResult } from "./customersResponses.js"
+import { GetCustomersByIdsSliceResult as GetCustomersByIdsSliceResultSchema } from "./customersResponses.js"
+
+type QueryParam = { value: unknown; slice?: boolean }
+
+function expandSqlSlices(sql: string, params: QueryParam[]): { sql: string; params: unknown[] } {
+  const expandedParams: unknown[] = []
+  const expandedSql = sql.replace(/\$(\d+)/g, (_match, positionText: string) => {
+    const param = params[Number(positionText) - 1]
+    if (!param) {
+      return _match
+    }
+    if (!param.slice) {
+      expandedParams.push(param.value)
+      return `$${expandedParams.length}`
+    }
+
+    const values = param.value as readonly unknown[]
+    if (values.length === 0) {
+      return "NULL"
+    }
+    return values.map((value) => {
+      expandedParams.push(value)
+      return `$${expandedParams.length}`
+    }).join(", ")
+  })
+
+  return { sql: expandedSql, params: expandedParams }
+}
+
 // GetCustomer
 // SELECT id, email, name, phone, created_at, updated_at
 // FROM customers
@@ -105,6 +137,7 @@ export async function getCustomerByEmail(client: SqlClient, params: GetCustomerB
 // FROM customers
 // ORDER BY created_at DESC
 export async function listCustomers(client: SqlClient): Promise<QueryResult<ListCustomersResult[]>> {
+
   const result = await client.query(
     "SELECT id, email, name, phone, created_at, updated_at\nFROM customers\nORDER BY created_at DESC",
     []
@@ -260,6 +293,7 @@ export async function deleteCustomer(client: SqlClient, params: DeleteCustomerPa
 // SELECT COUNT(*) AS total
 // FROM customers
 export async function countCustomers(client: SqlClient): Promise<QueryResult<CountCustomersResult | null>> {
+
   const result = await client.query(
     "SELECT COUNT(*) AS total\nFROM customers",
     []
@@ -293,6 +327,31 @@ export async function getCustomersByIds(client: SqlClient, params: GetCustomersB
   )
 
   const outputParsed = GetCustomersByIdsResultSchema.array().safeParse(result.rows)
+  if (!outputParsed.success) {
+    return { success: false, error: outputParsed.error, phase: "output" }
+  }
+
+  return { success: true, data: outputParsed.data }
+}
+
+// GetCustomersByIdsSlice
+// SELECT id, email, name, phone, created_at, updated_at
+// FROM customers
+// WHERE id IN ($1)
+// ORDER BY id
+export async function getCustomersByIdsSlice(client: SqlClient, params: GetCustomersByIdsSliceParams): Promise<QueryResult<GetCustomersByIdsSliceResult[]>> {
+  const inputParsed = GetCustomersByIdsSliceParamsSchema.safeParse(params)
+  if (!inputParsed.success) {
+    return { success: false, error: inputParsed.error, phase: "input" }
+  }
+
+  const query = expandSqlSlices("SELECT id, email, name, phone, created_at, updated_at\nFROM customers\nWHERE id IN ($1)\nORDER BY id", [{ value: inputParsed.data.ids, slice: true }])
+  const result = await client.query(
+    query.sql,
+    query.params
+  )
+
+  const outputParsed = GetCustomersByIdsSliceResultSchema.array().safeParse(result.rows)
   if (!outputParsed.success) {
     return { success: false, error: outputParsed.error, phase: "output" }
   }

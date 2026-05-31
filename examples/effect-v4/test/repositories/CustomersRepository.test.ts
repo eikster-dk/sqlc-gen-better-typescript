@@ -117,7 +117,7 @@ describe("CustomersRepository", () => {
     it.effect("finds customers matching name pattern", () =>
       Effect.gen(function* () {
         const repo = yield* CustomersRepository
-        const result = yield* repo.searchCustomersByName({ arg1: "son" })
+        const result = yield* repo.searchCustomersByName({ name: "son" })
 
         // Should find Alice Johnson, Jack Anderson
         expect(result.length).toBeGreaterThan(0)
@@ -128,9 +128,21 @@ describe("CustomersRepository", () => {
     it.effect("returns empty array when no match", () =>
       Effect.gen(function* () {
         const repo = yield* CustomersRepository
-        const result = yield* repo.searchCustomersByName({ arg1: "xyz123" })
+        const result = yield* repo.searchCustomersByName({ name: "xyz123" })
 
         expect(result.length).toBe(0)
+      }).pipe(Effect.provide(testLayer))
+    )
+  })
+
+  describe("searchCustomersByEmailDomain", () => {
+    it.effect("finds customers matching email domain using @ shorthand", () =>
+      Effect.gen(function* () {
+        const repo = yield* CustomersRepository
+        const result = yield* repo.searchCustomersByEmailDomain({ domain: "example.com" })
+
+        expect(result.length).toBe(10)
+        expect(result.every(c => c.email.endsWith("example.com"))).toBe(true)
       }).pipe(Effect.provide(testLayer))
     )
   })
@@ -198,6 +210,24 @@ describe("CustomersRepository", () => {
         })
 
         expect(Option.isNone(result)).toBe(true)
+      }).pipe(Effect.provide(testLayer))
+    )
+  })
+
+  describe("patchCustomer", () => {
+    it.effect("updates only provided nullable args using sqlc.narg", () =>
+      Effect.gen(function* () {
+        const repo = yield* CustomersRepository
+        const result = yield* repo.patchCustomer({
+          id: 3,
+          name: "Carol Williams Patched",
+        })
+
+        expect(Option.isSome(result)).toBe(true)
+        const customer = Option.getOrNull(result)!
+        expect(customer.email).toBe("carol@example.com")
+        expect(customer.name).toBe("Carol Williams Patched")
+        expect(Option.isNone(customer.phone)).toBe(true)
       }).pipe(Effect.provide(testLayer))
     )
   })
@@ -286,6 +316,26 @@ describe("CustomersRepository", () => {
         const result = yield* repo.getCustomersByIds({ ids: [1, 9999, 2] })
 
         expect(result.length).toBe(2)
+      }).pipe(Effect.provide(testLayer))
+    )
+  })
+
+  describe("getCustomersByIdsSlice", () => {
+    it.effect("expands sqlc.slice values for IN clauses", () =>
+      Effect.gen(function* () {
+        const repo = yield* CustomersRepository
+        const result = yield* repo.getCustomersByIdsSlice({ ids: [2, 4, 6] })
+
+        expect(result.map(c => c.id)).toEqual([2, 4, 6])
+      }).pipe(Effect.provide(testLayer))
+    )
+
+    it.effect("returns empty results for an empty sqlc.slice", () =>
+      Effect.gen(function* () {
+        const repo = yield* CustomersRepository
+        const result = yield* repo.getCustomersByIdsSlice({ ids: [] })
+
+        expect(result).toEqual([])
       }).pipe(Effect.provide(testLayer))
     )
   })

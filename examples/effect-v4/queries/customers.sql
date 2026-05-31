@@ -22,8 +22,14 @@ LIMIT $1 OFFSET $2;
 -- name: SearchCustomersByName :many
 SELECT id, email, name, phone, created_at, updated_at
 FROM customers
-WHERE name ILIKE '%' || $1 || '%'
+WHERE name ILIKE '%' || sqlc.arg('name') || '%'
 ORDER BY name;
+
+-- name: SearchCustomersByEmailDomain :many
+SELECT id, email, name, phone, created_at, updated_at
+FROM customers
+WHERE email ILIKE '%' || @domain
+ORDER BY email;
 
 -- name: CreateCustomer :one
 INSERT INTO customers (email, name, phone)
@@ -34,6 +40,16 @@ RETURNING id, email, name, phone, created_at, updated_at;
 UPDATE customers
 SET email = $2, name = $3, phone = $4, updated_at = NOW()
 WHERE id = $1
+RETURNING id, email, name, phone, created_at, updated_at;
+
+-- name: PatchCustomer :one
+UPDATE customers
+SET
+  email = COALESCE(sqlc.narg('email'), email),
+  name = COALESCE(sqlc.narg('name'), name),
+  phone = COALESCE(sqlc.narg('phone'), phone),
+  updated_at = NOW()
+WHERE id = sqlc.arg('id')
 RETURNING id, email, name, phone, created_at, updated_at;
 
 -- name: UpdateCustomerEmail :exec
@@ -53,3 +69,9 @@ FROM customers;
 SELECT id, email, name, phone, created_at, updated_at
 FROM customers
 WHERE id = ANY(sqlc.arg('ids')::int[]);
+
+-- name: GetCustomersByIdsSlice :many
+SELECT id, email, name, phone, created_at, updated_at
+FROM customers
+WHERE id IN (sqlc.slice('ids'))
+ORDER BY id;

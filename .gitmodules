@@ -1,3 +1,0 @@
-[submodule ".context/effect-smol"]
-	path = .context/effect-smol
-	url = https://github.com/effect-ts/effect-smol.git

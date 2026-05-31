@@ -2,7 +2,7 @@ version: '2'
 plugins:
 - name: native
   wasm:
-    url: file://../../dist/plugin
+    url: file://../../dist/sqlc-gen-native.wasm
 sql:
 - schema: schema/
   queries: queries/
@@ -11,5 +11,4 @@ sql:
   - out: src
     plugin: native
     options:
-      builder: native
       import_extension: ".js"

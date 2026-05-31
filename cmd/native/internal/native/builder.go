@@ -68,6 +68,9 @@ func (n *Native) Build(ctx toolbelt.BuildContext) ([]toolbelt.File, error) {
 
 	if len(queries) > 0 {
 		plans := models.BuildQueryPlans(queries)
+		if err := validateSupportedCommands(plans); err != nil {
+			return nil, err
+		}
 		queryGroups := n.groupQueriesByFile(plans, log)
 		filenames := sortedGroupKeys(queryGroups)
 
@@ -94,4 +97,18 @@ func (n *Native) Build(ctx toolbelt.BuildContext) ([]toolbelt.File, error) {
 
 	log.Info("Native code generation complete", logger.F("files", len(files)))
 	return files, nil
+}
+
+func validateSupportedCommands(plans []models.QueryPlan) error {
+	for _, plan := range plans {
+		switch plan.Command {
+		case ":one", ":many", ":exec", ":execrows", ":execresult":
+			continue
+		case ":copyfrom", ":batchexec", ":batchone", ":batchmany":
+			return fmt.Errorf("unsupported sqlc command %s for query %s", plan.Command, plan.Name)
+		default:
+			return fmt.Errorf("unsupported sqlc command %s for query %s", plan.Command, plan.Name)
+		}
+	}
+	return nil
 }

@@ -65,7 +65,7 @@ export interface CustomersRepositoryShape {
 }
 
 // Service Tag
-export class CustomersRepository extends ServiceMap.Service<
+export class CustomersRepository extends Context.Service<
   CustomersRepository,
   CustomersRepositoryShape
 >()("CustomersRepository") {}

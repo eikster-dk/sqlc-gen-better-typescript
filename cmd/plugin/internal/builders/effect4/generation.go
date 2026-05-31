@@ -216,7 +216,7 @@ func (e *Effect4) buildResponseImports(queryViews []QueryView) Imports {
 
 func (e *Effect4) buildRepositoryImports(repoName string, queryViews []QueryView) Imports {
 	imports := Imports{
-		"effect":              []string{"ServiceMap", "Effect", "Layer", "Schema", "Option"},
+		"effect":              []string{"Context", "Effect", "Layer", "Schema", "Option"},
 		"effect/unstable/sql": []string{"SqlClient", "SqlError", "SqlSchema"},
 	}
 

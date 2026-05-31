@@ -20,7 +20,7 @@ export interface {{.RepositoryName}}Shape {
      ------------------------------------------------------------ */}}
 {{define "service-tag" -}}
 // Service Tag
-export class {{.RepositoryName}} extends ServiceMap.Service<{{.RepositoryName}}, {{.RepositoryName}}Shape>()("{{.RepositoryName}}") { }
+export class {{.RepositoryName}} extends Context.Service<{{.RepositoryName}}, {{.RepositoryName}}Shape>()("{{.RepositoryName}}") { }
 {{- end}}
 
 {{/* ------------------------------------------------------------

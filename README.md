@@ -293,17 +293,12 @@ const runnable = program.pipe(
 | Macro | Supported | Description |
 |-------|-----------|-------------|
 | `sqlc.arg('name')` | Yes | Explicit parameter naming |
-| `sqlc.narg('name')` | No | Nullable argument - not yet implemented |
-| `sqlc.slice('name')` | No | Slice expansion - use `= ANY($1::type[])` instead (see below) |
+| `@name` | Yes | PostgreSQL shorthand for `sqlc.arg(name)` |
+| `sqlc.narg('name')` | Yes | Explicit nullable parameter naming |
+| `sqlc.slice('name')` | Yes | Dynamic `IN` list expansion using Effect SQL's `sql.in` helper |
 | `sqlc.embed(table)` | Yes | Embed table columns into nested structures |
 
-> **Note on `sqlc.slice`:** While `sqlc.slice()` is not supported, you can achieve the same result using PostgreSQL's `ANY` operator with array casting:
-> ```sql
-> -- Instead of: WHERE id IN (sqlc.slice('ids'))
-> -- Use:
-> WHERE id = ANY($1::int[])
-> ```
-> This generates a parameter typed as `Schema.Array(Schema.Int)` and works correctly with PostgreSQL.
+`sqlc.slice` generates array request schemas and expands to Effect SQL's column-aware `sql.in` helper. Empty slices compile to a false predicate through Effect SQL.
 
 ### Future Builders (Planned)
 

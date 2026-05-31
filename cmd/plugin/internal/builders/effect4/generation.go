@@ -216,8 +216,8 @@ func (e *Effect4) buildResponseImports(queryViews []QueryView) Imports {
 
 func (e *Effect4) buildRepositoryImports(repoName string, queryViews []QueryView) Imports {
 	imports := Imports{
-		"effect":              []string{"Context", "Effect", "Layer", "Schema", "Option"},
-		"effect/unstable/sql": []string{"SqlClient", "SqlError", "SqlSchema"},
+		"effect":              []string{"Context", "Effect", "Layer", "Schema"},
+		"effect/unstable/sql": []string{"SqlClient", "SqlSchema"},
 	}
 
 	requestSymbols := make([]string, 0, len(queryViews))

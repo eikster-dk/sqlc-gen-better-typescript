@@ -56,22 +56,8 @@ export const GetCustomerResult = Schema.Struct({
 
 export type GetCustomerResult = typeof GetCustomerResult.Type
 
-// Repository interface
-export interface CustomersRepositoryShape {
-  readonly getCustomer: (params: GetCustomerParams) => Effect.Effect<
-    Option.Option<GetCustomerResult>,
-    SqlError.SqlError | Schema.SchemaError
-  >
-}
-
-// Service Tag
-export class CustomersRepository extends Context.Service<
-  CustomersRepository,
-  CustomersRepositoryShape
->()("CustomersRepository") {}
-
 // Implementation
-const customersRepositoryImpl = Effect.gen(function* () {
+const customersRepositoryMake = Effect.gen(function* () {
   const sql = yield* SqlClient.SqlClient
 
   const getCustomer = SqlSchema.findOneOption({
@@ -83,11 +69,21 @@ const customersRepositoryImpl = Effect.gen(function* () {
     )
   })
 
-  return { getCustomer } satisfies CustomersRepositoryShape
+  return { getCustomer } as const
 })
 
+// Service Tag
+export class CustomersRepository extends Context.Service<CustomersRepository>()(
+  "CustomersRepository",
+  { make: customersRepositoryMake }
+) {
+  static readonly layer = Layer.effect(this, this.make)
+}
+
+export type CustomersRepositoryService = CustomersRepository["Service"]
+
 // Live Layer
-export const customersRepositoryLive = Layer.effect(CustomersRepository, customersRepositoryImpl)
+export const customersRepositoryLive = CustomersRepository.layer
 
 // Usage
 const program = Effect.gen(function* () {

@@ -11,6 +11,7 @@ import {
   searchCustomersByName,
   createCustomer,
   updateCustomer,
+  patchCustomer,
   updateCustomerEmail,
   deleteCustomer,
   countCustomers,
@@ -201,6 +202,23 @@ describe("CustomersQueries", () => {
       if (!result.success) throw new Error("expected success")
 
       expect(result.data).toBeNull()
+    })
+  })
+
+  describe("patchCustomer", () => {
+    it("updates only provided nullable args using sqlc.narg", async () => {
+      const result = await patchCustomer(pool, {
+        id: 3,
+        name: "Carol Williams Patched",
+      })
+
+      expect(result.success).toBe(true)
+      if (!result.success) throw new Error("expected success")
+
+      expect(result.data).not.toBeNull()
+      expect(result.data!.email).toBe("carol@example.com")
+      expect(result.data!.name).toBe("Carol Williams Patched")
+      expect(result.data!.phone).toBeNull()
     })
   })
 

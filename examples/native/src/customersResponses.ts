@@ -169,6 +169,30 @@ export const UpdateCustomerResult = UpdateCustomerRow.transform((row) => ({
 
 export type UpdateCustomerResult = z.infer<typeof UpdateCustomerResult>
 
+// PatchCustomer - Row
+export const PatchCustomerRow = z.object({
+  id: z.number(),
+  email: z.string(),
+  name: z.string(),
+  phone: z.string().nullable(),
+  created_at: z.coerce.date(),
+  updated_at: z.coerce.date(),
+})
+
+export type PatchCustomerRow = z.infer<typeof PatchCustomerRow>
+
+// PatchCustomer - Result
+export const PatchCustomerResult = PatchCustomerRow.transform((row) => ({
+  id: row.id,
+  email: row.email,
+  name: row.name,
+  phone: row.phone,
+  created_at: row.created_at,
+  updated_at: row.updated_at,
+}))
+
+export type PatchCustomerResult = z.infer<typeof PatchCustomerResult>
+
 // CountCustomers - Row
 export const CountCustomersRow = z.object({
   total: z.coerce.bigint(),

@@ -33,6 +33,11 @@ import { UpdateCustomerParams as UpdateCustomerParamsSchema } from "./customersR
 import type { UpdateCustomerResult } from "./customersResponses.js"
 import { UpdateCustomerResult as UpdateCustomerResultSchema } from "./customersResponses.js"
 
+import type { PatchCustomerParams } from "./customersRequests.js"
+import { PatchCustomerParams as PatchCustomerParamsSchema } from "./customersRequests.js"
+import type { PatchCustomerResult } from "./customersResponses.js"
+import { PatchCustomerResult as PatchCustomerResultSchema } from "./customersResponses.js"
+
 import type { UpdateCustomerEmailParams } from "./customersRequests.js"
 import { UpdateCustomerEmailParams as UpdateCustomerEmailParamsSchema } from "./customersRequests.js"
 
@@ -247,6 +252,38 @@ export async function updateCustomer(client: SqlClient, params: UpdateCustomerPa
   }
 
   const outputParsed = UpdateCustomerResultSchema.safeParse(result.rows[0])
+  if (!outputParsed.success) {
+    return { success: false, error: outputParsed.error, phase: "output" }
+  }
+
+  return { success: true, data: outputParsed.data }
+}
+
+// PatchCustomer
+// UPDATE customers
+// SET
+//   email = COALESCE($1, email),
+//   name = COALESCE($2, name),
+//   phone = COALESCE($3, phone),
+//   updated_at = NOW()
+// WHERE id = $4
+// RETURNING id, email, name, phone, created_at, updated_at
+export async function patchCustomer(client: SqlClient, params: PatchCustomerParams): Promise<QueryResult<PatchCustomerResult | null>> {
+  const inputParsed = PatchCustomerParamsSchema.safeParse(params)
+  if (!inputParsed.success) {
+    return { success: false, error: inputParsed.error, phase: "input" }
+  }
+
+  const result = await client.query(
+    "UPDATE customers\nSET\n  email = COALESCE($1, email),\n  name = COALESCE($2, name),\n  phone = COALESCE($3, phone),\n  updated_at = NOW()\nWHERE id = $4\nRETURNING id, email, name, phone, created_at, updated_at",
+    [inputParsed.data.email, inputParsed.data.name, inputParsed.data.phone, inputParsed.data.id]
+  )
+
+  if (result.rows.length === 0) {
+    return { success: true, data: null }
+  }
+
+  const outputParsed = PatchCustomerResultSchema.safeParse(result.rows[0])
   if (!outputParsed.success) {
     return { success: false, error: outputParsed.error, phase: "output" }
   }

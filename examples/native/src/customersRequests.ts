@@ -49,6 +49,16 @@ export const UpdateCustomerParams = z.object({
 
 export type UpdateCustomerParams = z.infer<typeof UpdateCustomerParams>
 
+// PatchCustomer - Parameters
+export const PatchCustomerParams = z.object({
+  email: z.string().optional(),
+  name: z.string().optional(),
+  phone: z.string().optional(),
+  id: z.number(),
+})
+
+export type PatchCustomerParams = z.infer<typeof PatchCustomerParams>
+
 // UpdateCustomerEmail - Parameters
 export const UpdateCustomerEmailParams = z.object({
   id: z.number(),

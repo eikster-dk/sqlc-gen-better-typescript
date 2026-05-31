@@ -112,6 +112,28 @@ WHERE id = ${params.id}
 RETURNING id, email, name, phone, created_at, updated_at`
   })
 
+  // PatchCustomer
+  // UPDATE customers
+  // SET
+  //   email = COALESCE($1, email),
+  //   name = COALESCE($2, name),
+  //   phone = COALESCE($3, phone),
+  //   updated_at = NOW()
+  // WHERE id = $4
+  // RETURNING id, email, name, phone, created_at, updated_at
+  const patchCustomer = SqlSchema.findOneOption({
+    Request: PatchCustomerParams,
+    Result: PatchCustomerResult,
+    execute: (params) => sql`UPDATE customers
+SET
+  email = COALESCE(${params.email}, email),
+  name = COALESCE(${params.name}, name),
+  phone = COALESCE(${params.phone}, phone),
+  updated_at = NOW()
+WHERE id = ${params.id}
+RETURNING id, email, name, phone, created_at, updated_at`
+  })
+
   // UpdateCustomerEmail
   // UPDATE customers
   // SET email = $2, updated_at = NOW()
@@ -163,6 +185,7 @@ WHERE id = ANY(${params.ids}::int[])`
     searchCustomersByEmailDomain,
     createCustomer,
     updateCustomer,
+    patchCustomer,
     updateCustomerEmail,
     deleteCustomer,
     countCustomers,

@@ -56,6 +56,16 @@ export const UpdateCustomerParams = Schema.Struct({
 
 export type UpdateCustomerParams = typeof UpdateCustomerParams.Type
 
+// PatchCustomer - Parameters Schema
+export const PatchCustomerParams = Schema.Struct({
+  email: Schema.optional(Schema.String),
+  name: Schema.optional(Schema.String),
+  phone: Schema.optional(Schema.String),
+  id: Schema.Int,
+})
+
+export type PatchCustomerParams = typeof PatchCustomerParams.Type
+
 // UpdateCustomerEmail - Parameters Schema
 export const UpdateCustomerEmailParams = Schema.Struct({
   id: Schema.Int,

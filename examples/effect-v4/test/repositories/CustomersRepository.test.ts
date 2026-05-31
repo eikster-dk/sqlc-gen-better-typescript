@@ -214,6 +214,24 @@ describe("CustomersRepository", () => {
     )
   })
 
+  describe("patchCustomer", () => {
+    it.effect("updates only provided nullable args using sqlc.narg", () =>
+      Effect.gen(function* () {
+        const repo = yield* CustomersRepository
+        const result = yield* repo.patchCustomer({
+          id: 3,
+          name: "Carol Williams Patched",
+        })
+
+        expect(Option.isSome(result)).toBe(true)
+        const customer = Option.getOrNull(result)!
+        expect(customer.email).toBe("carol@example.com")
+        expect(customer.name).toBe("Carol Williams Patched")
+        expect(Option.isNone(customer.phone)).toBe(true)
+      }).pipe(Effect.provide(testLayer))
+    )
+  })
+
   describe("updateCustomerEmail", () => {
     it.effect("updates customer email only", () =>
       Effect.gen(function* () {

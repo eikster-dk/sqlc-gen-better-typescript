@@ -42,6 +42,16 @@ SET email = $2, name = $3, phone = $4, updated_at = NOW()
 WHERE id = $1
 RETURNING id, email, name, phone, created_at, updated_at;
 
+-- name: PatchCustomer :one
+UPDATE customers
+SET
+  email = COALESCE(sqlc.narg('email'), email),
+  name = COALESCE(sqlc.narg('name'), name),
+  phone = COALESCE(sqlc.narg('phone'), phone),
+  updated_at = NOW()
+WHERE id = sqlc.arg('id')
+RETURNING id, email, name, phone, created_at, updated_at;
+
 -- name: UpdateCustomerEmail :exec
 UPDATE customers
 SET email = $2, updated_at = NOW()

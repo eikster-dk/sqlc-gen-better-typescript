@@ -90,6 +90,17 @@ export const UpdateCustomerResult = Schema.Struct({
 })
 
 export type UpdateCustomerResult = typeof UpdateCustomerResult.Type
+// PatchCustomer - Result Schema
+export const PatchCustomerResult = Schema.Struct({
+  id: Schema.Int,
+  email: Schema.String,
+  name: Schema.String,
+  phone: Schema.OptionFromNullOr(Schema.String),
+  created_at: Schema.Date,
+  updated_at: Schema.Date,
+})
+
+export type PatchCustomerResult = typeof PatchCustomerResult.Type
 // CountCustomers - Result Schema
 export const CountCustomersResult = Schema.Struct({
   total: BigIntFromString,

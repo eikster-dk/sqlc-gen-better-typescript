@@ -9,6 +9,7 @@ import (
 
 	"github.com/eikster-dk/sqlc-gen-better-typescript/toolbelt/logger"
 	"github.com/eikster-dk/sqlc-gen-better-typescript/toolbelt/models"
+	"github.com/jinzhu/inflection"
 )
 
 // toSQLComment prefixes each line of sql with "// ".
@@ -69,18 +70,58 @@ func (n *Native) buildQueryView(plan models.QueryPlan, log *logger.Logger) Query
 	sql := plan.Source.ExecSQL
 
 	return QueryView{
-		Name:         plan.Name,
-		NamePascal:   namePascal,
-		NameCamel:    nameCamel,
-		Command:      plan.Command,
-		HasParams:    hasParams,
-		HasResults:   hasResults,
-		ParamFields:  paramFields,
-		ResultFields: resultFields,
-		SQL:          fmt.Sprintf("%q", sql),
-		SQLComment:   toSQLComment(sql),
-		ParamList:    buildParamList(plan.Source.Parameters),
+		Name:              plan.Name,
+		NamePascal:        namePascal,
+		NameCamel:         nameCamel,
+		Command:           plan.Command,
+		HasParams:         hasParams,
+		HasResults:        hasResults,
+		HasResultMappings: hasResults,
+		ParamFields:       paramFields,
+		ResultFields:      resultFields,
+		ResultMappings:    buildResultMappings(plan.Response.Result.Shape.Fields),
+		SQL:               fmt.Sprintf("%q", sql),
+		SQLComment:        toSQLComment(sql),
+		ParamList:         buildParamList(plan.Source.Parameters),
 	}
+}
+
+func buildResultMappings(fields []models.ResultShapeField) []ResultMapping {
+	return buildResultMappingsWithIndent(fields, "  ")
+}
+
+func buildResultMappingsWithIndent(fields []models.ResultShapeField, indent string) []ResultMapping {
+	mappings := make([]ResultMapping, 0, len(fields))
+	for i, field := range fields {
+		mapping := buildResultMapping(field, indent)
+		mapping.IsLast = i == len(fields)-1
+		mappings = append(mappings, mapping)
+	}
+	return mappings
+}
+
+func buildResultMapping(field models.ResultShapeField, indent string) ResultMapping {
+	if field.Kind == models.ResultShapeFieldObject && field.Object != nil {
+		return ResultMapping{Name: toCamelCase(singular(field.Name)), Object: buildResultMappingsWithIndent(field.Object.Fields, indent+"  "), IsObject: true, Indent: indent}
+	}
+	rowField := field.Name
+	if field.Source != nil {
+		rowField = field.Source.Name
+	}
+	return ResultMapping{Name: field.Name, RowField: rowField, Indent: indent}
+}
+
+func singular(name string) string {
+	lower := strings.ToLower(name)
+	switch lower {
+	case "campus", "meta", "metadata":
+		return name
+	case "calories":
+		return "calorie"
+	case "waves":
+		return "wave"
+	}
+	return inflection.Singular(name)
 }
 
 func (n *Native) buildParamFields(params []models.RequestField) []ZodField {

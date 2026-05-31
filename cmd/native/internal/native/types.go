@@ -9,23 +9,35 @@ import (
 
 // QueryView holds template data for a single query.
 type QueryView struct {
-	Name         string
-	NamePascal   string
-	NameCamel    string
-	Command      string
-	HasParams    bool
-	HasResults   bool
-	ParamFields  []ZodField
-	ResultFields []ZodField
-	SQL          string
-	SQLComment   string // SQL with each line prefixed by "// "
-	ParamList    string // comma-separated "params.foo, params.bar"
+	Name              string
+	NamePascal        string
+	NameCamel         string
+	Command           string
+	HasParams         bool
+	HasResults        bool
+	HasResultMappings bool
+	ParamFields       []ZodField
+	ResultFields      []ZodField
+	ResultMappings    []ResultMapping
+	SQL               string
+	SQLComment        string // SQL with each line prefixed by "// "
+	ParamList         string // comma-separated "params.foo, params.bar"
 }
 
 // ZodField holds a single field with its Zod schema expression.
 type ZodField struct {
 	Name   string
 	Schema string
+}
+
+type ResultMapping struct {
+	Name       string
+	RowField   string
+	Object     []ResultMapping
+	IsObject   bool
+	IsLast     bool
+	Indent     string
+	ParentPath string
 }
 
 // QueriesData is passed to the Queries template.

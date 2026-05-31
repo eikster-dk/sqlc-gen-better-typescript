@@ -14,10 +14,10 @@ build: build-wasm
 
 build-wasm: $(WASM_FILE)
 
-$(WASM_FILE): cmd/plugin/main.go $(shell find cmd/plugin/internal -name '*.go')
+$(WASM_FILE): cmd/effect/main.go $(shell find cmd/effect/internal toolbelt -name '*.go')
 	@mkdir -p $(WASM_DIR)
 	@echo "Building wasm plugin..."
-	GOOS=wasip1 GOARCH=wasm go build -o $(WASM_FILE) ./cmd/plugin
+	GOOS=wasip1 GOARCH=wasm go build -o $(WASM_FILE) ./cmd/effect
 	@echo "✓ Built: $(WASM_FILE)"
 
 # Generate code for the example (builds wasm first)

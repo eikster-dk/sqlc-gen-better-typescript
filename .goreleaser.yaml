@@ -11,7 +11,7 @@ before:
 
 builds:
   - id: plugin
-    main: ./cmd/plugin
+    main: ./cmd/effect
     env:
       - CGO_ENABLED=0
     goos:
@@ -20,7 +20,7 @@ builds:
       - wasm
     ldflags:
       - -s -w
-      - -X github.com/eikster-dk/sqlc-gen-better-typescript/cmd/plugin/internal/version.Version={{.Version}}
+      - -X github.com/eikster-dk/sqlc-gen-better-typescript/cmd/effect/internal/version.Version={{.Version}}
 
 archives:
   - id: dist

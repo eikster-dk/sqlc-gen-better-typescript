@@ -19,8 +19,8 @@ importers:
         version: 4.0.0-beta.74
     devDependencies:
       '@effect/language-service':
-        specifier: 0.79.0
-        version: 0.79.0
+        specifier: 0.86.2
+        version: 0.86.2
       '@effect/vitest':
         specifier: 4.0.0-beta.74
         version: 4.0.0-beta.74(effect@4.0.0-beta.74)(vitest@3.2.4(@types/node@25.5.0)(yaml@2.9.0))
@@ -42,8 +42,8 @@ packages:
   '@balena/dockerignore@1.0.2':
     resolution: {integrity: sha512-wMue2Sy4GAVTk6Ic4tJVcnfdau+gx2EnG7S+uAEe+TWJFqE4YoWN4/H8MSLj4eYJKxGg26lZwboEniNiNwZQ6Q==}
 
-  '@effect/language-service@0.79.0':
-    resolution: {integrity: sha512-DEmIOsg1GjjP6s9HXH1oJrW+gDmzkhVv9WOZl6to5eNyyCrjz1S2PDqQ7aYrW/HuifhfwI5Bik1pK4pj7Z+lrg==}
+  '@effect/language-service@0.86.2':
+    resolution: {integrity: sha512-SaPln+8srOqDJDUwNTDmP5e+IYpEDr9+1epGznnsLqu8xvo6VnxyWARdeLpqvZJlb0Pgy9ca7ppqvvdWbHPXAg==}
     hasBin: true
 
   '@effect/platform-node-shared@4.0.0-beta.74':
@@ -1424,7 +1424,7 @@ snapshots:
 
   '@balena/dockerignore@1.0.2': {}
 
-  '@effect/language-service@0.79.0': {}
+  '@effect/language-service@0.86.2': {}
 
   '@effect/platform-node-shared@4.0.0-beta.74(effect@4.0.0-beta.74)':
     dependencies:

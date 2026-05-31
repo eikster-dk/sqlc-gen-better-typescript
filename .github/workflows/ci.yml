@@ -32,8 +32,20 @@ jobs:
         run: make test
 
   test-example:
-    name: Test Example
+    name: Test Example (${{ matrix.name }})
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: effect-v4
+            dir: examples/effect-v4
+            build-target: build-effect
+            generate-target: generate-effect
+          - name: native
+            dir: examples/native
+            build-target: build-native
+            generate-target: generate-native
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -47,30 +59,30 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          package_json_file: examples/effect-v4/package.json
+          package_json_file: ${{ matrix.dir }}/package.json
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
-          cache-dependency-path: examples/effect-v4/pnpm-lock.yaml
+          cache-dependency-path: ${{ matrix.dir }}/pnpm-lock.yaml
 
       - name: Build Plugin
-        run: make build
+        run: make ${{ matrix.build-target }}
 
       - name: Install sqlc
         run: go install github.com/sqlc-dev/sqlc/cmd/sqlc@v1.30.0
 
       - name: Generate Code
-        run: make generate
+        run: make ${{ matrix.generate-target }}
 
-      - name: Install Dependencies
-        working-directory: examples/effect-v4
+      - name: Install Example Dependencies
+        working-directory: ${{ matrix.dir }}
         run: pnpm install
 
-      - name: Run Tests
-        working-directory: examples/effect-v4
+      - name: Run Example Tests
+        working-directory: ${{ matrix.dir }}
         run: pnpm test
 
   publish:

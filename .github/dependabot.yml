@@ -1,0 +1,27 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /examples/effect-v4
+    schedule:
+      interval: daily
+    versioning-strategy: increase
+    open-pull-requests-limit: 5
+    groups:
+      effect-beta:
+        patterns:
+          - effect
+          - "@effect/*"
+
+  - package-ecosystem: npm
+    directory: /examples/native
+    schedule:
+      interval: daily
+    versioning-strategy: increase
+    open-pull-requests-limit: 5
+    groups:
+      native-postgres:
+        patterns:
+          - pg
+          - "@types/pg"
+          - "@testcontainers/postgresql"
+          - testcontainers

@@ -57,6 +57,17 @@ export const SearchCustomersByNameResult = Schema.Struct({
 })
 
 export type SearchCustomersByNameResult = typeof SearchCustomersByNameResult.Type
+// SearchCustomersByEmailDomain - Result Schema
+export const SearchCustomersByEmailDomainResult = Schema.Struct({
+  id: Schema.Int,
+  email: Schema.String,
+  name: Schema.String,
+  phone: Schema.OptionFromNullOr(Schema.String),
+  created_at: Schema.Date,
+  updated_at: Schema.Date,
+})
+
+export type SearchCustomersByEmailDomainResult = typeof SearchCustomersByEmailDomainResult.Type
 // CreateCustomer - Result Schema
 export const CreateCustomerResult = Schema.Struct({
   id: Schema.Int,

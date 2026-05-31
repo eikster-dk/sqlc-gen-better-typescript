@@ -25,10 +25,17 @@ export type ListCustomersPaginatedParams = typeof ListCustomersPaginatedParams.T
 
 // SearchCustomersByName - Parameters Schema
 export const SearchCustomersByNameParams = Schema.Struct({
-  arg1: Schema.optional(Schema.String),
+  name: Schema.optional(Schema.String),
 })
 
 export type SearchCustomersByNameParams = typeof SearchCustomersByNameParams.Type
+
+// SearchCustomersByEmailDomain - Parameters Schema
+export const SearchCustomersByEmailDomainParams = Schema.Struct({
+  domain: Schema.optional(Schema.String),
+})
+
+export type SearchCustomersByEmailDomainParams = typeof SearchCustomersByEmailDomainParams.Type
 
 // CreateCustomer - Parameters Schema
 export const CreateCustomerParams = Schema.Struct({

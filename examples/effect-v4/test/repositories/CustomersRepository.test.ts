@@ -117,7 +117,7 @@ describe("CustomersRepository", () => {
     it.effect("finds customers matching name pattern", () =>
       Effect.gen(function* () {
         const repo = yield* CustomersRepository
-        const result = yield* repo.searchCustomersByName({ arg1: "son" })
+        const result = yield* repo.searchCustomersByName({ name: "son" })
 
         // Should find Alice Johnson, Jack Anderson
         expect(result.length).toBeGreaterThan(0)
@@ -128,9 +128,21 @@ describe("CustomersRepository", () => {
     it.effect("returns empty array when no match", () =>
       Effect.gen(function* () {
         const repo = yield* CustomersRepository
-        const result = yield* repo.searchCustomersByName({ arg1: "xyz123" })
+        const result = yield* repo.searchCustomersByName({ name: "xyz123" })
 
         expect(result.length).toBe(0)
+      }).pipe(Effect.provide(testLayer))
+    )
+  })
+
+  describe("searchCustomersByEmailDomain", () => {
+    it.effect("finds customers matching email domain using @ shorthand", () =>
+      Effect.gen(function* () {
+        const repo = yield* CustomersRepository
+        const result = yield* repo.searchCustomersByEmailDomain({ domain: "example.com" })
+
+        expect(result.length).toBe(10)
+        expect(result.every(c => c.email.endsWith("example.com"))).toBe(true)
       }).pipe(Effect.provide(testLayer))
     )
   })

@@ -1,24 +1,24 @@
-# sqlc-gen-better-typescript
+# sqlc-gen-effect
 
 A [sqlc](https://sqlc.dev) WASM plugin that generates type-safe TypeScript code from your SQL queries.
 
 ## Requirements
 
 - [sqlc](https://sqlc.dev) v1.25.0 or later
-- For the `effect-v4-unstable` builder:
+- For the Effect v4 plugin:
   - [Effect](https://effect.website) v4 (beta)
   - TypeScript 5.5+
 
 ## What is this?
 
-**sqlc-gen-better-typescript** is a flexible TypeScript code generator for sqlc that supports multiple output formats through a builder architecture. Instead of writing boilerplate database access code, you write SQL and the plugin generates fully typed TypeScript code tailored to your preferred libraries and patterns.
+**sqlc-gen-effect** currently contains the Effect v4 sqlc plugin and a shared `toolbelt` package that normalizes sqlc plugin requests into a stable intermediate representation. Instead of writing boilerplate database access code, you write SQL and the plugin generates fully typed TypeScript code tailored to Effect.
 
 The current focus is on [Effect v4](https://effect.website) code generation, with planned support for:
 - Native TypeScript (no external dependencies)
 - Zod v4 schema validation
 - Effect v3 compatibility
 
-Depending on the builder you choose, you get:
+The Effect plugin generates:
 
 - **Type-safe parameter schemas** using Effect's Schema library
 - **Type-safe result schemas** with proper null handling via `Option`
@@ -183,19 +183,9 @@ export const GetOrderWithCustomerResult = GetOrderWithCustomerRow.pipe(
 - Nullable fields use `Schema.OptionFromNullOr` for consistent API with non-embed queries
 - The transformation is decode-only (embed queries are read-only)
 
-## Builders
+## Effect v4 Plugin
 
-The plugin uses a **builder** architecture to support different code generation targets. Each builder produces output tailored for a specific framework or library version.
-
-## Available Builders
-
-| Builder | Description | Status |
-|---------|-------------|--------|
-| `effect-v4-unstable` | Generates Effect v4 TypeScript code using `effect/unstable/sql` | Available |
-
-### Effect v4 Builder
-
-The `effect-v4-unstable` builder generates idiomatic Effect v4 code using the `effect/unstable/sql` module.
+The Effect v4 plugin generates idiomatic Effect v4 code using the `effect/unstable/sql` module.
 
 #### SQL Generation
 
@@ -216,7 +206,6 @@ If you prefer to keep the sqlc-generated SQL statements unmodified, you can disa
 
 ```yaml
 options:
-  builder: effect-v4-unstable
   disable_template_literals: true
 ```
 
@@ -367,9 +356,9 @@ Configure the plugin in your `sqlc.yaml`:
 ```yaml
 version: '2'
 plugins:
-- name: better-typescript
+- name: effect
   wasm:
-    url: https://github.com/eikster-dk/sqlc-gen-better-typescript/releases/download/v[version]/plugin.wasm
+    url: https://github.com/eikster-dk/sqlc-gen-better-typescript/releases/download/v[version]/sqlc-gen-effect.wasm
     sha256: [calculatedSha]
 
 sql:
@@ -378,9 +367,8 @@ sql:
   engine: postgresql
   codegen:
   - out: src/repositories
-    plugin: better-typescript
+    plugin: effect
     options:
-      builder: effect-v4-unstable
       # debug: true
       # debug_dir: debug
 ```
@@ -389,7 +377,6 @@ sql:
 
 | Option | Type | Required | Default | Description |
 |--------|------|----------|---------|-------------|
-| `builder` | string | Yes | - | The code generation builder to use. Must be one of the available builders (e.g., `effect-v4-unstable`). |
 | `disable_template_literals` | boolean | No | `false` | Preserve original sqlc SQL using `sql.unsafe()` instead of transforming to template literals. See [Preserving Original SQL](#preserving-original-sql). |
 | `import_extension` | string | No | `""` | Explicit extension for generated relative imports. Allowed: `""`, `.js`, `.ts`. Use `.js` for Node ESM (`moduleResolution: nodenext`/`node16`). |
 | `debug` | boolean | No | `false` | Enable debug mode to output intermediate representations and detailed logs during code generation. |
@@ -428,14 +415,15 @@ make test
 
 ```
 .
-├── cmd/plugin/           # Plugin source code
+├── cmd/effect/           # Effect plugin source code
 │   ├── main.go           # Entry point
 │   └── internal/
-│       ├── builders/     # Code generation builders
 │       ├── config/       # Plugin configuration
-│       ├── mapper/       # sqlc to internal type mapping
-│       ├── models/       # Internal data models
-│       └── logger/       # Structured logging
+│       └── effect4/      # Effect v4 code generation
+├── toolbelt/             # Shared sqlc mapping/generation helpers
+│   ├── mapper/           # sqlc to IR mapping
+│   ├── models/           # Public intermediate representation
+│   └── logger/           # Structured logging
 ├── examples/             # Example projects
 │   └── effect-v4/        # Effect v4 example
 └── dist/                 # Built plugin artifacts

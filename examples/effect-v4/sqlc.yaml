@@ -2,7 +2,7 @@ version: '2'
 plugins:
 - name: effect
   wasm:
-    url: file://../../dist/plugin
+    url: file://../../dist/sqlc-gen-effect.wasm
 sql:
 - schema: schema/
   queries: queries/
@@ -11,7 +11,6 @@ sql:
   - out: src/repositories
     plugin: effect
     options: 
-      builder: effect-v4-unstable
       import_extension: ".js"
       # disable_template_literals: true
       # debug: true

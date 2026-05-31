@@ -80,8 +80,12 @@ func (m *Mapper) mapParams(params []*plugin.Parameter) []models.Param {
 	nameCount := make(map[string]int)
 	for i, p := range params {
 		name := ""
+		named := false
+		slice := false
 		if p.Column != nil {
 			name = p.Column.Name
+			named = p.Column.GetIsNamedParam()
+			slice = p.Column.GetIsSqlcSlice()
 		}
 		if name == "" {
 			name = fmt.Sprintf("arg%d", i+1)
@@ -102,7 +106,7 @@ func (m *Mapper) mapParams(params []*plugin.Parameter) []models.Param {
 			sqlType = m.mapSqlTypeFromIdentifier(p.Column.Type, p.Column.NotNull, p.Column.IsArray)
 		}
 
-		result = append(result, models.Param{Name: name, Position: position, Type: sqlType})
+		result = append(result, models.Param{Name: name, Position: position, Type: sqlType, Named: named, Slice: slice})
 	}
 	return result
 }

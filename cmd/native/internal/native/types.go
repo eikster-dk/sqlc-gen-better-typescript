@@ -2,6 +2,7 @@ package native
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 
 	"github.com/eikster-dk/sqlc-gen-better-typescript/toolbelt/models"
@@ -24,12 +25,19 @@ type QueryView struct {
 	ParamList         string // comma-separated "params.foo, params.bar"
 	QueryParamList    string // comma-separated query param specs for slice expansion
 	HasSlices         bool
+	EnumImports       []string
 }
 
 // ZodField holds a single field with its Zod schema expression.
 type ZodField struct {
-	Name   string
-	Schema string
+	Name       string
+	Schema     string
+	EnumImport string
+}
+
+type EnumView struct {
+	NamePascal string
+	Schema     string
 }
 
 type ResultMapping struct {
@@ -53,11 +61,19 @@ type QueriesData struct {
 	PluginVersion   string
 }
 
+type ModelsData struct {
+	SqlcVersion   string
+	PluginVersion string
+	Enums         []EnumView
+}
+
 // RequestsData is passed to the Requests template.
 type RequestsData struct {
 	SqlcVersion   string
 	PluginVersion string
 	QueryViews    []QueryView
+	EnumImports   []string
+	ImportExt     string
 }
 
 // ResponsesData is passed to the Responses template.
@@ -65,6 +81,8 @@ type ResponsesData struct {
 	SqlcVersion   string
 	PluginVersion string
 	QueryViews    []QueryView
+	EnumImports   []string
+	ImportExt     string
 }
 
 // zodEnumUnion builds a Zod union, literal, or never type from a slice of enum values.
@@ -82,6 +100,22 @@ func zodEnumUnion(values []string) string {
 		}
 		return fmt.Sprintf("z.union([%s])", strings.Join(parts, ", "))
 	}
+}
+
+func uniqueSorted(values []string) []string {
+	set := make(map[string]struct{}, len(values))
+	for _, value := range values {
+		if value == "" {
+			continue
+		}
+		set[value] = struct{}{}
+	}
+	result := make([]string, 0, len(set))
+	for value := range set {
+		result = append(result, value)
+	}
+	sort.Strings(result)
+	return result
 }
 
 // zodBaseType maps a SqlType to its base Zod expression (no nullable/optional modifier).
@@ -110,7 +144,8 @@ func (n *Native) zodBaseType(t models.SqlType) string {
 	default:
 		if t.IsEnum {
 			if values, ok := n.enumValues[t.Name]; ok {
-				return zodEnumUnion(values)
+				_ = values
+				return toPascalCase(t.Name)
 			}
 			// Fallback when enum is not in the catalog (e.g. unknown type source).
 			return "z.string()"

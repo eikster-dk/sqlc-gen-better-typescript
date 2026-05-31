@@ -966,14 +966,19 @@ func TestNative_Build_EnumUnionGeneration(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	var requestsFile, responsesFile *File
+	var modelsFile, requestsFile, responsesFile *File
 	for i := range files {
 		switch files[i].Name {
+		case "models.ts":
+			modelsFile = &files[i]
 		case "ordersRequests.ts":
 			requestsFile = &files[i]
 		case "ordersResponses.ts":
 			responsesFile = &files[i]
 		}
+	}
+	if modelsFile == nil {
+		t.Fatal("expected models.ts")
 	}
 	if requestsFile == nil {
 		t.Fatal("expected ordersRequests.ts")
@@ -982,17 +987,41 @@ func TestNative_Build_EnumUnionGeneration(t *testing.T) {
 		t.Fatal("expected ordersResponses.ts")
 	}
 
-	wantUnion := `z.union([z.literal("pending"), z.literal("confirmed"), z.literal("cancelled")])`
+	wantUnion := `export const OrderStatus = z.union([z.literal("pending"), z.literal("confirmed"), z.literal("cancelled")])`
 
-	t.Run("enum param generates z.union literal", func(t *testing.T) {
-		if !strings.Contains(string(requestsFile.Content), wantUnion) {
-			t.Errorf("expected enum union in requests, got:\n%s", requestsFile.Content)
+	t.Run("enum schema and type are generated in models", func(t *testing.T) {
+		content := string(modelsFile.Content)
+		if !strings.Contains(content, wantUnion) {
+			t.Errorf("expected enum schema in models, got:\n%s", modelsFile.Content)
+		}
+		if !strings.Contains(content, `export type OrderStatus = z.infer<typeof OrderStatus>`) {
+			t.Errorf("expected enum type in models, got:\n%s", modelsFile.Content)
 		}
 	})
 
-	t.Run("enum result generates z.union literal", func(t *testing.T) {
-		if !strings.Contains(string(responsesFile.Content), wantUnion) {
-			t.Errorf("expected enum union in responses, got:\n%s", responsesFile.Content)
+	t.Run("enum param imports and reuses shared schema", func(t *testing.T) {
+		content := string(requestsFile.Content)
+		if !strings.Contains(content, `import { OrderStatus } from "./models.js"`) {
+			t.Errorf("expected enum import in requests, got:\n%s", requestsFile.Content)
+		}
+		if !strings.Contains(content, `status: OrderStatus,`) {
+			t.Errorf("expected shared enum schema in requests, got:\n%s", requestsFile.Content)
+		}
+		if strings.Contains(content, `z.union([z.literal("pending")`) {
+			t.Errorf("did not expect inline enum union in requests, got:\n%s", requestsFile.Content)
+		}
+	})
+
+	t.Run("enum result imports and reuses shared schema", func(t *testing.T) {
+		content := string(responsesFile.Content)
+		if !strings.Contains(content, `import { OrderStatus } from "./models.js"`) {
+			t.Errorf("expected enum import in responses, got:\n%s", responsesFile.Content)
+		}
+		if !strings.Contains(content, `status: OrderStatus,`) {
+			t.Errorf("expected shared enum schema in responses, got:\n%s", responsesFile.Content)
+		}
+		if strings.Contains(content, `z.union([z.literal("pending")`) {
+			t.Errorf("did not expect inline enum union in responses, got:\n%s", responsesFile.Content)
 		}
 	})
 }
@@ -1001,7 +1030,7 @@ func TestNative_Build_EnumUnion_EdgeCases(t *testing.T) {
 	n := New(defaultConfig())
 	log := logger.New(false)
 
-	t.Run("single enum value generates z.literal", func(t *testing.T) {
+	t.Run("single enum value generates shared z.literal", func(t *testing.T) {
 		catalog := &models.Catalog{
 			Enums: []models.Enum{
 				{Name: "singleton", Values: []models.EnumValue{{Name: "Only", Value: "only"}}},
@@ -1018,21 +1047,30 @@ func TestNative_Build_EnumUnion_EdgeCases(t *testing.T) {
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
-		var rf *File
+		var mf, rf *File
 		for i := range files {
-			if files[i].Name == "tRequests.ts" {
+			switch files[i].Name {
+			case "models.ts":
+				mf = &files[i]
+			case "tRequests.ts":
 				rf = &files[i]
 			}
+		}
+		if mf == nil {
+			t.Fatal("expected models.ts")
 		}
 		if rf == nil {
 			t.Fatal("expected tRequests.ts")
 		}
-		if !strings.Contains(string(rf.Content), `z.literal("only")`) {
-			t.Errorf("expected z.literal for single-value enum, got:\n%s", rf.Content)
+		if !strings.Contains(string(mf.Content), `export const Singleton = z.literal("only")`) {
+			t.Errorf("expected z.literal for single-value enum in models, got:\n%s", mf.Content)
+		}
+		if !strings.Contains(string(rf.Content), `e: Singleton,`) {
+			t.Errorf("expected shared singleton enum in requests, got:\n%s", rf.Content)
 		}
 	})
 
-	t.Run("zero enum values generates z.never", func(t *testing.T) {
+	t.Run("zero enum values generates shared z.never", func(t *testing.T) {
 		catalog := &models.Catalog{
 			Enums: []models.Enum{
 				{Name: "empty_enum", Values: []models.EnumValue{}},
@@ -1049,17 +1087,26 @@ func TestNative_Build_EnumUnion_EdgeCases(t *testing.T) {
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
-		var rf *File
+		var mf, rf *File
 		for i := range files {
-			if files[i].Name == "tRequests.ts" {
+			switch files[i].Name {
+			case "models.ts":
+				mf = &files[i]
+			case "tRequests.ts":
 				rf = &files[i]
 			}
+		}
+		if mf == nil {
+			t.Fatal("expected models.ts")
 		}
 		if rf == nil {
 			t.Fatal("expected tRequests.ts")
 		}
-		if !strings.Contains(string(rf.Content), `z.never()`) {
-			t.Errorf("expected z.never() for zero-value enum, got:\n%s", rf.Content)
+		if !strings.Contains(string(mf.Content), `export const EmptyEnum = z.never()`) {
+			t.Errorf("expected z.never() for zero-value enum in models, got:\n%s", mf.Content)
+		}
+		if !strings.Contains(string(rf.Content), `e: EmptyEnum,`) {
+			t.Errorf("expected shared empty enum in requests, got:\n%s", rf.Content)
 		}
 	})
 
@@ -1095,8 +1142,8 @@ func TestNative_Build_EnumUnion_EdgeCases(t *testing.T) {
 			t.Fatal("expected tRequests.ts")
 		}
 		content := string(rf.Content)
-		if !strings.Contains(content, `z.union([z.literal("pending"), z.literal("done")]).optional()`) {
-			t.Errorf("expected z.union(...).optional() for nullable enum param, got:\n%s", content)
+		if !strings.Contains(content, `status: OrderStatus.optional()`) {
+			t.Errorf("expected OrderStatus.optional() for nullable enum param, got:\n%s", content)
 		}
 	})
 
@@ -1132,8 +1179,8 @@ func TestNative_Build_EnumUnion_EdgeCases(t *testing.T) {
 			t.Fatal("expected tResponses.ts")
 		}
 		content := string(rf.Content)
-		if !strings.Contains(content, `z.union([z.literal("pending"), z.literal("done")]).nullable()`) {
-			t.Errorf("expected z.union(...).nullable() for nullable enum result, got:\n%s", content)
+		if !strings.Contains(content, `status: OrderStatus.nullable()`) {
+			t.Errorf("expected OrderStatus.nullable() for nullable enum result, got:\n%s", content)
 		}
 	})
 
@@ -1169,8 +1216,8 @@ func TestNative_Build_EnumUnion_EdgeCases(t *testing.T) {
 			t.Fatal("expected tRequests.ts")
 		}
 		content := string(rf.Content)
-		if !strings.Contains(content, `z.array(z.union([z.literal("pending"), z.literal("done")]))`) {
-			t.Errorf("expected z.array(z.union(...)) for array enum, got:\n%s", content)
+		if !strings.Contains(content, `statuses: z.array(OrderStatus)`) {
+			t.Errorf("expected z.array(OrderStatus) for array enum, got:\n%s", content)
 		}
 	})
 
@@ -1330,26 +1377,42 @@ func TestNative_Build_MultipleEnumsCorrectLookup(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	var rf *File
+	var mf, rf *File
 	for i := range files {
-		if files[i].Name == "itemsRequests.ts" {
+		switch files[i].Name {
+		case "models.ts":
+			mf = &files[i]
+		case "itemsRequests.ts":
 			rf = &files[i]
 		}
+	}
+	if mf == nil {
+		t.Fatal("expected models.ts")
 	}
 	if rf == nil {
 		t.Fatal("expected itemsRequests.ts")
 	}
 
+	modelsContent := string(mf.Content)
 	content := string(rf.Content)
 
-	wantColor := `z.union([z.literal("red"), z.literal("blue")])`
-	wantSize := `z.union([z.literal("small"), z.literal("large")])`
+	wantColor := `export const Color = z.union([z.literal("red"), z.literal("blue")])`
+	wantSize := `export const Size = z.union([z.literal("small"), z.literal("large")])`
 
-	if !strings.Contains(content, wantColor) {
-		t.Errorf("expected color enum union %q in requests, got:\n%s", wantColor, content)
+	if !strings.Contains(modelsContent, wantColor) {
+		t.Errorf("expected color enum union %q in models, got:\n%s", wantColor, modelsContent)
 	}
-	if !strings.Contains(content, wantSize) {
-		t.Errorf("expected size enum union %q in requests, got:\n%s", wantSize, content)
+	if !strings.Contains(modelsContent, wantSize) {
+		t.Errorf("expected size enum union %q in models, got:\n%s", wantSize, modelsContent)
+	}
+	if !strings.Contains(content, `import { Color, Size } from "./models.js"`) {
+		t.Errorf("expected color and size imports in requests, got:\n%s", content)
+	}
+	if !strings.Contains(content, `color: Color,`) {
+		t.Errorf("expected Color schema in requests, got:\n%s", content)
+	}
+	if !strings.Contains(content, `size: Size,`) {
+		t.Errorf("expected Size schema in requests, got:\n%s", content)
 	}
 
 	// Verify they're NOT swapped: color should NOT contain "small"/"large"

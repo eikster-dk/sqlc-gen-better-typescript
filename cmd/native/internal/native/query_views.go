@@ -85,7 +85,18 @@ func (n *Native) buildQueryView(plan models.QueryPlan, log *logger.Logger) Query
 		ParamList:         buildParamList(plan.Source.Parameters),
 		QueryParamList:    buildQueryParamList(plan.Source.Parameters),
 		HasSlices:         plan.Features.UsesSlices,
+		EnumImports:       uniqueSorted(append(enumImports(paramFields), enumImports(resultFields)...)),
 	}
+}
+
+func enumImports(fields []ZodField) []string {
+	imports := make([]string, 0, len(fields))
+	for _, field := range fields {
+		if field.EnumImport != "" {
+			imports = append(imports, field.EnumImport)
+		}
+	}
+	return imports
 }
 
 func buildResultMappings(fields []models.ResultShapeField) []ResultMapping {
@@ -130,8 +141,9 @@ func (n *Native) buildParamFields(params []models.RequestField) []ZodField {
 	fields := make([]ZodField, len(params))
 	for i, p := range params {
 		fields[i] = ZodField{
-			Name:   toCamelCase(p.Name),
-			Schema: n.zodTypeForParam(p.Type),
+			Name:       toCamelCase(p.Name),
+			Schema:     n.zodTypeForParam(p.Type),
+			EnumImport: n.enumImport(p.Type),
 		}
 	}
 	return fields
@@ -141,11 +153,22 @@ func (n *Native) buildResultFields(results []models.RowField) []ZodField {
 	fields := make([]ZodField, len(results))
 	for i, r := range results {
 		fields[i] = ZodField{
-			Name:   r.Name,
-			Schema: n.zodTypeForResult(r.Type),
+			Name:       r.Name,
+			Schema:     n.zodTypeForResult(r.Type),
+			EnumImport: n.enumImport(r.Type),
 		}
 	}
 	return fields
+}
+
+func (n *Native) enumImport(t models.SqlType) string {
+	if !t.IsEnum {
+		return ""
+	}
+	if _, ok := n.enumValues[t.Name]; !ok {
+		return ""
+	}
+	return toPascalCase(t.Name)
 }
 
 func buildParamList(params []models.SQLParameter) string {

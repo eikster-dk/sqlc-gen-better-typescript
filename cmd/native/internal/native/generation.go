@@ -5,6 +5,7 @@ import (
 	"embed"
 	"fmt"
 	"regexp"
+	"sort"
 	"strings"
 	"text/template"
 
@@ -20,12 +21,6 @@ var (
 	reExcessiveNewlines  = regexp.MustCompile(`\n{3,}`)
 	reTrailingWhitespace = regexp.MustCompile(`[ \t]+\n`)
 )
-
-// modelsData holds the data passed to the models.ts template.
-type modelsData struct {
-	SqlcVersion   string
-	PluginVersion string
-}
 
 // templateSet holds all loaded templates.
 type templateSet struct {
@@ -74,11 +69,10 @@ func loadAllTemplates() (*templateSet, error) {
 }
 
 func (n *Native) generateModelsFileFromTemplates(tmpls *templateSet, catalog *models.Catalog, sqlcVersion string) (toolbelt.File, error) {
-	_ = catalog // catalog will be used in later phases for enums etc.
-
-	data := modelsData{
+	data := ModelsData{
 		SqlcVersion:   sqlcVersion,
 		PluginVersion: version.Version,
+		Enums:         buildEnumViews(catalog.Enums),
 	}
 
 	content, err := executeTemplate(tmpls.models, data)
@@ -96,6 +90,8 @@ func (n *Native) generateQueryFiles(fileStem string, queryViews []QueryView, tmp
 		SqlcVersion:   sqlcVersion,
 		PluginVersion: version.Version,
 		QueryViews:    queryViews,
+		EnumImports:   queryEnumImports(queryViews),
+		ImportExt:     importExt,
 	}
 	requestsContent, err := executeTemplate(tmpls.requests, requestsData)
 	if err != nil {
@@ -107,6 +103,8 @@ func (n *Native) generateQueryFiles(fileStem string, queryViews []QueryView, tmp
 		SqlcVersion:   sqlcVersion,
 		PluginVersion: version.Version,
 		QueryViews:    queryViews,
+		EnumImports:   queryEnumImports(queryViews),
+		ImportExt:     importExt,
 	}
 	responsesContent, err := executeTemplate(tmpls.responses, responsesData)
 	if err != nil {
@@ -130,6 +128,27 @@ func (n *Native) generateQueryFiles(fileStem string, queryViews []QueryView, tmp
 	queriesFile := toolbelt.File{Name: fileStem + "Queries.ts", Content: []byte(queriesContent)}
 
 	return requestsFile, responsesFile, queriesFile, nil
+}
+
+func buildEnumViews(enums []models.Enum) []EnumView {
+	views := make([]EnumView, len(enums))
+	for i, enum := range enums {
+		values := make([]string, len(enum.Values))
+		for j, value := range enum.Values {
+			values[j] = value.Value
+		}
+		views[i] = EnumView{NamePascal: toPascalCase(enum.Name), Schema: zodEnumUnion(values)}
+	}
+	sort.Slice(views, func(i, j int) bool { return views[i].NamePascal < views[j].NamePascal })
+	return views
+}
+
+func queryEnumImports(queryViews []QueryView) []string {
+	imports := make([]string, 0)
+	for _, query := range queryViews {
+		imports = append(imports, query.EnumImports...)
+	}
+	return uniqueSorted(imports)
 }
 
 func needsExecResult(queryViews []QueryView) bool {

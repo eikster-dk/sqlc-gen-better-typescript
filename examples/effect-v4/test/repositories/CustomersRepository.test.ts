@@ -273,6 +273,42 @@ describe("CustomersRepository", () => {
     )
   })
 
+  describe("deleteCustomerResult", () => {
+    it.effect("returns exec result with command and rowCount when row deleted", () =>
+      Effect.gen(function* () {
+        const repo = yield* CustomersRepository
+
+        // Create a customer to delete
+        const created = yield* repo.createCustomer({
+          email: "todelete-result@example.com",
+          name: "To Delete Result",
+        })
+        const customerId = Option.getOrNull(created)!.id
+
+        // Delete it using execresult variant
+        const result = yield* repo.deleteCustomerResult({ id: customerId })
+
+        expect(result.command).toBe("DELETE")
+        expect(result.rowCount).toBe(1)
+
+        // Verify it's gone
+        const check = yield* repo.getCustomer({ id: customerId })
+        expect(Option.isNone(check)).toBe(true)
+      }).pipe(Effect.provide(testLayer))
+    )
+
+    it.effect("returns rowCount 0 when no row matches", () =>
+      Effect.gen(function* () {
+        const repo = yield* CustomersRepository
+
+        const result = yield* repo.deleteCustomerResult({ id: 999999 })
+
+        expect(result.command).toBe("DELETE")
+        expect(result.rowCount).toBe(0)
+      }).pipe(Effect.provide(testLayer))
+    )
+  })
+
   describe("countCustomers", () => {
     it.effect("returns total customer count", () =>
       Effect.gen(function* () {

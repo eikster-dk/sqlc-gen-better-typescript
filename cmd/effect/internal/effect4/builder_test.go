@@ -44,6 +44,67 @@ func TestEffect4_Build_RejectsUnsupportedCommands(t *testing.T) {
 	}
 }
 
+func findFile(files []toolbelt.File, name string) *toolbelt.File {
+	for _, f := range files {
+		if f.Name == name {
+			return &f
+		}
+	}
+	return nil
+}
+
+func TestEffect4_Build_ExecResult(t *testing.T) {
+	e := New(defaultConfig())
+	log := logger.New(false)
+
+	queries := []models.Query{
+		{Name: "DeleteUser", SQL: "DELETE FROM users WHERE id = $1", Command: ":execresult", Filename: "queries.sql"},
+	}
+	files, err := buildEffect(e, &models.Catalog{}, queries, log, "1.0.0")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	t.Run("repository uses execResult helper not SqlSchema.findAll", func(t *testing.T) {
+		repo := findFile(files, "QueriesRepository.ts")
+		if repo == nil {
+			t.Fatal("expected QueriesRepository.ts in output")
+		}
+		content := string(repo.Content)
+		if strings.Contains(content, "SqlSchema.findAll") {
+			t.Error("repository should not use SqlSchema.findAll for :execresult")
+		}
+		if !strings.Contains(content, "execResult") {
+			t.Error("repository should use execResult helper for :execresult")
+		}
+	})
+
+	t.Run("repository imports execResult from models", func(t *testing.T) {
+		repo := findFile(files, "QueriesRepository.ts")
+		if repo == nil {
+			t.Fatal("expected QueriesRepository.ts in output")
+		}
+		content := string(repo.Content)
+		if !strings.Contains(content, "execResult") || !strings.Contains(content, "models") {
+			t.Error("repository should import execResult from models")
+		}
+	})
+
+	t.Run("models includes SqlExecResult schema and execResult helper", func(t *testing.T) {
+		modelsFile := findFile(files, "models.ts")
+		if modelsFile == nil {
+			t.Fatal("expected models.ts in output")
+		}
+		content := string(modelsFile.Content)
+		if !strings.Contains(content, "SqlExecResult") {
+			t.Error("models should define SqlExecResult schema")
+		}
+		if !strings.Contains(content, "execResult") {
+			t.Error("models should define execResult helper")
+		}
+	})
+}
+
 func TestEffect4_Build_AcceptsSupportedCommands(t *testing.T) {
 	e := New(defaultConfig())
 	log := logger.New(false)

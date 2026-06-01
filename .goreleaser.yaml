@@ -37,7 +37,7 @@ builds:
 archives:
   - id: dist
     formats: binary
-    name_template: "{{ .ProjectName }}"
+    name_template: "{{ .Binary }}"
 
 changelog:
   sort: asc

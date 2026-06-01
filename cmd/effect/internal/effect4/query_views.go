@@ -28,6 +28,8 @@ func (e *Effect4) buildQueryView(plan models.QueryPlan, log *logger.Logger) Quer
 		returnType = "void"
 	case ":execrows":
 		returnType = "number"
+	case ":execresult":
+		returnType = "SqlExecResult"
 	case ":one":
 		returnType = fmt.Sprintf("Option.Option<%sResult>", namePascal)
 	default:
@@ -40,6 +42,8 @@ func (e *Effect4) buildQueryView(plan models.QueryPlan, log *logger.Logger) Quer
 		sqlSchemaMethod = "SqlSchema.void"
 	case ":execrows":
 		sqlSchemaMethod = "execRows"
+	case ":execresult":
+		sqlSchemaMethod = "execResult"
 	case ":one":
 		sqlSchemaMethod = "SqlSchema.findOneOption"
 	default:

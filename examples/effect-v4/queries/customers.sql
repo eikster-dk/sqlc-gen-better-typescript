@@ -61,6 +61,10 @@ WHERE id = $1;
 DELETE FROM customers
 WHERE id = $1;
 
+-- name: DeleteCustomerResult :execresult
+DELETE FROM customers
+WHERE id = $1;
+
 -- name: CountCustomers :one
 SELECT COUNT(*) AS total
 FROM customers;

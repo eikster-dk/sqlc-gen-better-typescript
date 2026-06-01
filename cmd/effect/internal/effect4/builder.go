@@ -36,6 +36,9 @@ func (e *Effect4) Build(ctx toolbelt.BuildContext) ([]toolbelt.File, error) {
 	}
 
 	plans := models.BuildQueryPlans(ctx.Queries)
+	if err := validateSupportedCommands(plans); err != nil {
+		return nil, err
+	}
 	queryGroups := e.groupQueriesByFile(plans, log)
 	filenames := sortedGroupKeys(queryGroups)
 
@@ -96,6 +99,20 @@ func (e *Effect4) groupQueriesByFile(plans []models.QueryPlan, log *logger.Logge
 		groups[filename] = append(groups[filename], plan)
 	}
 	return groups
+}
+
+func validateSupportedCommands(plans []models.QueryPlan) error {
+	for _, plan := range plans {
+		switch plan.Command {
+		case ":one", ":many", ":exec", ":execrows", ":execresult":
+			continue
+		case ":copyfrom", ":batchexec", ":batchone", ":batchmany":
+			return fmt.Errorf("unsupported sqlc command %s for query %s", plan.Command, plan.Name)
+		default:
+			return fmt.Errorf("unsupported sqlc command %s for query %s", plan.Command, plan.Name)
+		}
+	}
+	return nil
 }
 
 func (e *Effect4) filenameToRepoName(filename string) string {

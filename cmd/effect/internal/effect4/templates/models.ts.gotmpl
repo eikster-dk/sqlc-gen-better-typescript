@@ -33,6 +33,27 @@ export const execRows = <Req extends Schema.Top, E, R>(options: {
 }
 {{end}}
 
+{{if .NeedsExecResult}}
+// PostgreSQL returns command tag and affected row count in the raw result metadata
+export const SqlExecResult = Schema.Struct({ command: Schema.String, rowCount: Schema.NullOr(Schema.Int) })
+
+export type SqlExecResult = typeof SqlExecResult.Type
+
+// Helper for :execresult queries - returns command tag and affected row count
+export const execResult = <Req extends Schema.Top, E, R>(options: {
+  readonly Request: Req
+  readonly execute: (request: Req["Encoded"]) => { raw: Effect.Effect<unknown, E, R> }
+}) => {
+  const encode = Schema.encodeEffect(options.Request)
+  const decodeResult = Schema.decodeUnknownEffect(SqlExecResult)
+  return (request: Req["Type"]): Effect.Effect<SqlExecResult, E | Schema.SchemaError, R | Req["EncodingServices"]> =>
+    Effect.flatMap(
+      Effect.flatMap(encode(request), (encoded) => options.execute(encoded).raw),
+      (raw) => decodeResult(raw)
+    )
+}
+{{end}}
+
 {{range .Enums}}
 // {{.NamePascal}} enum schema
 export const {{.NamePascal}}Schema = Schema.Literals([{{range $i, $v := .Values}}{{if $i}}, {{end}}"{{$v}}"{{end}}])

@@ -85,11 +85,12 @@ type ResponseData struct {
 }
 
 type ModelsData struct {
-	Imports       Imports
-	Enums         []EnumView
-	TableRows     []TableRowView
-	NeedsBigInt   bool
-	NeedsExecRows bool
-	SqlcVersion   string
-	PluginVersion string
+	Imports        Imports
+	Enums          []EnumView
+	TableRows      []TableRowView
+	NeedsBigInt    bool
+	NeedsExecRows  bool
+	NeedsExecResult bool
+	SqlcVersion    string
+	PluginVersion  string
 }

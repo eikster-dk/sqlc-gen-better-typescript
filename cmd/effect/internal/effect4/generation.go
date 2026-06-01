@@ -40,9 +40,9 @@ func (e *Effect4) generateResponseFile(tmpl *template.Template, repoName string,
 }
 
 func (e *Effect4) generateModelsFile(tmpl *template.Template, catalog *models.Catalog, queryViewsByFile map[string][]QueryView, sqlcVersion string) (toolbelt.File, error) {
-	needsBigInt, needsExecRows := e.computeGlobalHelpers(queryViewsByFile)
+	needsBigInt, needsExecRows, needsExecResult := e.computeGlobalHelpers(queryViewsByFile)
 	usedEmbedTables := collectUsedEmbedTables(queryViewsByFile)
-	data := ModelsData{Imports: buildModelsImports(needsBigInt, needsExecRows), Enums: buildEnumViews(catalog.Enums), TableRows: e.buildTableRows(catalog, usedEmbedTables), NeedsBigInt: needsBigInt, NeedsExecRows: needsExecRows, SqlcVersion: sqlcVersion, PluginVersion: version.Version}
+	data := ModelsData{Imports: buildModelsImports(needsBigInt, needsExecRows, needsExecResult), Enums: buildEnumViews(catalog.Enums), TableRows: e.buildTableRows(catalog, usedEmbedTables), NeedsBigInt: needsBigInt, NeedsExecRows: needsExecRows, NeedsExecResult: needsExecResult, SqlcVersion: sqlcVersion, PluginVersion: version.Version}
 	content, err := executeTemplate(tmpl, data)
 	if err != nil {
 		return toolbelt.File{}, fmt.Errorf("failed to render models template: %w", err)
@@ -50,11 +50,14 @@ func (e *Effect4) generateModelsFile(tmpl *template.Template, catalog *models.Ca
 	return toolbelt.File{Name: "models.ts", Content: []byte(content)}, nil
 }
 
-func (e *Effect4) computeGlobalHelpers(byFile map[string][]QueryView) (needsBigInt, needsExecRows bool) {
+func (e *Effect4) computeGlobalHelpers(byFile map[string][]QueryView) (needsBigInt, needsExecRows, needsExecResult bool) {
 	for _, views := range byFile {
 		for _, v := range views {
 			if v.Command == ":execrows" {
 				needsExecRows = true
+			}
+			if v.Command == ":execresult" {
+				needsExecResult = true
 			}
 			for _, fields := range [][]SchemaField{v.ParamFields, v.ResultFields, v.RowFields} {
 				for _, f := range fields {
@@ -63,7 +66,7 @@ func (e *Effect4) computeGlobalHelpers(byFile map[string][]QueryView) (needsBigI
 					}
 				}
 			}
-			if needsBigInt && needsExecRows {
+			if needsBigInt && needsExecRows && needsExecResult {
 				return
 			}
 		}
@@ -71,10 +74,10 @@ func (e *Effect4) computeGlobalHelpers(byFile map[string][]QueryView) (needsBigI
 	return
 }
 
-func buildModelsImports(needsBigInt, needsExecRows bool) Imports {
+func buildModelsImports(needsBigInt, needsExecRows, needsExecResult bool) Imports {
 	imports := Imports{}
 	effectSymbols := []string{"Schema"}
-	if needsExecRows {
+	if needsExecRows || needsExecResult {
 		effectSymbols = append(effectSymbols, "Effect")
 	}
 	if needsBigInt {
@@ -172,6 +175,7 @@ func (e *Effect4) buildRepositoryImports(repoName string, queryViews []QueryView
 	requestSymbols := make([]string, 0, len(queryViews))
 	responseSymbols := make([]string, 0, len(queryViews))
 	needsExecRows := false
+	needsExecResult := false
 	for _, query := range queryViews {
 		if query.HasParams {
 			requestSymbols = append(requestSymbols, query.NamePascal+"Params")
@@ -182,6 +186,9 @@ func (e *Effect4) buildRepositoryImports(repoName string, queryViews []QueryView
 		if query.Command == ":execrows" {
 			needsExecRows = true
 		}
+		if query.Command == ":execresult" {
+			needsExecResult = true
+		}
 	}
 	if symbols := uniqueSorted(requestSymbols); len(symbols) > 0 {
 		imports[e.localImportPath("./"+repoName+"Request")] = symbols
@@ -189,8 +196,15 @@ func (e *Effect4) buildRepositoryImports(repoName string, queryViews []QueryView
 	if symbols := uniqueSorted(responseSymbols); len(symbols) > 0 {
 		imports[e.localImportPath("./"+repoName+"Response")] = symbols
 	}
+	var modelSymbols []string
 	if needsExecRows {
-		imports[e.localImportPath("./models")] = []string{"execRows"}
+		modelSymbols = append(modelSymbols, "execRows")
+	}
+	if needsExecResult {
+		modelSymbols = append(modelSymbols, "execResult")
+	}
+	if len(modelSymbols) > 0 {
+		imports[e.localImportPath("./models")] = modelSymbols
 	}
 	return imports
 }

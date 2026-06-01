@@ -294,10 +294,10 @@ const runnable = program.pipe(
 | `:exec` | Yes | `void` | Executes without returning data |
 | `:execrows` | Yes | `number` | Returns the number of affected rows |
 | `:execresult` | Yes | `SqlExecResult` | Returns command tag and affected row count |
-| `:copyfrom` | No | - | Not yet implemented |
-| `:batchexec` | No | - | Not yet implemented |
-| `:batchone` | No | - | Not yet implemented |
-| `:batchmany` | No | - | Not yet implemented |
+| `:copyfrom` | No | - | Explicitly rejected during generation |
+| `:batchexec` | No | - | Explicitly rejected during generation |
+| `:batchone` | No | - | Explicitly rejected during generation |
+| `:batchmany` | No | - | Explicitly rejected during generation |
 
 #### Supported sqlc Macros
 

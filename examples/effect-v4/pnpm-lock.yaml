@@ -9,21 +9,21 @@ importers:
   .:
     dependencies:
       '@effect/platform-node':
-        specifier: 4.0.0-beta.78
-        version: 4.0.0-beta.78(effect@4.0.0-beta.78)(ioredis@5.10.0)
+        specifier: 4.0.0-beta.79
+        version: 4.0.0-beta.79(effect@4.0.0-beta.79)(ioredis@5.10.0)
       '@effect/sql-pg':
-        specifier: 4.0.0-beta.78
-        version: 4.0.0-beta.78(effect@4.0.0-beta.78)
+        specifier: 4.0.0-beta.79
+        version: 4.0.0-beta.79(effect@4.0.0-beta.79)
       effect:
-        specifier: 4.0.0-beta.78
-        version: 4.0.0-beta.78
+        specifier: 4.0.0-beta.79
+        version: 4.0.0-beta.79
     devDependencies:
       '@effect/language-service':
         specifier: 0.86.2
         version: 0.86.2
       '@effect/vitest':
-        specifier: 4.0.0-beta.78
-        version: 4.0.0-beta.78(effect@4.0.0-beta.78)(vitest@4.1.8(@types/node@25.9.1)(vite@6.4.2(@types/node@25.9.1)(yaml@2.9.0)))
+        specifier: 4.0.0-beta.79
+        version: 4.0.0-beta.79(effect@4.0.0-beta.79)(vitest@4.1.8(@types/node@25.9.3)(vite@6.4.2(@types/node@25.9.3)(yaml@2.9.0)))
       '@testcontainers/postgresql':
         specifier: 12.0.1
         version: 12.0.1
@@ -35,7 +35,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 4.1.8
-        version: 4.1.8(@types/node@25.9.1)(vite@6.4.2(@types/node@25.9.1)(yaml@2.9.0))
+        version: 4.1.8(@types/node@25.9.3)(vite@6.4.2(@types/node@25.9.3)(yaml@2.9.0))
 
 packages:
 
@@ -46,28 +46,28 @@ packages:
     resolution: {integrity: sha512-SaPln+8srOqDJDUwNTDmP5e+IYpEDr9+1epGznnsLqu8xvo6VnxyWARdeLpqvZJlb0Pgy9ca7ppqvvdWbHPXAg==}
     hasBin: true
 
-  '@effect/platform-node-shared@4.0.0-beta.78':
-    resolution: {integrity: sha512-mo0ddTPATyCMyqzQasYDL7+NI29vozoMplom+qu9f/onDTd4xG5hvEEfGxfL0Ljygui6keG/YE/E9OZVf2z5WA==}
+  '@effect/platform-node-shared@4.0.0-beta.79':
+    resolution: {integrity: sha512-wWOFCQgQWvPaDt/wBH6xTURMc0t8kvlenT4GcDVck6kR4+odHJG5d+qfBM583d7BtuYuab/vbJrFAEKGhbSinQ==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
-      effect: ^4.0.0-beta.78
+      effect: ^4.0.0-beta.79
 
-  '@effect/platform-node@4.0.0-beta.78':
-    resolution: {integrity: sha512-8ONrIS5/R9dq+0BJ6v3kUXNEkfjU6S3GzIYCH5gmHdiriRvIoBhXYNAITfRvZpfx1JPrKuP70cHyuQDjmJcDkQ==}
+  '@effect/platform-node@4.0.0-beta.79':
+    resolution: {integrity: sha512-gJrBa+7X04F+C49/Elwp7ah1E7MyacDYq1adeLktVCdT7iUa+YaoiienJJ8Fj4wH1D5iwwckA59xrZzi7iiEEw==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
-      effect: ^4.0.0-beta.78
+      effect: ^4.0.0-beta.79
       ioredis: ^5.7.0
 
-  '@effect/sql-pg@4.0.0-beta.78':
-    resolution: {integrity: sha512-G7OZhImyPyHsmN7+bpIfl+llrxQz4qUOCDAHWBXafzyE1AntL5Syi0/NZLyE8X1LzGKasCNl4FTCjxKSEOdiBQ==}
+  '@effect/sql-pg@4.0.0-beta.79':
+    resolution: {integrity: sha512-b0zzo1pwNwGH0vwqEd4J2m/uE+QiaMnJaAP1GPat4o4fN+YYRMSxe0F9iT/gymgFfmd/1q6jz8ElTw2dsS+3qw==}
     peerDependencies:
-      effect: ^4.0.0-beta.78
+      effect: ^4.0.0-beta.79
 
-  '@effect/vitest@4.0.0-beta.78':
-    resolution: {integrity: sha512-5KQsQYrQ/o7mfOVAxRtNnfD9M0W4OI6yQd0n/m2N7OOLxTdX4FwN4s/X4obykBC7ZEwH+bzMrFJiB4pq9lrQKQ==}
+  '@effect/vitest@4.0.0-beta.79':
+    resolution: {integrity: sha512-YKHEOIruRQTxTJ0oQfoyF40c9elK5YNWjMysAi6dS/R8wfEqHLTT0w62gPZNA0mBh22icr6uckIDr4z06sbLhQ==}
     peerDependencies:
-      effect: ^4.0.0-beta.78
+      effect: ^4.0.0-beta.79
       vitest: ^3.0.0 || ^4.0.0
 
   '@esbuild/aix-ppc64@0.25.12':
@@ -485,6 +485,9 @@ packages:
   '@types/node@25.9.1':
     resolution: {integrity: sha512-xfrlY7UD5rMJk3ZVJP8BNzS28J36YJg+xp+LPXV1TdWxr8uMH5A860QNxYDGQe/ylDSgjxE52Q9VnO7p75tJxg==}
 
+  '@types/node@25.9.3':
+    resolution: {integrity: sha512-603BddQMv3pUcr4U2dhujk83N2tTDVr/34wII2B6bJy6g+8WD6yUb11jszNs0gdi4PesVWl7ABt8nYMVpnLUcg==}
+
   '@types/ssh2-streams@0.1.13':
     resolution: {integrity: sha512-faHyY3brO9oLEA0QlcO8N2wT7R0+1sHWZvQ+y3rMLwdY1ZyS1z0W3t65j9PqT4HmQ6ALzNe7RZlNuCNE0wBSWA==}
 
@@ -730,8 +733,8 @@ packages:
   eastasianwidth@0.2.0:
     resolution: {integrity: sha512-I88TYZWc9XiYHRQ4/3c5rjjfgkjhLyW2luGIheGERbNQ6OY7yTybanSpDXZa8y7VUP9YmDcYa+eyq4ca7iLqWA==}
 
-  effect@4.0.0-beta.78:
-    resolution: {integrity: sha512-j79Rl9QpHwMz/ZJWLNpZoiVj9N7zHqiLKN5EcYd/A8J1oqejILWQLfc4HPlvqHqKC8SK55LJ+X4gy4ONJ+JpfQ==}
+  effect@4.0.0-beta.79:
+    resolution: {integrity: sha512-AwtiZ1zsbau3HS/zXlB9jRFAjRB8VoANjSwipTH0NtaMUwYPoVokgCF08FmJt9eOGPmeCQy1KRDvsuaYrP5Bhw==}
 
   emoji-regex@8.0.0:
     resolution: {integrity: sha512-MSjYzcWNOA0ewAHpz0MxpYFvwg6yjy1NG3xteoqz644VCo/RPgnr1/GGt+ic3iJTzQ8Eu3TdM14SawnVUmGE6A==}
@@ -910,8 +913,8 @@ packages:
     resolution: {integrity: sha512-4kmO/MdyUIkLIvTPr8VHLil4AtoKIoniWPIEk5+CDy0xnWC84azhSFmuJ7PxZdsYtiP5kEeQsORAVIeMgxT+Hw==}
     hasBin: true
 
-  msgpackr@2.0.2:
-    resolution: {integrity: sha512-c5hYOXFbP79Slh6Dzd2wzk+jnV7mX1UxfMYtilnY1NmalXPqG8DGb5cYCMBrW4AsH3zekBBZd4QrKz9NhtvYLQ==}
+  msgpackr@2.0.4:
+    resolution: {integrity: sha512-o1C5KRmuRt+apqMr1HuGSqWStZoRBUpEsCsl15uM9VdAF1qHLtvMOU2En747EnTyEl6c4pzPewRMFF31s1CNbA==}
 
   multipasta@0.2.7:
     resolution: {integrity: sha512-KPA58d68KgGil15oDqXjkUBEBYc00XvbPj5/X+dyzeo/lWm9Nc25pQRlf1D+gv4OpK7NM0J1odrbu9JNNGvynA==}
@@ -1252,8 +1255,8 @@ packages:
     resolution: {integrity: sha512-3O9Tf67pGhgOv9jM35AbhkXAKi13f3oy3aE4CSgr+TckGeY+/iu97ZXN+J7DpHPzLbVApFd1IFhcnBjREYXYcg==}
     engines: {node: '>=20.18.1'}
 
-  undici@8.3.0:
-    resolution: {integrity: sha512-TkUDgb6tl7KOGZ+7e8E3d2FYgUQgF6z5YypqjWmixVQSQERFcVrVg0ySADm2LVLRh5ljAaHTCR5Fmz3Q34rB7Q==}
+  undici@8.4.1:
+    resolution: {integrity: sha512-RNHlB4fxZK0IrkhBsxhlbx7s8kFWwr7rzzOqj5nvZugw3ig3RsB7KW3zVlV0eu8POl+rx5d1hmL7rRg0z1owow==}
     engines: {node: '>=22.19.0'}
 
   util-deprecate@1.0.2:
@@ -1408,29 +1411,29 @@ snapshots:
 
   '@effect/language-service@0.86.2': {}
 
-  '@effect/platform-node-shared@4.0.0-beta.78(effect@4.0.0-beta.78)':
+  '@effect/platform-node-shared@4.0.0-beta.79(effect@4.0.0-beta.79)':
     dependencies:
       '@types/ws': 8.18.1
-      effect: 4.0.0-beta.78
+      effect: 4.0.0-beta.79
       ws: 8.21.0
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
 
-  '@effect/platform-node@4.0.0-beta.78(effect@4.0.0-beta.78)(ioredis@5.10.0)':
+  '@effect/platform-node@4.0.0-beta.79(effect@4.0.0-beta.79)(ioredis@5.10.0)':
     dependencies:
-      '@effect/platform-node-shared': 4.0.0-beta.78(effect@4.0.0-beta.78)
-      effect: 4.0.0-beta.78
+      '@effect/platform-node-shared': 4.0.0-beta.79(effect@4.0.0-beta.79)
+      effect: 4.0.0-beta.79
       ioredis: 5.10.0
       mime: 4.1.0
-      undici: 8.3.0
+      undici: 8.4.1
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
 
-  '@effect/sql-pg@4.0.0-beta.78(effect@4.0.0-beta.78)':
+  '@effect/sql-pg@4.0.0-beta.79(effect@4.0.0-beta.79)':
     dependencies:
-      effect: 4.0.0-beta.78
+      effect: 4.0.0-beta.79
       pg: 8.21.0
       pg-connection-string: 2.12.0
       pg-cursor: 2.20.0(pg@8.21.0)
@@ -1439,10 +1442,10 @@ snapshots:
     transitivePeerDependencies:
       - pg-native
 
-  '@effect/vitest@4.0.0-beta.78(effect@4.0.0-beta.78)(vitest@4.1.8(@types/node@25.9.1)(vite@6.4.2(@types/node@25.9.1)(yaml@2.9.0)))':
+  '@effect/vitest@4.0.0-beta.79(effect@4.0.0-beta.79)(vitest@4.1.8(@types/node@25.9.3)(vite@6.4.2(@types/node@25.9.3)(yaml@2.9.0)))':
     dependencies:
-      effect: 4.0.0-beta.78
-      vitest: 4.1.8(@types/node@25.9.1)(vite@6.4.2(@types/node@25.9.1)(yaml@2.9.0))
+      effect: 4.0.0-beta.79
+      vitest: 4.1.8(@types/node@25.9.3)(vite@6.4.2(@types/node@25.9.3)(yaml@2.9.0))
 
   '@esbuild/aix-ppc64@0.25.12':
     optional: true
@@ -1719,6 +1722,10 @@ snapshots:
     dependencies:
       undici-types: 7.24.6
 
+  '@types/node@25.9.3':
+    dependencies:
+      undici-types: 7.24.6
+
   '@types/ssh2-streams@0.1.13':
     dependencies:
       '@types/node': 25.9.1
@@ -1734,7 +1741,7 @@ snapshots:
 
   '@types/ws@8.18.1':
     dependencies:
-      '@types/node': 25.9.1
+      '@types/node': 25.9.3
 
   '@vitest/expect@4.1.8':
     dependencies:
@@ -1745,13 +1752,13 @@ snapshots:
       chai: 6.2.2
       tinyrainbow: 3.1.0
 
-  '@vitest/mocker@4.1.8(vite@6.4.2(@types/node@25.9.1)(yaml@2.9.0))':
+  '@vitest/mocker@4.1.8(vite@6.4.2(@types/node@25.9.3)(yaml@2.9.0))':
     dependencies:
       '@vitest/spy': 4.1.8
       estree-walker: 3.0.3
       magic-string: 0.30.21
     optionalDependencies:
-      vite: 6.4.2(@types/node@25.9.1)(yaml@2.9.0)
+      vite: 6.4.2(@types/node@25.9.3)(yaml@2.9.0)
 
   '@vitest/pretty-format@4.1.8':
     dependencies:
@@ -1978,14 +1985,14 @@ snapshots:
 
   eastasianwidth@0.2.0: {}
 
-  effect@4.0.0-beta.78:
+  effect@4.0.0-beta.79:
     dependencies:
       '@standard-schema/spec': 1.1.0
       fast-check: 4.8.0
       find-my-way-ts: 0.1.6
       ini: 7.0.0
       kubernetes-types: 1.30.0
-      msgpackr: 2.0.2
+      msgpackr: 2.0.4
       multipasta: 0.2.7
       toml: 4.1.1
       uuid: 14.0.0
@@ -2171,7 +2178,7 @@ snapshots:
       '@msgpackr-extract/msgpackr-extract-win32-x64': 3.0.4
     optional: true
 
-  msgpackr@2.0.2:
+  msgpackr@2.0.4:
     optionalDependencies:
       msgpackr-extract: 3.0.4
 
@@ -2580,13 +2587,13 @@ snapshots:
 
   undici@7.26.0: {}
 
-  undici@8.3.0: {}
+  undici@8.4.1: {}
 
   util-deprecate@1.0.2: {}
 
   uuid@14.0.0: {}
 
-  vite@6.4.2(@types/node@25.9.1)(yaml@2.9.0):
+  vite@6.4.2(@types/node@25.9.3)(yaml@2.9.0):
     dependencies:
       esbuild: 0.25.12
       fdir: 6.5.0(picomatch@4.0.4)
@@ -2595,14 +2602,14 @@ snapshots:
       rollup: 4.61.1
       tinyglobby: 0.2.17
     optionalDependencies:
-      '@types/node': 25.9.1
+      '@types/node': 25.9.3
       fsevents: 2.3.3
       yaml: 2.9.0
 
-  vitest@4.1.8(@types/node@25.9.1)(vite@6.4.2(@types/node@25.9.1)(yaml@2.9.0)):
+  vitest@4.1.8(@types/node@25.9.3)(vite@6.4.2(@types/node@25.9.3)(yaml@2.9.0)):
     dependencies:
       '@vitest/expect': 4.1.8
-      '@vitest/mocker': 4.1.8(vite@6.4.2(@types/node@25.9.1)(yaml@2.9.0))
+      '@vitest/mocker': 4.1.8(vite@6.4.2(@types/node@25.9.3)(yaml@2.9.0))
       '@vitest/pretty-format': 4.1.8
       '@vitest/runner': 4.1.8
       '@vitest/snapshot': 4.1.8
@@ -2619,10 +2626,10 @@ snapshots:
       tinyexec: 1.2.4
       tinyglobby: 0.2.17
       tinyrainbow: 3.1.0
-      vite: 6.4.2(@types/node@25.9.1)(yaml@2.9.0)
+      vite: 6.4.2(@types/node@25.9.3)(yaml@2.9.0)
       why-is-node-running: 2.3.0
     optionalDependencies:
-      '@types/node': 25.9.1
+      '@types/node': 25.9.3
     transitivePeerDependencies:
       - msw
 

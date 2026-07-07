@@ -11,11 +11,11 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@testcontainers/postgresql": "12.0.3",
+    "@testcontainers/postgresql": "12.0.4",
     "@types/pg": "8.20.0",
-    "testcontainers": "12.0.3",
+    "testcontainers": "12.0.4",
     "typescript": "6.0.3",
-    "vitest": "4.1.9"
+    "vitest": "4.1.10"
   },
   "dependencies": {
     "pg": "8.22.0",

@@ -9,21 +9,21 @@ importers:
   .:
     dependencies:
       '@effect/platform-node':
-        specifier: 4.0.0-beta.98
-        version: 4.0.0-beta.98(effect@4.0.0-beta.98)(ioredis@5.10.0)
+        specifier: 4.0.0-beta.99
+        version: 4.0.0-beta.99(effect@4.0.0-beta.99)(ioredis@5.10.0)
       '@effect/sql-pg':
-        specifier: 4.0.0-beta.98
-        version: 4.0.0-beta.98(effect@4.0.0-beta.98)
+        specifier: 4.0.0-beta.99
+        version: 4.0.0-beta.99(effect@4.0.0-beta.99)
       effect:
-        specifier: 4.0.0-beta.98
-        version: 4.0.0-beta.98
+        specifier: 4.0.0-beta.99
+        version: 4.0.0-beta.99
     devDependencies:
       '@effect/language-service':
         specifier: 0.87.0
         version: 0.87.0
       '@effect/vitest':
-        specifier: 4.0.0-beta.98
-        version: 4.0.0-beta.98(effect@4.0.0-beta.98)(vitest@4.1.10(@types/node@26.1.1)(vite@6.4.2(@types/node@26.1.1)(yaml@2.9.0)))
+        specifier: 4.0.0-beta.99
+        version: 4.0.0-beta.99(effect@4.0.0-beta.99)(vitest@4.1.10(@types/node@26.1.1)(vite@6.4.2(@types/node@26.1.1)(yaml@2.9.0)))
       '@testcontainers/postgresql':
         specifier: 12.0.4
         version: 12.0.4
@@ -46,28 +46,28 @@ packages:
     resolution: {integrity: sha512-GwZtEwBaOMyKea6YAtN0T0OGBtzJ8/y0KUIfyg29u3hnMRiXKlR2BRDqJmi+SbgaODJNNB3YOd6KuRB/vsxnWw==}
     hasBin: true
 
-  '@effect/platform-node-shared@4.0.0-beta.98':
-    resolution: {integrity: sha512-iySXaffnCJX1sNAIp79ghhIeui9E5qwUQyqd1VLPkB9UNO4vdpd9B5fTEXwe7S/GusL4jsk9vSvX38XJgRFG1w==}
+  '@effect/platform-node-shared@4.0.0-beta.99':
+    resolution: {integrity: sha512-POBAowafsAAb3bH1x1rJlWnv32yMAazFgEuRW5LhkW/JJA5VGoEk9OnuoUkIH1OW6K/X6IrdNpqcO+5e9lPQJA==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
-      effect: ^4.0.0-beta.98
+      effect: ^4.0.0-beta.99
 
-  '@effect/platform-node@4.0.0-beta.98':
-    resolution: {integrity: sha512-IQu1TiLXQEDSGkDBllyYjVadf+UqdjptryqX4mmktVTTbGDq7X4uVxe7cSgXuqZvyfG6kagTzwj2lfynxOaKQg==}
+  '@effect/platform-node@4.0.0-beta.99':
+    resolution: {integrity: sha512-jnK2KMW4W50AEOKK+Tgvab3YPHBxa3ApLQE8BCad+LH57JOziKzOjqtEpAgJgmao3t77x1UESK4JraaHJDHaYA==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
-      effect: ^4.0.0-beta.98
+      effect: ^4.0.0-beta.99
       ioredis: ^5.7.0
 
-  '@effect/sql-pg@4.0.0-beta.98':
-    resolution: {integrity: sha512-gpV56KkKBH0bamPdp5yJN/pARpHLPbLZm/7zgRH1FZ5TZPPh4fwMrBpgb9zuTXPCdaGzMqNEKyDejMo4QOfCag==}
+  '@effect/sql-pg@4.0.0-beta.99':
+    resolution: {integrity: sha512-ZZCKdArioVX29YcH+0HjiYeZiTAEnngU8ao3cBGZXrUOZwcvzknGWNOS7aGzES7hSK/HDBKPu2t14LGgtSgsCA==}
     peerDependencies:
-      effect: ^4.0.0-beta.98
+      effect: ^4.0.0-beta.99
 
-  '@effect/vitest@4.0.0-beta.98':
-    resolution: {integrity: sha512-uXRPuN8Y6v43/OVmQwKOd/VFDh+dipaxGKdWPr1bdnM+4bl8NZlYYRJi5omgXLFZ6ZbleduXKcmLM3NeePe69w==}
+  '@effect/vitest@4.0.0-beta.99':
+    resolution: {integrity: sha512-SiZo3UGTsG2itbqLU1SJVmFraK+0AkrEU7ZLRpQALx3lFRBaohzB/7UQKVsRjCHHjDg0kNkGitZusGRN3mVAhg==}
     peerDependencies:
-      effect: ^4.0.0-beta.98
+      effect: ^4.0.0-beta.99
       vitest: ^3.0.0 || ^4.0.0
 
   '@esbuild/aix-ppc64@0.25.12':
@@ -850,8 +850,8 @@ packages:
   eastasianwidth@0.2.0:
     resolution: {integrity: sha512-I88TYZWc9XiYHRQ4/3c5rjjfgkjhLyW2luGIheGERbNQ6OY7yTybanSpDXZa8y7VUP9YmDcYa+eyq4ca7iLqWA==}
 
-  effect@4.0.0-beta.98:
-    resolution: {integrity: sha512-oz+bsG5h+6RNrw4t5GMfQrk/xBS8ROoqkYsuvRhBr5O7mCOrpvH/hbw+QrDzvKIpX4HJClwm86F94c87W0sJxg==}
+  effect@4.0.0-beta.99:
+    resolution: {integrity: sha512-hP1C61uzINfLl/4kKMwcqksxd34s4sQ3VSjsWjhGrkx9CRlXaqnfOK9dpTEKynQ6rA7wU9rb3c+48eDYw7uzxA==}
 
   emoji-regex@8.0.0:
     resolution: {integrity: sha512-MSjYzcWNOA0ewAHpz0MxpYFvwg6yjy1NG3xteoqz644VCo/RPgnr1/GGt+ic3iJTzQ8Eu3TdM14SawnVUmGE6A==}
@@ -1130,8 +1130,8 @@ packages:
     resolution: {integrity: sha512-RvwwcruNjI1ncT5xRakeyS9Lf8lcItv34KD+aif+VH9kduAyfYBipGh12274xtenIPZ119/R9BdTBa8gAwSh0A==}
     engines: {node: '>=12'}
 
-  postcss@8.5.19:
-    resolution: {integrity: sha512-Mz8SaolMd8nB+G13WkORcxQKHZ/NE4xXevtkJHVuG+guo9/wYKlIMTKAqGdEmYOXR2ijPjTYNHssizdaVSUNdQ==}
+  postcss@8.5.20:
+    resolution: {integrity: sha512-lW616l85ucIQL+FocMmL7pQFPqBmwejrCMg+iPxyImlrANNJG9NHq/RkyCZopDhd8C3LA03PHRJDjkbGu8vvug==}
     engines: {node: ^10 || ^12 || >=14}
 
   postgres-array@2.0.0:
@@ -1522,19 +1522,19 @@ snapshots:
 
   '@effect/language-service@0.87.0': {}
 
-  '@effect/platform-node-shared@4.0.0-beta.98(effect@4.0.0-beta.98)':
+  '@effect/platform-node-shared@4.0.0-beta.99(effect@4.0.0-beta.99)':
     dependencies:
       '@types/ws': 8.18.1
-      effect: 4.0.0-beta.98
+      effect: 4.0.0-beta.99
       ws: 8.21.1
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
 
-  '@effect/platform-node@4.0.0-beta.98(effect@4.0.0-beta.98)(ioredis@5.10.0)':
+  '@effect/platform-node@4.0.0-beta.99(effect@4.0.0-beta.99)(ioredis@5.10.0)':
     dependencies:
-      '@effect/platform-node-shared': 4.0.0-beta.98(effect@4.0.0-beta.98)
-      effect: 4.0.0-beta.98
+      '@effect/platform-node-shared': 4.0.0-beta.99(effect@4.0.0-beta.99)
+      effect: 4.0.0-beta.99
       ioredis: 5.10.0
       mime: 4.1.0
       undici: 8.7.0
@@ -1542,9 +1542,9 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
-  '@effect/sql-pg@4.0.0-beta.98(effect@4.0.0-beta.98)':
+  '@effect/sql-pg@4.0.0-beta.99(effect@4.0.0-beta.99)':
     dependencies:
-      effect: 4.0.0-beta.98
+      effect: 4.0.0-beta.99
       pg: 8.22.0
       pg-connection-string: 2.14.0
       pg-cursor: 2.21.0(pg@8.22.0)
@@ -1553,9 +1553,9 @@ snapshots:
     transitivePeerDependencies:
       - pg-native
 
-  '@effect/vitest@4.0.0-beta.98(effect@4.0.0-beta.98)(vitest@4.1.10(@types/node@26.1.1)(vite@6.4.2(@types/node@26.1.1)(yaml@2.9.0)))':
+  '@effect/vitest@4.0.0-beta.99(effect@4.0.0-beta.99)(vitest@4.1.10(@types/node@26.1.1)(vite@6.4.2(@types/node@26.1.1)(yaml@2.9.0)))':
     dependencies:
-      effect: 4.0.0-beta.98
+      effect: 4.0.0-beta.99
       vitest: 4.1.10(@types/node@26.1.1)(vite@6.4.2(@types/node@26.1.1)(yaml@2.9.0))
 
   '@esbuild/aix-ppc64@0.25.12':
@@ -2155,7 +2155,7 @@ snapshots:
 
   eastasianwidth@0.2.0: {}
 
-  effect@4.0.0-beta.98:
+  effect@4.0.0-beta.99:
     dependencies:
       '@standard-schema/spec': 1.1.0
       fast-check: 4.9.0
@@ -2440,7 +2440,7 @@ snapshots:
 
   picomatch@4.0.5: {}
 
-  postcss@8.5.19:
+  postcss@8.5.20:
     dependencies:
       nanoid: 3.3.16
       picocolors: 1.1.1
@@ -2784,7 +2784,7 @@ snapshots:
       esbuild: 0.25.12
       fdir: 6.5.0(picomatch@4.0.5)
       picomatch: 4.0.5
-      postcss: 8.5.19
+      postcss: 8.5.20
       rollup: 4.62.2
       tinyglobby: 0.2.17
     optionalDependencies:

@@ -7,9 +7,11 @@ import { seedDatabase } from "../setup/seed.js"
 import {
   OrdersRepository,
   ordersRepositoryLive,
-  type CreateOrderParams,
-  type CreateOrderLineParams,
 } from "../../src/repositories/OrdersRepository.js"
+import type {
+  CreateOrderParams,
+  CreateOrderLineParams,
+} from "../../src/repositories/OrdersRepositoryRequest.js"
 import {
   ProductsRepository,
   productsRepositoryLive,

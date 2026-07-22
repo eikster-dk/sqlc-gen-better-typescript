@@ -6,10 +6,5 @@ export default defineConfig({
     testTimeout: 60000, // 60s for container startup
     hookTimeout: 60000,
     pool: "forks", // Use forks for better isolation with testcontainers
-    poolOptions: {
-      forks: {
-        singleFork: false,
-      },
-    },
   },
 })

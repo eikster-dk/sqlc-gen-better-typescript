@@ -99,13 +99,13 @@ WHERE orders.id = $1;
 Get a nested result type:
 
 ```typescript
-// Generated automatically - Row schema represents flat database result
-const GetOrderWithCustomerRow = Schema.Struct({
+// Generated automatically - Row schema decodes the flat database result
+export const GetOrderWithCustomerRow = Schema.Struct({
   orders_id: Schema.Int,
   orders_customer_id: Schema.Int,
   orders_status: OrderStatusSchema,
   orders_total_cents: Schema.Int,
-  orders_shipping_address: Schema.NullOr(Schema.String),
+  orders_shipping_address: Schema.OptionFromNullOr(Schema.String),
   // ... more orders columns
   customers_id: Schema.Int,
   customers_email: Schema.String,
@@ -113,50 +113,45 @@ const GetOrderWithCustomerRow = Schema.Struct({
   // ... more customers columns
 })
 
-// Nested embed schemas with proper Option handling
-const OrderEmbed = Schema.Struct({
-  id: Schema.Int,
-  customer_id: Schema.Int,
-  status: OrderStatusSchema,  // Enums are preserved
-  total_cents: Schema.Int,
-  shipping_address: Schema.OptionFromNullOr(Schema.String),  // Nullable -> Option
-  // ...
+export type GetOrderWithCustomerRow = typeof GetOrderWithCustomerRow.Type
+
+// The public result schema describes the nested representation.
+export const GetOrderWithCustomerResult = Schema.Struct({
+  order: OrdersRow,
+  customer: CustomersRow,
 })
 
-const CustomerEmbed = Schema.Struct({
-  id: Schema.Int,
-  email: Schema.String,
-  name: Schema.String,
-  // ...
+export type GetOrderWithCustomerResult = typeof GetOrderWithCustomerResult.Type
+
+// sqlc.embed is a one-way projection from a decoded row to the public result.
+export const mapGetOrderWithCustomerRowToResult = (
+  row: GetOrderWithCustomerRow,
+): GetOrderWithCustomerResult => ({
+  order: {
+    id: row.orders_id,
+    customer_id: row.orders_customer_id,
+    status: row.orders_status,
+    shipping_address: row.orders_shipping_address,
+    // ...
+  },
+  customer: {
+    id: row.customers_id,
+    email: row.customers_email,
+    name: row.customers_name,
+    // ...
+  },
 })
 
-// Result schema transforms flat rows to nested structure
-export const GetOrderWithCustomerResult = GetOrderWithCustomerRow.pipe(
-  Schema.decodeTo(
-    Schema.Struct({
-      order: OrderEmbed,      // Singularized table name
-      customer: CustomerEmbed,
-    }),
-    SchemaTransformation.transform({
-      decode: (row) => ({
-        order: {
-          id: row.orders_id,
-          customer_id: row.orders_customer_id,
-          status: row.orders_status,
-          shipping_address: row.orders_shipping_address,
-          // ...
-        },
-        customer: {
-          id: row.customers_id,
-          email: row.customers_email,
-          name: row.customers_name,
-          // ...
-        },
-      }),
-      encode: () => { throw new Error("Encode not supported for sqlc.embed queries"); },
-    })
+const findRow = SqlSchema.findOneOption({
+  Request: GetOrderWithCustomerParams,
+  Result: GetOrderWithCustomerRow,
+  execute: (params) => sql`/* ... */`,
+})
+
+const getOrderWithCustomer = (params: GetOrderWithCustomerParams) =>
+  findRow(params).pipe(
+    Effect.map(Option.map(mapGetOrderWithCustomerRowToResult)),
   )
-)
 
 // Result type is nested:
 // {
@@ -170,7 +165,7 @@ export const GetOrderWithCustomerResult = GetOrderWithCustomerRow.pipe(
 - Columns are prefixed with table name to avoid conflicts (`orders_id`, `customers_id`)
 - Enum types are preserved in embed schemas
 - Nullable fields use `Schema.OptionFromNullOr` for consistent API with non-embed queries
-- The transformation is decode-only (embed queries are read-only)
+- Flat rows are schema-decoded before a typed, one-way projection builds the nested result
 
 ## SQL Generation
 

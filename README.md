@@ -57,8 +57,8 @@ The following table shows how PostgreSQL types are mapped to Effect Schema types
 
 ### Nullability
 
-- **Parameters**: Nullable parameters use `Schema.optional()`, allowing callers to omit the field
-- **Results**: Nullable results use `Schema.OptionFromNullOr()`, transforming `null` to `Option.None`
+- **Parameters**: Nullable parameters use `Schema.OptionFromNullOr()`, keeping the field required while encoding `Option.none()` as SQL `NULL`
+- **Results**: Nullable results use `Schema.OptionFromNullOr()`, transforming `null` to `Option.none()`
 
 ## Quick Start
 

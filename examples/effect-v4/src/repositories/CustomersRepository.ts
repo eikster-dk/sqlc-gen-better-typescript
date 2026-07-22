@@ -62,28 +62,28 @@ LIMIT ${params.limit} OFFSET ${params.offset}`
   // SearchCustomersByName
   // SELECT id, email, name, phone, created_at, updated_at
   // FROM customers
-  // WHERE name ILIKE '%' || $1 || '%'
+  // WHERE name ILIKE '%' || $1::text || '%'
   // ORDER BY name
   const searchCustomersByName = SqlSchema.findAll({
     Request: SearchCustomersByNameParams,
     Result: SearchCustomersByNameResult,
     execute: (params) => sql`SELECT id, email, name, phone, created_at, updated_at
 FROM customers
-WHERE name ILIKE '%' || ${params.name} || '%'
+WHERE name ILIKE '%' || ${params.name}::text || '%'
 ORDER BY name`
   })
 
   // SearchCustomersByEmailDomain
   // SELECT id, email, name, phone, created_at, updated_at
   // FROM customers
-  // WHERE email ILIKE '%' || $1
+  // WHERE email ILIKE '%' || $1::text
   // ORDER BY email
   const searchCustomersByEmailDomain = SqlSchema.findAll({
     Request: SearchCustomersByEmailDomainParams,
     Result: SearchCustomersByEmailDomainResult,
     execute: (params) => sql`SELECT id, email, name, phone, created_at, updated_at
 FROM customers
-WHERE email ILIKE '%' || ${params.domain}
+WHERE email ILIKE '%' || ${params.domain}::text
 ORDER BY email`
   })
 

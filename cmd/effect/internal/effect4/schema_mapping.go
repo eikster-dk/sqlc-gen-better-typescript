@@ -46,7 +46,7 @@ func (e *Effect4) sqlTypeToEffectSchemaForParams(t models.SqlType) SchemaExpr {
 	baseExpr := e.sqlTypeToEffectSchemaBase(t)
 	schema := baseExpr.Schema
 	if t.IsNullable {
-		schema = fmt.Sprintf("Schema.optional(%s)", schema)
+		schema = fmt.Sprintf("Schema.OptionFromNullOr(%s)", schema)
 	}
 	return SchemaExpr{Schema: schema, ModelImports: baseExpr.ModelImports}
 }

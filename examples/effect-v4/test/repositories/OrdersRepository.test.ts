@@ -243,9 +243,9 @@ describe("OrdersRepository", () => {
         const result = yield* repo.createOrder({
           customerId: 1,
           status: "pending",
-          shippingAddress: "123 Test St, Test City, TC 12345",
-          billingAddress: "123 Test St, Test City, TC 12345",
-          notes: "Test order",
+          shippingAddress: Option.some("123 Test St, Test City, TC 12345"),
+          billingAddress: Option.some("123 Test St, Test City, TC 12345"),
+          notes: Option.some("Test order"),
         })
 
         expect(Option.isSome(result)).toBe(true)
@@ -263,6 +263,9 @@ describe("OrdersRepository", () => {
         const result = yield* repo.createOrder({
           customerId: 2,
           status: "confirmed",
+          shippingAddress: Option.none(),
+          billingAddress: Option.none(),
+          notes: Option.none(),
         })
 
         expect(Option.isSome(result)).toBe(true)
@@ -296,8 +299,8 @@ describe("OrdersRepository", () => {
 
         yield* repo.updateOrderAddresses({
           id: 1,
-          shippingAddress: "New Shipping Address",
-          billingAddress: "New Billing Address",
+          shippingAddress: Option.some("New Shipping Address"),
+          billingAddress: Option.some("New Billing Address"),
         })
 
         const order = yield* repo.getOrder({ id: 1 })
@@ -334,6 +337,9 @@ describe("OrdersRepository", () => {
         const created = yield* repo.createOrder({
           customerId: 1,
           status: "pending",
+          shippingAddress: Option.none(),
+          billingAddress: Option.none(),
+          notes: Option.none(),
         })
         const orderId = Option.getOrNull(created)!.id
 
@@ -469,6 +475,9 @@ describe("OrdersRepository", () => {
         const order = yield* repo.createOrder({
           customerId: 1,
           status: "pending",
+          shippingAddress: Option.none(),
+          billingAddress: Option.none(),
+          notes: Option.none(),
         })
         const orderId = Option.getOrNull(order)!.id
 
@@ -514,6 +523,9 @@ describe("OrdersRepository", () => {
         const order = yield* repo.createOrder({
           customerId: 1,
           status: "pending",
+          shippingAddress: Option.none(),
+          billingAddress: Option.none(),
+          notes: Option.none(),
         })
         const orderId = Option.getOrNull(order)!.id
 
@@ -545,6 +557,9 @@ describe("OrdersRepository", () => {
         const order = yield* repo.createOrder({
           customerId: 1,
           status: "pending",
+          shippingAddress: Option.none(),
+          billingAddress: Option.none(),
+          notes: Option.none(),
         })
         const orderId = Option.getOrNull(order)!.id
 

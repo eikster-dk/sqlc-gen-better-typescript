@@ -22,7 +22,7 @@ ORDER BY name;
 -- name: ListProductsByCategory :many
 SELECT id, sku, name, description, price_cents, stock_quantity, is_active, category, created_at, updated_at
 FROM products
-WHERE category = $1 AND is_active = TRUE
+WHERE category = sqlc.arg('category')::text AND is_active = TRUE
 ORDER BY name;
 
 -- name: ListProductsPaginated :many

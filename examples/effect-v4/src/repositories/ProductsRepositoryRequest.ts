@@ -17,7 +17,7 @@ export type GetProductBySkuParams = typeof GetProductBySkuParams.Type
 
 // ListProductsByCategory - Parameters Schema
 export const ListProductsByCategoryParams = Schema.Struct({
-  category: Schema.optional(Schema.String),
+  category: Schema.String,
 })
 
 export type ListProductsByCategoryParams = typeof ListProductsByCategoryParams.Type
@@ -72,11 +72,11 @@ export type SearchProductsWebStyleParams = typeof SearchProductsWebStyleParams.T
 export const CreateProductParams = Schema.Struct({
   sku: Schema.String,
   name: Schema.String,
-  description: Schema.optional(Schema.String),
+  description: Schema.OptionFromNullOr(Schema.String),
   priceCents: Schema.Int,
   stockQuantity: Schema.Int,
   isActive: Schema.Boolean,
-  category: Schema.optional(Schema.String),
+  category: Schema.OptionFromNullOr(Schema.String),
 })
 
 export type CreateProductParams = typeof CreateProductParams.Type
@@ -86,11 +86,11 @@ export const UpdateProductParams = Schema.Struct({
   id: Schema.Int,
   sku: Schema.String,
   name: Schema.String,
-  description: Schema.optional(Schema.String),
+  description: Schema.OptionFromNullOr(Schema.String),
   priceCents: Schema.Int,
   stockQuantity: Schema.Int,
   isActive: Schema.Boolean,
-  category: Schema.optional(Schema.String),
+  category: Schema.OptionFromNullOr(Schema.String),
 })
 
 export type UpdateProductParams = typeof UpdateProductParams.Type

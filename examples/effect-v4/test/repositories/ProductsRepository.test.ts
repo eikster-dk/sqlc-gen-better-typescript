@@ -234,11 +234,11 @@ describe("ProductsRepository", () => {
         const result = yield* repo.createProduct({
           sku: "NEW-001",
           name: "New Test Product",
-          description: "A test product description",
+          description: Option.some("A test product description"),
           priceCents: 9999,
           stockQuantity: 100,
           isActive: true,
-          category: "Test",
+          category: Option.some("Test"),
         })
 
         expect(Option.isSome(result)).toBe(true)
@@ -257,9 +257,11 @@ describe("ProductsRepository", () => {
         const result = yield* repo.createProduct({
           sku: "NEW-002",
           name: "Minimal Product",
+          description: Option.none(),
           priceCents: 1000,
           stockQuantity: 10,
           isActive: true,
+          category: Option.none(),
         })
 
         expect(Option.isSome(result)).toBe(true)
@@ -278,11 +280,11 @@ describe("ProductsRepository", () => {
           id: 1,
           sku: "ELEC-001-UPD",
           name: "Updated Wireless Headphones",
-          description: "Updated description",
+          description: Option.some("Updated description"),
           priceCents: 15999,
           stockQuantity: 45,
           isActive: true,
-          category: "Electronics",
+          category: Option.some("Electronics"),
         })
 
         expect(Option.isSome(result)).toBe(true)
@@ -300,9 +302,11 @@ describe("ProductsRepository", () => {
           id: 9999,
           sku: "NONEXISTENT",
           name: "Nonexistent",
+          description: Option.none(),
           priceCents: 100,
           stockQuantity: 0,
           isActive: false,
+          category: Option.none(),
         })
 
         expect(Option.isNone(result)).toBe(true)
@@ -338,9 +342,11 @@ describe("ProductsRepository", () => {
         const created = yield* repo.createProduct({
           sku: "DEACTIVATE-001",
           name: "To Deactivate",
+          description: Option.none(),
           priceCents: 100,
           stockQuantity: 1,
           isActive: true,
+          category: Option.none(),
         })
         const productId = Option.getOrNull(created)!.id
 
@@ -363,9 +369,11 @@ describe("ProductsRepository", () => {
         const created = yield* repo.createProduct({
           sku: "DELETE-001",
           name: "To Delete",
+          description: Option.none(),
           priceCents: 100,
           stockQuantity: 1,
           isActive: true,
+          category: Option.none(),
         })
         const productId = Option.getOrNull(created)!.id
 

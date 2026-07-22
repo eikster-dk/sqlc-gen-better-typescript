@@ -25,14 +25,14 @@ export type ListCustomersPaginatedParams = typeof ListCustomersPaginatedParams.T
 
 // SearchCustomersByName - Parameters Schema
 export const SearchCustomersByNameParams = Schema.Struct({
-  name: Schema.optional(Schema.String),
+  name: Schema.String,
 })
 
 export type SearchCustomersByNameParams = typeof SearchCustomersByNameParams.Type
 
 // SearchCustomersByEmailDomain - Parameters Schema
 export const SearchCustomersByEmailDomainParams = Schema.Struct({
-  domain: Schema.optional(Schema.String),
+  domain: Schema.String,
 })
 
 export type SearchCustomersByEmailDomainParams = typeof SearchCustomersByEmailDomainParams.Type
@@ -41,7 +41,7 @@ export type SearchCustomersByEmailDomainParams = typeof SearchCustomersByEmailDo
 export const CreateCustomerParams = Schema.Struct({
   email: Schema.String,
   name: Schema.String,
-  phone: Schema.optional(Schema.String),
+  phone: Schema.OptionFromNullOr(Schema.String),
 })
 
 export type CreateCustomerParams = typeof CreateCustomerParams.Type
@@ -51,16 +51,16 @@ export const UpdateCustomerParams = Schema.Struct({
   id: Schema.Int,
   email: Schema.String,
   name: Schema.String,
-  phone: Schema.optional(Schema.String),
+  phone: Schema.OptionFromNullOr(Schema.String),
 })
 
 export type UpdateCustomerParams = typeof UpdateCustomerParams.Type
 
 // PatchCustomer - Parameters Schema
 export const PatchCustomerParams = Schema.Struct({
-  email: Schema.optional(Schema.String),
-  name: Schema.optional(Schema.String),
-  phone: Schema.optional(Schema.String),
+  email: Schema.OptionFromNullOr(Schema.String),
+  name: Schema.OptionFromNullOr(Schema.String),
+  phone: Schema.OptionFromNullOr(Schema.String),
   id: Schema.Int,
 })
 

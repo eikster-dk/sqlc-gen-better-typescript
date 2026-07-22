@@ -62,14 +62,14 @@ ORDER BY name`
   // ListProductsByCategory
   // SELECT id, sku, name, description, price_cents, stock_quantity, is_active, category, created_at, updated_at
   // FROM products
-  // WHERE category = $1 AND is_active = TRUE
+  // WHERE category = $1::text AND is_active = TRUE
   // ORDER BY name
   const listProductsByCategory = SqlSchema.findAll({
     Request: ListProductsByCategoryParams,
     Result: ListProductsByCategoryResult,
     execute: (params) => sql`SELECT id, sku, name, description, price_cents, stock_quantity, is_active, category, created_at, updated_at
 FROM products
-WHERE category = ${params.category} AND is_active = TRUE
+WHERE category = ${params.category}::text AND is_active = TRUE
 ORDER BY name`
   })
 

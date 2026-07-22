@@ -63,9 +63,9 @@ describe("Transaction Tests", () => {
         const orderParams: CreateOrderParams = {
           customerId: 1,
           status: "pending",
-          shippingAddress: "123 Transaction St, Test City, TC 12345",
-          billingAddress: "123 Transaction St, Test City, TC 12345",
-          notes: "Transaction test order",
+          shippingAddress: Option.some("123 Transaction St, Test City, TC 12345"),
+          billingAddress: Option.some("123 Transaction St, Test City, TC 12345"),
+          notes: Option.some("Transaction test order"),
         }
 
         const orderLineParams1: Omit<CreateOrderLineParams, "orderId"> = {
@@ -160,8 +160,9 @@ describe("Transaction Tests", () => {
         const orderParams: CreateOrderParams = {
           customerId: 2,
           status: "pending",
-          shippingAddress: "456 Rollback Ave, Test City, TC 12345",
-          notes: "This order should be rolled back",
+          shippingAddress: Option.some("456 Rollback Ave, Test City, TC 12345"),
+          billingAddress: Option.none(),
+          notes: Option.some("This order should be rolled back"),
         }
 
         // Track the order ID that was created (for verification)
@@ -236,6 +237,9 @@ describe("Transaction Tests", () => {
               const orderOption = yield* ordersRepo.createOrder({
                 customerId: 1,
                 status: "pending",
+                shippingAddress: Option.none(),
+                billingAddress: Option.none(),
+                notes: Option.none(),
               })
               const order = Option.getOrThrow(orderOption)
               createdOrderId = order.id
@@ -302,7 +306,9 @@ describe("Transaction Tests", () => {
         const orderParams: CreateOrderParams = {
           customerId: 3,
           status: "pending",
-          notes: "Order with stock check",
+          shippingAddress: Option.none(),
+          billingAddress: Option.none(),
+          notes: Option.some("Order with stock check"),
         }
 
         // A more realistic scenario: check stock before creating order lines
@@ -406,6 +412,9 @@ describe("Transaction Tests", () => {
             const orderOption = yield* ordersRepo.createOrder({
               customerId: 99999, // Non-existent customer - will fail
               status: "confirmed",
+              shippingAddress: Option.none(),
+              billingAddress: Option.none(),
+              notes: Option.none(),
             })
             return Option.isSome(orderOption)
               ? { _tag: "Primary", order: orderOption.value } as const
@@ -419,7 +428,9 @@ describe("Transaction Tests", () => {
             const fallbackOrder = yield* ordersRepo.createOrder({
               customerId: 1, // Valid customer
               status: "pending",
-              notes: "Created via fallback due to original order failure",
+              shippingAddress: Option.none(),
+              billingAddress: Option.none(),
+              notes: Option.some("Created via fallback due to original order failure"),
             })
             return {
               _tag: "Fallback",
@@ -462,7 +473,9 @@ describe("Transaction Tests", () => {
             const orderOption = yield* ordersRepo.createOrder({
               customerId: 1,
               status: "pending",
-              notes: "Main order",
+              shippingAddress: Option.none(),
+              billingAddress: Option.none(),
+              notes: Option.some("Main order"),
             })
             const order = Option.getOrThrow(orderOption)
 

@@ -81,6 +81,10 @@ jobs:
         working-directory: ${{ matrix.dir }}
         run: pnpm install
 
+      - name: Type Check Example
+        working-directory: ${{ matrix.dir }}
+        run: pnpm exec tsc --noEmit
+
       - name: Run Example Tests
         working-directory: ${{ matrix.dir }}
         run: pnpm test

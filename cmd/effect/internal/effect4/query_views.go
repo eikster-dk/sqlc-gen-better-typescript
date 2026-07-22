@@ -139,16 +139,7 @@ func paramsFromRequestFields(requestFields []models.RequestField) []models.Param
 }
 
 func (e *Effect4) buildEmbedRowFieldsFromPlan(plan models.QueryPlan) []SchemaField {
-	fields := make([]SchemaField, len(plan.Response.Row.Fields))
-	for i, rowField := range plan.Response.Row.Fields {
-		expr := e.sqlTypeToEffectSchemaBase(rowField.Type)
-		schema := expr.Schema
-		if rowField.Type.IsNullable {
-			schema = fmt.Sprintf("Schema.NullOr(%s)", schema)
-		}
-		fields[i] = SchemaField{Name: rowField.Name, Schema: schema, ModelImports: expr.ModelImports}
-	}
-	return fields
+	return e.buildResultFields(plan.Response.Row.Fields)
 }
 
 func (e *Effect4) buildEmbedGroupsFromPlan(plan models.QueryPlan) []EmbedGroupView {

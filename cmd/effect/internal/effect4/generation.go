@@ -145,14 +145,12 @@ func (e *Effect4) buildRequestImports(queryViews []QueryView) Imports {
 
 func (e *Effect4) buildResponseImports(queryViews []QueryView) Imports {
 	imports := Imports{"effect": []string{"Schema"}}
-	needsSchemaTransformation := false
 	modelSymbols := []string{}
 	for _, query := range queryViews {
 		for _, field := range query.ResultFields {
 			modelSymbols = append(modelSymbols, field.ModelImports...)
 		}
 		if query.HasEmbeds {
-			needsSchemaTransformation = true
 			for _, group := range query.EmbedGroups {
 				modelSymbols = append(modelSymbols, group.RowSchema)
 			}
@@ -160,9 +158,6 @@ func (e *Effect4) buildResponseImports(queryViews []QueryView) Imports {
 				modelSymbols = append(modelSymbols, field.ModelImports...)
 			}
 		}
-	}
-	if needsSchemaTransformation {
-		imports["effect"] = append(imports["effect"], "SchemaTransformation")
 	}
 	if symbols := uniqueSorted(modelSymbols); len(symbols) > 0 {
 		imports[e.localImportPath("./models")] = symbols
@@ -176,12 +171,18 @@ func (e *Effect4) buildRepositoryImports(repoName string, queryViews []QueryView
 	responseSymbols := make([]string, 0, len(queryViews))
 	needsExecRows := false
 	needsExecResult := false
+	needsOption := false
 	for _, query := range queryViews {
 		if query.HasParams {
 			requestSymbols = append(requestSymbols, query.NamePascal+"Params")
 		}
 		if query.HasResults {
-			responseSymbols = append(responseSymbols, query.NamePascal+"Result")
+			if query.HasEmbeds {
+				responseSymbols = append(responseSymbols, query.NamePascal+"Row", "map"+query.NamePascal+"RowToResult")
+				needsOption = needsOption || query.Command == ":one"
+			} else {
+				responseSymbols = append(responseSymbols, query.NamePascal+"Result")
+			}
 		}
 		if query.Command == ":execrows" {
 			needsExecRows = true
@@ -189,6 +190,9 @@ func (e *Effect4) buildRepositoryImports(repoName string, queryViews []QueryView
 		if query.Command == ":execresult" {
 			needsExecResult = true
 		}
+	}
+	if needsOption {
+		imports["effect"] = append(imports["effect"], "Option")
 	}
 	if symbols := uniqueSorted(requestSymbols); len(symbols) > 0 {
 		imports[e.localImportPath("./"+repoName+"Request")] = symbols

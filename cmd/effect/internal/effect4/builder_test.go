@@ -123,3 +123,92 @@ func TestEffect4_Build_AcceptsSupportedCommands(t *testing.T) {
 		})
 	}
 }
+
+func TestEffect4_Build_ProjectsEmbeddedRowsOutsideSchema(t *testing.T) {
+	e := New(defaultConfig())
+	log := logger.New(false)
+	catalog := &models.Catalog{Tables: []models.Table{
+		{Name: "orders", Columns: []models.Column{
+			{Name: "id", Type: models.SqlType{Name: "integer"}},
+			{Name: "note", Type: models.SqlType{Name: "text", IsNullable: true}},
+		}},
+		{Name: "customers", Columns: []models.Column{
+			{Name: "id", Type: models.SqlType{Name: "integer"}},
+		}},
+	}}
+
+	embedResults := []models.ResultField{
+		{Name: "orders_id", OriginalName: "id", Type: models.SqlType{Name: "integer"}, Table: "orders", EmbedTable: "orders", IsAliased: true},
+		{Name: "orders_note", OriginalName: "note", Type: models.SqlType{Name: "text", IsNullable: true}, Table: "orders", EmbedTable: "orders", IsAliased: true},
+		{Name: "customers_id", OriginalName: "id", Type: models.SqlType{Name: "integer"}, Table: "customers", EmbedTable: "customers", IsAliased: true},
+	}
+	embedGroups := []models.EmbedGroup{
+		{TableName: "orders", Fields: embedResults[:2]},
+		{TableName: "customers", Fields: embedResults[2:]},
+	}
+	queries := []models.Query{
+		{
+			Name: "GetOrderWithCustomer", Command: ":one", Filename: "embed.sql",
+			SQL:     "SELECT orders.id AS orders_id, orders.note AS orders_note, customers.id AS customers_id FROM orders JOIN customers ON customers.id = orders.id WHERE orders.id = $1",
+			Params:  []models.Param{{Name: "id", Position: 1, Type: models.SqlType{Name: "integer"}}},
+			Results: embedResults, HasEmbeds: true, EmbedGroups: embedGroups,
+		},
+		{
+			Name: "ListOrdersWithCustomer", Command: ":many", Filename: "embed.sql",
+			SQL:     "SELECT orders.id AS orders_id, orders.note AS orders_note, customers.id AS customers_id FROM orders JOIN customers ON customers.id = orders.id",
+			Results: embedResults, HasEmbeds: true, EmbedGroups: embedGroups,
+		},
+	}
+
+	files, err := buildEffect(e, catalog, queries, log, "1.0.0")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	responseFile := findFile(files, "EmbedRepositoryResponse.ts")
+	if responseFile == nil {
+		t.Fatal("expected EmbedRepositoryResponse.ts in output")
+	}
+	response := string(responseFile.Content)
+	for _, expected := range []string{
+		"export const GetOrderWithCustomerRow = Schema.Struct({",
+		"orders_note: Schema.OptionFromNullOr(Schema.String)",
+		"export type GetOrderWithCustomerRow = typeof GetOrderWithCustomerRow.Type",
+		"export const GetOrderWithCustomerResult = Schema.Struct({",
+		"export const mapGetOrderWithCustomerRowToResult = (",
+		"row: GetOrderWithCustomerRow",
+		"): GetOrderWithCustomerResult => ({",
+		"export const ListOrdersWithCustomerRow = Schema.Struct({",
+		"export const mapListOrdersWithCustomerRowToResult = (",
+	} {
+		if !strings.Contains(response, expected) {
+			t.Errorf("expected response output to contain %q", expected)
+		}
+	}
+	for _, unexpected := range []string{"SchemaTransformation", "Schema.decodeTo", "Encode not supported"} {
+		if strings.Contains(response, unexpected) {
+			t.Errorf("expected response output not to contain %q", unexpected)
+		}
+	}
+
+	repositoryFile := findFile(files, "EmbedRepository.ts")
+	if repositoryFile == nil {
+		t.Fatal("expected EmbedRepository.ts in output")
+	}
+	repository := string(repositoryFile.Content)
+	for _, expected := range []string{
+		"Result: GetOrderWithCustomerRow",
+		"Option.map(mapGetOrderWithCustomerRowToResult)",
+		"Result: ListOrdersWithCustomerRow",
+		"rows.map(mapListOrdersWithCustomerRowToResult)",
+	} {
+		if !strings.Contains(repository, expected) {
+			t.Errorf("expected repository output to contain %q", expected)
+		}
+	}
+	for _, unexpected := range []string{"Result: GetOrderWithCustomerResult", "Result: ListOrdersWithCustomerResult"} {
+		if strings.Contains(repository, unexpected) {
+			t.Errorf("expected repository output not to contain %q", unexpected)
+		}
+	}
+}

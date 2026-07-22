@@ -14,8 +14,7 @@ func (e *Effect4) sqlTypeToEffectSchemaBase(t models.SqlType) SchemaExpr {
 	case "serial", "serial4", "smallserial", "serial2", "integer", "int", "int4", "smallint", "int2":
 		baseSchema = "Schema.Int"
 	case "bigserial", "serial8", "bigint", "int8":
-		baseSchema = "BigIntFromString"
-		modelImports = append(modelImports, "BigIntFromString")
+		baseSchema = "Schema.BigIntFromString"
 	case "float", "double precision", "float8", "real", "float4":
 		baseSchema = "Schema.Number"
 	case "numeric", "money", "time", "timetz", "interval", "text", "varchar", "bpchar", "string", "citext", "uuid", "inet", "cidr", "macaddr", "macaddr8", "ltree", "lquery", "ltxtquery":

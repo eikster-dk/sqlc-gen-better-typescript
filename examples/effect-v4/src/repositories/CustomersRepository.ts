@@ -201,21 +201,21 @@ ORDER BY id`
   })
 
   return {
-    getCustomer,
-    getCustomerByEmail,
-    listCustomers,
-    listCustomersPaginated,
-    searchCustomersByName,
-    searchCustomersByEmailDomain,
-    createCustomer,
-    updateCustomer,
-    patchCustomer,
-    updateCustomerEmail,
-    deleteCustomer,
-    deleteCustomerResult,
-    countCustomers,
-    getCustomersByIds,
-    getCustomersByIdsSlice,
+    getCustomer: Effect.fn("CustomersRepository.getCustomer")(getCustomer),
+    getCustomerByEmail: Effect.fn("CustomersRepository.getCustomerByEmail")(getCustomerByEmail),
+    listCustomers: Effect.fn("CustomersRepository.listCustomers")(listCustomers),
+    listCustomersPaginated: Effect.fn("CustomersRepository.listCustomersPaginated")(listCustomersPaginated),
+    searchCustomersByName: Effect.fn("CustomersRepository.searchCustomersByName")(searchCustomersByName),
+    searchCustomersByEmailDomain: Effect.fn("CustomersRepository.searchCustomersByEmailDomain")(searchCustomersByEmailDomain),
+    createCustomer: Effect.fn("CustomersRepository.createCustomer")(createCustomer),
+    updateCustomer: Effect.fn("CustomersRepository.updateCustomer")(updateCustomer),
+    patchCustomer: Effect.fn("CustomersRepository.patchCustomer")(patchCustomer),
+    updateCustomerEmail: Effect.fn("CustomersRepository.updateCustomerEmail")(updateCustomerEmail),
+    deleteCustomer: Effect.fn("CustomersRepository.deleteCustomer")(deleteCustomer),
+    deleteCustomerResult: Effect.fn("CustomersRepository.deleteCustomerResult")(deleteCustomerResult),
+    countCustomers: Effect.fn("CustomersRepository.countCustomers")(countCustomers),
+    getCustomersByIds: Effect.fn("CustomersRepository.getCustomersByIds")(getCustomersByIds),
+    getCustomersByIdsSlice: Effect.fn("CustomersRepository.getCustomersByIdsSlice")(getCustomersByIdsSlice),
   } as const
 })
 

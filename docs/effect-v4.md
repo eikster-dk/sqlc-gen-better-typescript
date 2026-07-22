@@ -58,7 +58,9 @@ const customersRepositoryMake = Effect.gen(function* () {
     )
   })
 
-  return { getCustomer } as const
+  return {
+    getCustomer: Effect.fn("CustomersRepository.getCustomer")(getCustomer),
+  } as const
 })
 
 // Service Tag

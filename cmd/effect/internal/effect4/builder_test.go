@@ -116,11 +116,71 @@ func TestEffect4_Build_AcceptsSupportedCommands(t *testing.T) {
 			queries := []models.Query{
 				{Name: "GoodQuery", SQL: "SELECT 1", Command: cmd, Filename: "queries.sql"},
 			}
-			_, err := buildEffect(e, &models.Catalog{}, queries, log, "1.0.0")
+			files, err := buildEffect(e, &models.Catalog{}, queries, log, "1.0.0")
 			if err != nil {
 				t.Fatalf("unexpected error for command %s: %v", cmd, err)
 			}
+			repositoryFile := findFile(files, "QueriesRepository.ts")
+			if repositoryFile == nil {
+				t.Fatal("expected QueriesRepository.ts in output")
+			}
+			repository := string(repositoryFile.Content)
+			for _, expected := range []string{
+				"goodQuery: Effect.fn(\"QueriesRepository.goodQuery\")(",
+			} {
+				if !strings.Contains(repository, expected) {
+					t.Errorf("expected repository output to contain %q", expected)
+				}
+			}
+			for _, unexpected := range []string{"TaggedErrorClass", "RepositoryError", "Effect.mapError"} {
+				if strings.Contains(repository, unexpected) {
+					t.Errorf("expected repository output not to contain %q", unexpected)
+				}
+			}
 		})
+	}
+}
+
+func TestEffect4_Build_UsesBuiltInBigIntSchema(t *testing.T) {
+	e := New(defaultConfig())
+	log := logger.New(false)
+	queries := []models.Query{{
+		Name: "FindTotal", Command: ":one", Filename: "totals.sql",
+		SQL:    "SELECT total FROM totals WHERE total = $1",
+		Params: []models.Param{{Name: "total", Position: 1, Type: models.SqlType{Name: "bigint"}}},
+		Results: []models.ResultField{{
+			Name: "total", OriginalName: "total", Type: models.SqlType{Name: "bigint"},
+		}},
+	}}
+
+	files, err := buildEffect(e, &models.Catalog{}, queries, log, "1.0.0")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	for _, name := range []string{"TotalsRepositoryRequest.ts", "TotalsRepositoryResponse.ts"} {
+		file := findFile(files, name)
+		if file == nil {
+			t.Fatalf("expected %s in output", name)
+		}
+		content := string(file.Content)
+		if !strings.Contains(content, "Schema.BigIntFromString") {
+			t.Errorf("expected %s to use Schema.BigIntFromString", name)
+		}
+		if strings.Contains(content, `from "./models"`) {
+			t.Errorf("expected %s not to import bigint schema from models", name)
+		}
+	}
+
+	modelsFile := findFile(files, "models.ts")
+	if modelsFile == nil {
+		t.Fatal("expected models.ts in output")
+	}
+	modelsContent := string(modelsFile.Content)
+	for _, unexpected := range []string{"export const BigIntFromString", "SchemaGetter"} {
+		if strings.Contains(modelsContent, unexpected) {
+			t.Errorf("expected models output not to contain %q", unexpected)
+		}
 	}
 }
 
@@ -201,6 +261,8 @@ func TestEffect4_Build_ProjectsEmbeddedRowsOutsideSchema(t *testing.T) {
 		"Option.map(mapGetOrderWithCustomerRowToResult)",
 		"Result: ListOrdersWithCustomerRow",
 		"rows.map(mapListOrdersWithCustomerRowToResult)",
+		"getOrderWithCustomer: Effect.fn(\"EmbedRepository.getOrderWithCustomer\")(",
+		"listOrdersWithCustomer: Effect.fn(\"EmbedRepository.listOrdersWithCustomer\")(",
 	} {
 		if !strings.Contains(repository, expected) {
 			t.Errorf("expected repository output to contain %q", expected)

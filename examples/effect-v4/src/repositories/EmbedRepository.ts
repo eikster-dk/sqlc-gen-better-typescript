@@ -49,8 +49,8 @@ ORDER BY orders.created_at DESC`
     )
 
   return {
-    getOrderWithCustomerEmbed,
-    listOrdersWithCustomerEmbed,
+    getOrderWithCustomerEmbed: Effect.fn("EmbedRepository.getOrderWithCustomerEmbed")(getOrderWithCustomerEmbed),
+    listOrdersWithCustomerEmbed: Effect.fn("EmbedRepository.listOrdersWithCustomerEmbed")(listOrdersWithCustomerEmbed),
   } as const
 })
 

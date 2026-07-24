@@ -12,7 +12,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@effect/language-service": "0.87.0",
+    "@effect/language-service": "0.87.1",
     "@effect/vitest": "4.0.0-beta.101",
     "@testcontainers/postgresql": "12.0.4",
     "testcontainers": "12.0.4",

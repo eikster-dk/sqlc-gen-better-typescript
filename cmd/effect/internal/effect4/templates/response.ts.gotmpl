@@ -5,40 +5,35 @@
 {{- if .HasResults }}
 {{- if .HasEmbeds }}
 // {{.Name}} - Row Schema (flat database result)
-const {{.NamePascal}}Row = Schema.Struct({
+export const {{.NamePascal}}Row = Schema.Struct({
 {{- range .RowFields}}
   {{.Name}}: {{.Schema}},
 {{- end}}
 })
 
-// {{.Name}} - Nested Result Schema
-const {{.NamePascal}}ResultNested = Schema.Struct({
+export type {{.NamePascal}}Row = typeof {{.NamePascal}}Row.Type
+
+// {{.Name}} - Result Schema (nested public result)
+export const {{.NamePascal}}Result = Schema.Struct({
 {{- range .EmbedGroups}}
   {{.FieldName}}: {{.RowSchema}},
 {{- end}}
 })
 
-// {{.Name}} - Result Schema (transformed to nested structure)
-export const {{.NamePascal}}Result = {{.NamePascal}}Row.pipe(
-  Schema.decodeTo(
-    {{.NamePascal}}ResultNested,
-    SchemaTransformation.transform({
-      decode: (row) => ({
-{{- range .EmbedGroups}}
-        {{.FieldName}}: {
-{{- range .FieldMapping}}
-          {{.EmbedFieldName}}: row.{{.RowFieldName}},
-{{- end}}
-        },
-{{- end}}
-      }),
-      // Encode is never used for sqlc.embed queries (read-only), but required by the API
-      encode: (_nested) => { throw new Error("Encode not supported for sqlc.embed queries"); },
-    })
-  )
-)
-
 export type {{.NamePascal}}Result = typeof {{.NamePascal}}Result.Type
+
+// {{.Name}} - One-way projection from the decoded database row
+export const map{{.NamePascal}}RowToResult = (
+  row: {{.NamePascal}}Row,
+): {{.NamePascal}}Result => ({
+{{- range .EmbedGroups}}
+  {{.FieldName}}: {
+{{- range .FieldMapping}}
+    {{.EmbedFieldName}}: row.{{.RowFieldName}},
+{{- end}}
+  },
+{{- end}}
+})
 {{- else }}
 // {{.Name}} - Result Schema
 export const {{.NamePascal}}Result = Schema.Struct({

@@ -39,7 +39,7 @@ The following table shows how PostgreSQL types are mapped to Effect Schema types
 | PostgreSQL Type | Effect Schema | Notes |
 |-----------------|---------------|-------|
 | `integer`, `int`, `int4`, `serial` | `Schema.Int` | |
-| `bigint`, `int8`, `bigserial` | `BigIntFromString` | PostgreSQL returns bigint as string to preserve precision |
+| `bigint`, `int8`, `bigserial` | `Schema.BigIntFromString` | PostgreSQL returns bigint as string to preserve precision |
 | `smallint`, `int2`, `smallserial` | `Schema.Int` | |
 | `real`, `float4`, `double precision`, `float8` | `Schema.Number` | |
 | `numeric`, `money` | `Schema.String` | Preserves precision |
@@ -57,8 +57,8 @@ The following table shows how PostgreSQL types are mapped to Effect Schema types
 
 ### Nullability
 
-- **Parameters**: Nullable parameters use `Schema.optional()`, allowing callers to omit the field
-- **Results**: Nullable results use `Schema.OptionFromNullOr()`, transforming `null` to `Option.None`
+- **Parameters**: Nullable parameters use `Schema.OptionFromNullOr()`, keeping the field required while encoding `Option.none()` as SQL `NULL`
+- **Results**: Nullable results use `Schema.OptionFromNullOr()`, transforming `null` to `Option.none()`
 
 ## Quick Start
 

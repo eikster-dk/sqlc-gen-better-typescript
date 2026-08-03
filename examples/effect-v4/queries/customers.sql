@@ -22,13 +22,13 @@ LIMIT $1 OFFSET $2;
 -- name: SearchCustomersByName :many
 SELECT id, email, name, phone, created_at, updated_at
 FROM customers
-WHERE name ILIKE '%' || sqlc.arg('name') || '%'
+WHERE name ILIKE '%' || sqlc.arg('name')::text || '%'
 ORDER BY name;
 
 -- name: SearchCustomersByEmailDomain :many
 SELECT id, email, name, phone, created_at, updated_at
 FROM customers
-WHERE email ILIKE '%' || @domain
+WHERE email ILIKE '%' || @domain::text
 ORDER BY email;
 
 -- name: CreateCustomer :one

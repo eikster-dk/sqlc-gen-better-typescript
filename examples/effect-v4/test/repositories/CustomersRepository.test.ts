@@ -154,7 +154,7 @@ describe("CustomersRepository", () => {
         const result = yield* repo.createCustomer({
           email: "newcustomer@example.com",
           name: "New Customer",
-          phone: "+1-555-9999",
+          phone: Option.some("+1-555-9999"),
         })
 
         expect(Option.isSome(result)).toBe(true)
@@ -172,6 +172,7 @@ describe("CustomersRepository", () => {
         const result = yield* repo.createCustomer({
           email: "nophone@example.com",
           name: "No Phone Customer",
+          phone: Option.none(),
         })
 
         expect(Option.isSome(result)).toBe(true)
@@ -190,7 +191,7 @@ describe("CustomersRepository", () => {
           id: 1,
           email: "alice.updated@example.com",
           name: "Alice Johnson Updated",
-          phone: "+1-555-0001",
+          phone: Option.some("+1-555-0001"),
         })
 
         expect(Option.isSome(result)).toBe(true)
@@ -207,6 +208,7 @@ describe("CustomersRepository", () => {
           id: 9999,
           email: "nonexistent@example.com",
           name: "Nonexistent",
+          phone: Option.none(),
         })
 
         expect(Option.isNone(result)).toBe(true)
@@ -220,7 +222,9 @@ describe("CustomersRepository", () => {
         const repo = yield* CustomersRepository
         const result = yield* repo.patchCustomer({
           id: 3,
-          name: "Carol Williams Patched",
+          email: Option.none(),
+          name: Option.some("Carol Williams Patched"),
+          phone: Option.none(),
         })
 
         expect(Option.isSome(result)).toBe(true)
@@ -260,6 +264,7 @@ describe("CustomersRepository", () => {
         const created = yield* repo.createCustomer({
           email: "todelete@example.com",
           name: "To Delete",
+          phone: Option.none(),
         })
         const customerId = Option.getOrNull(created)!.id
 
@@ -282,6 +287,7 @@ describe("CustomersRepository", () => {
         const created = yield* repo.createCustomer({
           email: "todelete-result@example.com",
           name: "To Delete Result",
+          phone: Option.none(),
         })
         const customerId = Option.getOrNull(created)!.id
 

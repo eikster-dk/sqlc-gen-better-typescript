@@ -72,9 +72,9 @@ export type SearchOrdersParams = typeof SearchOrdersParams.Type
 export const CreateOrderParams = Schema.Struct({
   customerId: Schema.Int,
   status: OrderStatusSchema,
-  shippingAddress: Schema.optional(Schema.String),
-  billingAddress: Schema.optional(Schema.String),
-  notes: Schema.optional(Schema.String),
+  shippingAddress: Schema.OptionFromNullOr(Schema.String),
+  billingAddress: Schema.OptionFromNullOr(Schema.String),
+  notes: Schema.OptionFromNullOr(Schema.String),
 })
 
 export type CreateOrderParams = typeof CreateOrderParams.Type
@@ -90,8 +90,8 @@ export type UpdateOrderStatusParams = typeof UpdateOrderStatusParams.Type
 // UpdateOrderAddresses - Parameters Schema
 export const UpdateOrderAddressesParams = Schema.Struct({
   id: Schema.Int,
-  shippingAddress: Schema.optional(Schema.String),
-  billingAddress: Schema.optional(Schema.String),
+  shippingAddress: Schema.OptionFromNullOr(Schema.String),
+  billingAddress: Schema.OptionFromNullOr(Schema.String),
 })
 
 export type UpdateOrderAddressesParams = typeof UpdateOrderAddressesParams.Type

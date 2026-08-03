@@ -21,6 +21,22 @@ export type {{.RepositoryName}}Service = {{.RepositoryName}}["Service"]
 {{- range $sqlLines }}
   // {{ . }}
 {{- end }}
+{{- if .HasEmbeds }}
+  const {{.NameCamel}}Raw = {{.SqlSchemaMethod}}({
+    Request: {{.RequestSchema}},
+    Result: {{.NamePascal}}Row,
+    execute: {{template "execute-fn" .}}
+  })
+
+  const {{.NameCamel}} = {{if .HasParams}}(params: {{.NamePascal}}Params){{else}}(){{end}} =>
+    {{.NameCamel}}Raw({{if .HasParams}}params{{end}}).pipe(
+{{- if eq .Command ":one" }}
+      Effect.map(Option.map(map{{.NamePascal}}RowToResult))
+{{- else }}
+      Effect.map((rows) => rows.map(map{{.NamePascal}}RowToResult))
+{{- end }}
+    )
+{{- else }}
   const {{.NameCamel}} = {{.SqlSchemaMethod}}({
     Request: {{.RequestSchema}},
 {{- if .HasResults }}
@@ -28,6 +44,7 @@ export type {{.RepositoryName}}Service = {{.RepositoryName}}["Service"]
 {{- end }}
     execute: {{template "execute-fn" .}}
   })
+{{- end }}
 {{- end}}
 
 {{define "implementation" -}}
@@ -40,7 +57,7 @@ const {{.RepositoryNameCamel}}Make = Effect.gen(function* () {
 
   return {
 {{- range .QueryViews }}
-    {{.NameCamel}},
+    {{.NameCamel}}: Effect.fn("{{$.RepositoryName}}.{{.NameCamel}}")({{.NameCamel}}),
 {{- end }}
   } as const
 })

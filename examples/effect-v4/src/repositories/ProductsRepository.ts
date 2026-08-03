@@ -62,14 +62,14 @@ ORDER BY name`
   // ListProductsByCategory
   // SELECT id, sku, name, description, price_cents, stock_quantity, is_active, category, created_at, updated_at
   // FROM products
-  // WHERE category = $1 AND is_active = TRUE
+  // WHERE category = $1::text AND is_active = TRUE
   // ORDER BY name
   const listProductsByCategory = SqlSchema.findAll({
     Request: ListProductsByCategoryParams,
     Result: ListProductsByCategoryResult,
     execute: (params) => sql`SELECT id, sku, name, description, price_cents, stock_quantity, is_active, category, created_at, updated_at
 FROM products
-WHERE category = ${params.category} AND is_active = TRUE
+WHERE category = ${params.category}::text AND is_active = TRUE
 ORDER BY name`
   })
 
@@ -275,25 +275,25 @@ ORDER BY stock_quantity`
   })
 
   return {
-    getProduct,
-    getProductBySku,
-    listProducts,
-    listActiveProducts,
-    listProductsByCategory,
-    listProductsPaginated,
-    listProductsCursor,
-    searchProducts,
-    searchProductsRanked,
-    searchProductsWithHighlight,
-    searchProductsWebStyle,
-    createProduct,
-    updateProduct,
-    updateProductStock,
-    deactivateProduct,
-    deleteProduct,
-    getProductsByIds,
-    countProductsByCategory,
-    getLowStockProducts,
+    getProduct: Effect.fn("ProductsRepository.getProduct")(getProduct),
+    getProductBySku: Effect.fn("ProductsRepository.getProductBySku")(getProductBySku),
+    listProducts: Effect.fn("ProductsRepository.listProducts")(listProducts),
+    listActiveProducts: Effect.fn("ProductsRepository.listActiveProducts")(listActiveProducts),
+    listProductsByCategory: Effect.fn("ProductsRepository.listProductsByCategory")(listProductsByCategory),
+    listProductsPaginated: Effect.fn("ProductsRepository.listProductsPaginated")(listProductsPaginated),
+    listProductsCursor: Effect.fn("ProductsRepository.listProductsCursor")(listProductsCursor),
+    searchProducts: Effect.fn("ProductsRepository.searchProducts")(searchProducts),
+    searchProductsRanked: Effect.fn("ProductsRepository.searchProductsRanked")(searchProductsRanked),
+    searchProductsWithHighlight: Effect.fn("ProductsRepository.searchProductsWithHighlight")(searchProductsWithHighlight),
+    searchProductsWebStyle: Effect.fn("ProductsRepository.searchProductsWebStyle")(searchProductsWebStyle),
+    createProduct: Effect.fn("ProductsRepository.createProduct")(createProduct),
+    updateProduct: Effect.fn("ProductsRepository.updateProduct")(updateProduct),
+    updateProductStock: Effect.fn("ProductsRepository.updateProductStock")(updateProductStock),
+    deactivateProduct: Effect.fn("ProductsRepository.deactivateProduct")(deactivateProduct),
+    deleteProduct: Effect.fn("ProductsRepository.deleteProduct")(deleteProduct),
+    getProductsByIds: Effect.fn("ProductsRepository.getProductsByIds")(getProductsByIds),
+    countProductsByCategory: Effect.fn("ProductsRepository.countProductsByCategory")(countProductsByCategory),
+    getLowStockProducts: Effect.fn("ProductsRepository.getLowStockProducts")(getLowStockProducts),
   } as const
 })
 

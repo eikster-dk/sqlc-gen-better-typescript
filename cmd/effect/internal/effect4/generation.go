@@ -40,9 +40,9 @@ func (e *Effect4) generateResponseFile(tmpl *template.Template, repoName string,
 }
 
 func (e *Effect4) generateModelsFile(tmpl *template.Template, catalog *models.Catalog, queryViewsByFile map[string][]QueryView, sqlcVersion string) (toolbelt.File, error) {
-	needsBigInt, needsExecRows, needsExecResult := e.computeGlobalHelpers(queryViewsByFile)
+	needsExecRows, needsExecResult := e.computeGlobalHelpers(queryViewsByFile)
 	usedEmbedTables := collectUsedEmbedTables(queryViewsByFile)
-	data := ModelsData{Imports: buildModelsImports(needsBigInt, needsExecRows, needsExecResult), Enums: buildEnumViews(catalog.Enums), TableRows: e.buildTableRows(catalog, usedEmbedTables), NeedsBigInt: needsBigInt, NeedsExecRows: needsExecRows, NeedsExecResult: needsExecResult, SqlcVersion: sqlcVersion, PluginVersion: version.Version}
+	data := ModelsData{Imports: buildModelsImports(needsExecRows, needsExecResult), Enums: buildEnumViews(catalog.Enums), TableRows: e.buildTableRows(catalog, usedEmbedTables), NeedsExecRows: needsExecRows, NeedsExecResult: needsExecResult, SqlcVersion: sqlcVersion, PluginVersion: version.Version}
 	content, err := executeTemplate(tmpl, data)
 	if err != nil {
 		return toolbelt.File{}, fmt.Errorf("failed to render models template: %w", err)
@@ -50,7 +50,7 @@ func (e *Effect4) generateModelsFile(tmpl *template.Template, catalog *models.Ca
 	return toolbelt.File{Name: "models.ts", Content: []byte(content)}, nil
 }
 
-func (e *Effect4) computeGlobalHelpers(byFile map[string][]QueryView) (needsBigInt, needsExecRows, needsExecResult bool) {
+func (e *Effect4) computeGlobalHelpers(byFile map[string][]QueryView) (needsExecRows, needsExecResult bool) {
 	for _, views := range byFile {
 		for _, v := range views {
 			if v.Command == ":execrows" {
@@ -59,14 +59,7 @@ func (e *Effect4) computeGlobalHelpers(byFile map[string][]QueryView) (needsBigI
 			if v.Command == ":execresult" {
 				needsExecResult = true
 			}
-			for _, fields := range [][]SchemaField{v.ParamFields, v.ResultFields, v.RowFields} {
-				for _, f := range fields {
-					if strings.Contains(f.Schema, "BigIntFromString") {
-						needsBigInt = true
-					}
-				}
-			}
-			if needsBigInt && needsExecRows && needsExecResult {
+			if needsExecRows && needsExecResult {
 				return
 			}
 		}
@@ -74,14 +67,11 @@ func (e *Effect4) computeGlobalHelpers(byFile map[string][]QueryView) (needsBigI
 	return
 }
 
-func buildModelsImports(needsBigInt, needsExecRows, needsExecResult bool) Imports {
+func buildModelsImports(needsExecRows, needsExecResult bool) Imports {
 	imports := Imports{}
 	effectSymbols := []string{"Schema"}
 	if needsExecRows || needsExecResult {
 		effectSymbols = append(effectSymbols, "Effect")
-	}
-	if needsBigInt {
-		effectSymbols = append(effectSymbols, "SchemaGetter")
 	}
 	imports["effect"] = effectSymbols
 	return imports
@@ -145,14 +135,12 @@ func (e *Effect4) buildRequestImports(queryViews []QueryView) Imports {
 
 func (e *Effect4) buildResponseImports(queryViews []QueryView) Imports {
 	imports := Imports{"effect": []string{"Schema"}}
-	needsSchemaTransformation := false
 	modelSymbols := []string{}
 	for _, query := range queryViews {
 		for _, field := range query.ResultFields {
 			modelSymbols = append(modelSymbols, field.ModelImports...)
 		}
 		if query.HasEmbeds {
-			needsSchemaTransformation = true
 			for _, group := range query.EmbedGroups {
 				modelSymbols = append(modelSymbols, group.RowSchema)
 			}
@@ -160,9 +148,6 @@ func (e *Effect4) buildResponseImports(queryViews []QueryView) Imports {
 				modelSymbols = append(modelSymbols, field.ModelImports...)
 			}
 		}
-	}
-	if needsSchemaTransformation {
-		imports["effect"] = append(imports["effect"], "SchemaTransformation")
 	}
 	if symbols := uniqueSorted(modelSymbols); len(symbols) > 0 {
 		imports[e.localImportPath("./models")] = symbols
@@ -176,12 +161,18 @@ func (e *Effect4) buildRepositoryImports(repoName string, queryViews []QueryView
 	responseSymbols := make([]string, 0, len(queryViews))
 	needsExecRows := false
 	needsExecResult := false
+	needsOption := false
 	for _, query := range queryViews {
 		if query.HasParams {
 			requestSymbols = append(requestSymbols, query.NamePascal+"Params")
 		}
 		if query.HasResults {
-			responseSymbols = append(responseSymbols, query.NamePascal+"Result")
+			if query.HasEmbeds {
+				responseSymbols = append(responseSymbols, query.NamePascal+"Row", "map"+query.NamePascal+"RowToResult")
+				needsOption = needsOption || query.Command == ":one"
+			} else {
+				responseSymbols = append(responseSymbols, query.NamePascal+"Result")
+			}
 		}
 		if query.Command == ":execrows" {
 			needsExecRows = true
@@ -189,6 +180,9 @@ func (e *Effect4) buildRepositoryImports(repoName string, queryViews []QueryView
 		if query.Command == ":execresult" {
 			needsExecResult = true
 		}
+	}
+	if needsOption {
+		imports["effect"] = append(imports["effect"], "Option")
 	}
 	if symbols := uniqueSorted(requestSymbols); len(symbols) > 0 {
 		imports[e.localImportPath("./"+repoName+"Request")] = symbols

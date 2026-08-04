@@ -12,7 +12,7 @@
   "license": "ISC",
   "devDependencies": {
     "@testcontainers/postgresql": "12.0.4",
-    "@types/pg": "8.20.0",
+    "@types/pg": "8.20.2",
     "testcontainers": "12.0.4",
     "typescript": "7.0.2",
     "vitest": "4.1.10"

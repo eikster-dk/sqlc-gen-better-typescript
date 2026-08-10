@@ -11,9 +11,9 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@testcontainers/postgresql": "12.0.4",
-    "@types/pg": "8.20.0",
-    "testcontainers": "12.0.4",
+    "@testcontainers/postgresql": "12.1.0",
+    "@types/pg": "8.20.4",
+    "testcontainers": "12.1.0",
     "typescript": "7.0.2",
     "vitest": "4.1.10"
   },

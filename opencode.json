@@ -1,0 +1,10 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "references": {
+    "effect": {
+      "repository": "Effect-TS/effect",
+      "branch": "main",
+      "description": "Use for Effect v4 APIs, implementation details, tests, and repository conventions"
+    }
+  }
+}

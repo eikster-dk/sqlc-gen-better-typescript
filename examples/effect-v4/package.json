@@ -13,16 +13,16 @@
   "license": "ISC",
   "devDependencies": {
     "@effect/language-service": "0.87.2",
-    "@effect/vitest": "4.0.0-rc.110",
+    "@effect/vitest": "4.0.0-rc.111",
     "@testcontainers/postgresql": "12.1.0",
     "testcontainers": "12.1.0",
     "typescript": "7.0.2",
-    "vitest": "4.1.10"
+    "vitest": "4.1.11"
   },
   "dependencies": {
-    "@effect/platform-node": "4.0.0-rc.110",
-    "@effect/sql-pg": "4.0.0-rc.110",
-    "effect": "4.0.0-rc.110"
+    "@effect/platform-node": "4.0.0-rc.111",
+    "@effect/sql-pg": "4.0.0-rc.111",
+    "effect": "4.0.0-rc.111"
   },
   "packageManager": "pnpm@10.30.3"
 }

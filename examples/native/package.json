@@ -12,14 +12,14 @@
   "license": "ISC",
   "devDependencies": {
     "@testcontainers/postgresql": "12.1.0",
-    "@types/pg": "8.21.0",
+    "@types/pg": "8.23.1",
     "testcontainers": "12.1.0",
     "typescript": "7.0.2",
     "vitest": "4.1.11"
   },
   "dependencies": {
     "pg": "8.23.0",
-    "zod": "4.4.3"
+    "zod": "4.5.2"
   },
   "packageManager": "pnpm@10.30.3"
 }

@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "pg": "8.23.0",
-    "zod": "4.4.3"
+    "zod": "4.5.4"
   },
   "packageManager": "pnpm@10.30.3"
 }

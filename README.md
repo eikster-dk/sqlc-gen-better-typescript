@@ -15,7 +15,7 @@ A [sqlc](https://sqlc.dev) WASM plugin that generates type-safe TypeScript code 
 
 | Plugin | Description | Docs |
 |--------|-------------|------|
-| **Effect v4** | Repository services using `effect/unstable/sql` and Effect Schema | [docs/effect-v4.md](docs/effect-v4.md) |
+| **Effect v4** | Repository services using `effect/sql` and Effect Schema | [docs/effect-v4.md](docs/effect-v4.md) |
 | **Native TypeScript** | Plain async functions using Zod validation and a `SqlClient` interface | [docs/native-typescript.md](docs/native-typescript.md) |
 
 ### Planned

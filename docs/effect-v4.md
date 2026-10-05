@@ -1,6 +1,6 @@
 # Effect v4 Plugin
 
-The Effect v4 plugin generates idiomatic Effect v4 code using the `effect/unstable/sql` module.
+The Effect v4 plugin generates idiomatic Effect v4 code using the `effect/sql` module.
 
 ## Requirements
 
@@ -238,7 +238,7 @@ For each repository, the builder generates:
 ```typescript
 import { CustomersRepository, customersRepositoryLive } from "./repositories/CustomersRepository"
 import { Effect, Layer } from "effect"
-import { PgClient } from "effect/unstable/sql/PgClient"
+import { PgClient } from "@effect/sql-pg"
 
 const program = Effect.gen(function* () {
   const repo = yield* CustomersRepository

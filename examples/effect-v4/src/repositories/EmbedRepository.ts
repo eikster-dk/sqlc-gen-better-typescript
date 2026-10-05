@@ -2,7 +2,7 @@
 import { GetOrderWithCustomerEmbedParams } from "./EmbedRepositoryRequest.js"
 import { GetOrderWithCustomerEmbedRow, ListOrdersWithCustomerEmbedRow, mapGetOrderWithCustomerEmbedRowToResult, mapListOrdersWithCustomerEmbedRowToResult } from "./EmbedRepositoryResponse.js"
 import { Context, Effect, Layer, Option, Schema } from "effect"
-import { SqlClient, SqlSchema } from "effect/unstable/sql"
+import { SqlClient, SqlSchema } from "effect/sql"
 
 // Implementation
 const embedRepositoryMake = Effect.gen(function* () {

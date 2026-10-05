@@ -3,7 +3,7 @@ import { CreateOrderLineParams, CreateOrderParams, DeleteOrderLineParams, Delete
 import { CountOrdersByStatusResult, CreateOrderLineResult, CreateOrderResult, GetCustomerOrderStatsResult, GetFullOrderDetailsResult, GetOrderLineResult, GetOrderLineTotalResult, GetOrderResult, GetOrderWithCustomerResult, GetOrdersByProductIdsResult, GetOrdersWithLineCountResult, GetProductSalesStatsResult, GetTopSellingProductsResult, ListOrderLinesResult, ListOrderLinesWithProductResult, ListOrdersByCustomerResult, ListOrdersByDateRangeNamedResult, ListOrdersByDateRangeResult, ListOrdersByStatusResult, ListOrdersPaginatedResult, ListOrdersResult, ListRecentOrdersWithCustomerResult, SearchOrdersResult } from "./OrdersRepositoryResponse.js"
 import { execRows } from "./models.js"
 import { Context, Effect, Layer, Schema } from "effect"
-import { SqlClient, SqlSchema } from "effect/unstable/sql"
+import { SqlClient, SqlSchema } from "effect/sql"
 
 // Implementation
 const ordersRepositoryMake = Effect.gen(function* () {

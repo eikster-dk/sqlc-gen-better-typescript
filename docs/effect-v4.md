@@ -2,9 +2,41 @@
 
 The Effect v4 plugin generates idiomatic Effect v4 code using the `effect/sql` module.
 
+### PostgreSQL binary types
+
+The example uses the native binary-protocol driver in `@effect/sql-pg` 4.0.1.
+PostgreSQL `bigint`/`int8` and `bigserial` values use `Schema.BigInt` for both
+parameters and results, including nullable values and arrays. Pass JavaScript
+`bigint` values (such as `42n`), rather than decimal strings.
+
+For expressions whose types sqlc cannot infer, specify the SQL result type
+explicitly. For example, use `COALESCE(SUM(total_cents), 0)::bigint` so its schema
+matches PostgreSQL's integer aggregate result. PostgreSQL `numeric` results,
+such as `AVG(integer)`, still decode to decimal strings.
+
+Binary `real`/`float4` results can differ slightly from the driver's former
+text-parsed values when represented as JavaScript numbers. Use approximate
+assertions when testing computed floating-point values.
+
+The driver does not include a binary `tsvector` codec. Cast returned search
+vectors to text explicitly so PostgreSQL handles the conversion and the default
+driver codecs can read them:
+
+```sql
+SELECT id, search_vector::text AS search_vector
+FROM orders;
+```
+
+Since `sqlc.embed` includes every column, the example embeds an `order_details`
+view that projects `search_vector::text` alongside the other order columns. See
+[`schema/003_orders.sql`](../examples/effect-v4/schema/003_orders.sql) and
+[`queries/embed.sql`](../examples/effect-v4/queries/embed.sql). The base table
+retains its native `tsvector` and GIN index for full-text search. No custom driver
+codec is required; these casts are written explicitly in SQL.
+
 ## Requirements
 
-- [Effect](https://effect.website) v4 (beta)
+- [Effect](https://effect.website) v4 (stable)
 - TypeScript 5.5+
 
 ## What it generates

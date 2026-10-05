@@ -44,11 +44,7 @@ exports[`OrdersRepository > getCustomerOrderStats > returns order statistics for
       "value": "8332.3333333333333333",
     },
     "total_orders": 3n,
-    "total_spent": {
-      "_id": "Option",
-      "_tag": "Some",
-      "value": "24997",
-    },
+    "total_spent": 24997n,
   },
 }
 `;
@@ -143,11 +139,7 @@ exports[`OrdersRepository > getOrderLineTotal > returns total for order lines 1`
   "_id": "Option",
   "_tag": "Some",
   "value": {
-    "total": {
-      "_id": "Option",
-      "_tag": "Some",
-      "value": "79994",
-    },
+    "total": 79994n,
   },
 }
 `;
@@ -193,16 +185,8 @@ exports[`OrdersRepository > getProductSalesStats > returns sales statistics for 
     "id": 1,
     "name": "Wireless Headphones",
     "sku": "ELEC-001",
-    "total_revenue": {
-      "_id": "Option",
-      "_tag": "Some",
-      "value": "134991",
-    },
-    "total_sold": {
-      "_id": "Option",
-      "_tag": "Some",
-      "value": "9",
-    },
+    "total_revenue": 134991n,
+    "total_sold": 9n,
   },
 }
 `;

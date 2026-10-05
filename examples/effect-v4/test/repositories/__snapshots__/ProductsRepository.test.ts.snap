@@ -1514,7 +1514,7 @@ exports[`ProductsRepository > searchProductsRanked > returns ranked search resul
     "id": 6,
     "name": "Cotton T-Shirt",
     "price_cents": 1999,
-    "rank": 0.075990885,
+    "rank": 0.07599088549613953,
     "sku": "CLTH-001",
     "stock_quantity": 200,
   },

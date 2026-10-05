@@ -10,18 +10,18 @@ const embedRepositoryMake = Effect.gen(function* () {
 
   // GetOrderWithCustomerEmbed
   //
-  // SELECT orders.id AS orders_id, orders.customer_id AS orders_customer_id, orders.status AS orders_status, orders.total_cents AS orders_total_cents, orders.shipping_address AS orders_shipping_address, orders.billing_address AS orders_billing_address, orders.notes AS orders_notes, orders.created_at AS orders_created_at, orders.updated_at AS orders_updated_at, orders.search_vector AS orders_search_vector, customers.id AS customers_id, customers.email AS customers_email, customers.name AS customers_name, customers.phone AS customers_phone, customers.created_at AS customers_created_at, customers.updated_at AS customers_updated_at
-  // FROM orders
-  // JOIN customers ON orders.customer_id = customers.id
-  // WHERE orders.id = $1
+  // SELECT order_details.id AS order_details_id, order_details.customer_id AS order_details_customer_id, order_details.status AS order_details_status, order_details.total_cents AS order_details_total_cents, order_details.shipping_address AS order_details_shipping_address, order_details.billing_address AS order_details_billing_address, order_details.notes AS order_details_notes, order_details.created_at AS order_details_created_at, order_details.updated_at AS order_details_updated_at, order_details.search_vector AS order_details_search_vector, customers.id AS customers_id, customers.email AS customers_email, customers.name AS customers_name, customers.phone AS customers_phone, customers.created_at AS customers_created_at, customers.updated_at AS customers_updated_at
+  // FROM order_details
+  // JOIN customers ON order_details.customer_id = customers.id
+  // WHERE order_details.id = $1
   const getOrderWithCustomerEmbedRaw = SqlSchema.findOneOption({
     Request: GetOrderWithCustomerEmbedParams,
     Result: GetOrderWithCustomerEmbedRow,
     execute: (params) => sql`
-SELECT orders.id AS orders_id, orders.customer_id AS orders_customer_id, orders.status AS orders_status, orders.total_cents AS orders_total_cents, orders.shipping_address AS orders_shipping_address, orders.billing_address AS orders_billing_address, orders.notes AS orders_notes, orders.created_at AS orders_created_at, orders.updated_at AS orders_updated_at, orders.search_vector AS orders_search_vector, customers.id AS customers_id, customers.email AS customers_email, customers.name AS customers_name, customers.phone AS customers_phone, customers.created_at AS customers_created_at, customers.updated_at AS customers_updated_at
-FROM orders
-JOIN customers ON orders.customer_id = customers.id
-WHERE orders.id = ${params.id}`
+SELECT order_details.id AS order_details_id, order_details.customer_id AS order_details_customer_id, order_details.status AS order_details_status, order_details.total_cents AS order_details_total_cents, order_details.shipping_address AS order_details_shipping_address, order_details.billing_address AS order_details_billing_address, order_details.notes AS order_details_notes, order_details.created_at AS order_details_created_at, order_details.updated_at AS order_details_updated_at, order_details.search_vector AS order_details_search_vector, customers.id AS customers_id, customers.email AS customers_email, customers.name AS customers_name, customers.phone AS customers_phone, customers.created_at AS customers_created_at, customers.updated_at AS customers_updated_at
+FROM order_details
+JOIN customers ON order_details.customer_id = customers.id
+WHERE order_details.id = ${params.id}`
   })
 
   const getOrderWithCustomerEmbed = (params: GetOrderWithCustomerEmbedParams) =>
@@ -30,17 +30,17 @@ WHERE orders.id = ${params.id}`
     )
 
   // ListOrdersWithCustomerEmbed
-  // SELECT orders.id AS orders_id, orders.customer_id AS orders_customer_id, orders.status AS orders_status, orders.total_cents AS orders_total_cents, orders.shipping_address AS orders_shipping_address, orders.billing_address AS orders_billing_address, orders.notes AS orders_notes, orders.created_at AS orders_created_at, orders.updated_at AS orders_updated_at, orders.search_vector AS orders_search_vector, customers.id AS customers_id, customers.email AS customers_email, customers.name AS customers_name, customers.phone AS customers_phone, customers.created_at AS customers_created_at, customers.updated_at AS customers_updated_at
-  // FROM orders
-  // JOIN customers ON orders.customer_id = customers.id
-  // ORDER BY orders.created_at DESC
+  // SELECT order_details.id AS order_details_id, order_details.customer_id AS order_details_customer_id, order_details.status AS order_details_status, order_details.total_cents AS order_details_total_cents, order_details.shipping_address AS order_details_shipping_address, order_details.billing_address AS order_details_billing_address, order_details.notes AS order_details_notes, order_details.created_at AS order_details_created_at, order_details.updated_at AS order_details_updated_at, order_details.search_vector AS order_details_search_vector, customers.id AS customers_id, customers.email AS customers_email, customers.name AS customers_name, customers.phone AS customers_phone, customers.created_at AS customers_created_at, customers.updated_at AS customers_updated_at
+  // FROM order_details
+  // JOIN customers ON order_details.customer_id = customers.id
+  // ORDER BY order_details.created_at DESC
   const listOrdersWithCustomerEmbedRaw = SqlSchema.findAll({
     Request: Schema.Void,
     Result: ListOrdersWithCustomerEmbedRow,
-    execute: () => sql`SELECT orders.id AS orders_id, orders.customer_id AS orders_customer_id, orders.status AS orders_status, orders.total_cents AS orders_total_cents, orders.shipping_address AS orders_shipping_address, orders.billing_address AS orders_billing_address, orders.notes AS orders_notes, orders.created_at AS orders_created_at, orders.updated_at AS orders_updated_at, orders.search_vector AS orders_search_vector, customers.id AS customers_id, customers.email AS customers_email, customers.name AS customers_name, customers.phone AS customers_phone, customers.created_at AS customers_created_at, customers.updated_at AS customers_updated_at
-FROM orders
-JOIN customers ON orders.customer_id = customers.id
-ORDER BY orders.created_at DESC`
+    execute: () => sql`SELECT order_details.id AS order_details_id, order_details.customer_id AS order_details_customer_id, order_details.status AS order_details_status, order_details.total_cents AS order_details_total_cents, order_details.shipping_address AS order_details_shipping_address, order_details.billing_address AS order_details_billing_address, order_details.notes AS order_details_notes, order_details.created_at AS order_details_created_at, order_details.updated_at AS order_details_updated_at, order_details.search_vector AS order_details_search_vector, customers.id AS customers_id, customers.email AS customers_email, customers.name AS customers_name, customers.phone AS customers_phone, customers.created_at AS customers_created_at, customers.updated_at AS customers_updated_at
+FROM order_details
+JOIN customers ON order_details.customer_id = customers.id
+ORDER BY order_details.created_at DESC`
   })
 
   const listOrdersWithCustomerEmbed = () =>

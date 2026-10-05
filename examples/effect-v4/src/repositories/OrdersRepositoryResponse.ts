@@ -157,14 +157,14 @@ export type CreateOrderResult = typeof CreateOrderResult.Type
 // CountOrdersByStatus - Result Schema
 export const CountOrdersByStatusResult = Schema.Struct({
   status: OrderStatusSchema,
-  order_count: Schema.BigIntFromString,
+  order_count: Schema.BigInt,
 })
 
 export type CountOrdersByStatusResult = typeof CountOrdersByStatusResult.Type
 // GetCustomerOrderStats - Result Schema
 export const GetCustomerOrderStatsResult = Schema.Struct({
-  total_orders: Schema.BigIntFromString,
-  total_spent: Schema.OptionFromNullOr(Schema.String),
+  total_orders: Schema.BigInt,
+  total_spent: Schema.BigInt,
   avg_order_value: Schema.OptionFromNullOr(Schema.String),
 })
 
@@ -176,7 +176,7 @@ export const GetOrdersWithLineCountResult = Schema.Struct({
   status: OrderStatusSchema,
   total_cents: Schema.Int,
   created_at: Schema.Date,
-  line_count: Schema.BigIntFromString,
+  line_count: Schema.BigInt,
 })
 
 export type GetOrdersWithLineCountResult = typeof GetOrdersWithLineCountResult.Type
@@ -252,7 +252,7 @@ export const CreateOrderLineResult = Schema.Struct({
 export type CreateOrderLineResult = typeof CreateOrderLineResult.Type
 // GetOrderLineTotal - Result Schema
 export const GetOrderLineTotalResult = Schema.Struct({
-  total: Schema.OptionFromNullOr(Schema.String),
+  total: Schema.BigInt,
 })
 
 export type GetOrderLineTotalResult = typeof GetOrderLineTotalResult.Type
@@ -261,8 +261,8 @@ export const GetProductSalesStatsResult = Schema.Struct({
   id: Schema.Int,
   sku: Schema.String,
   name: Schema.String,
-  total_sold: Schema.OptionFromNullOr(Schema.String),
-  total_revenue: Schema.OptionFromNullOr(Schema.String),
+  total_sold: Schema.BigInt,
+  total_revenue: Schema.BigInt,
 })
 
 export type GetProductSalesStatsResult = typeof GetProductSalesStatsResult.Type
@@ -272,8 +272,8 @@ export const GetTopSellingProductsResult = Schema.Struct({
   sku: Schema.String,
   name: Schema.String,
   category: Schema.OptionFromNullOr(Schema.String),
-  total_sold: Schema.BigIntFromString,
-  total_revenue: Schema.BigIntFromString,
+  total_sold: Schema.BigInt,
+  total_revenue: Schema.BigInt,
 })
 
 export type GetTopSellingProductsResult = typeof GetTopSellingProductsResult.Type

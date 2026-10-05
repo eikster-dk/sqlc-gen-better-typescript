@@ -35,3 +35,10 @@ ALTER TABLE orders ADD COLUMN search_vector TSVECTOR
     ) STORED;
 
 CREATE INDEX orders_search_idx ON orders USING GIN(search_vector);
+
+-- sqlc.embed includes every column, so expose a text projection for reads.
+-- The base table retains its native tsvector and GIN index for searching.
+CREATE VIEW order_details AS
+SELECT id, customer_id, status, total_cents, shipping_address, billing_address,
+       notes, created_at, updated_at, search_vector::text AS search_vector
+FROM orders;

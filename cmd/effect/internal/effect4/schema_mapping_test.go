@@ -23,8 +23,8 @@ func TestEffect4_BigIntTypesUseBuiltInSchema(t *testing.T) {
 	for _, name := range []string{"bigint", "int8", "bigserial", "serial8"} {
 		t.Run(name, func(t *testing.T) {
 			got := e.sqlTypeToEffectSchemaBase(models.SqlType{Name: name})
-			if got.Schema != "Schema.BigIntFromString" {
-				t.Fatalf("bigint schema = %q, want %q", got.Schema, "Schema.BigIntFromString")
+			if got.Schema != "Schema.BigInt" {
+				t.Fatalf("bigint schema = %q, want %q", got.Schema, "Schema.BigInt")
 			}
 			if len(got.ModelImports) != 0 {
 				t.Fatalf("expected no model imports, got %#v", got.ModelImports)

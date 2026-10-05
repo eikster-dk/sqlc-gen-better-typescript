@@ -1,7 +1,7 @@
 import { PostgreSqlContainer, type StartedPostgreSqlContainer } from "@testcontainers/postgresql"
 import { Layer, Redacted } from "effect"
 import { PgClient } from "@effect/sql-pg"
-import { SqlClient, SqlError } from "effect/unstable/sql"
+import { SqlClient, SqlError } from "effect/sql"
 import * as fs from "node:fs"
 import * as path from "node:path"
 

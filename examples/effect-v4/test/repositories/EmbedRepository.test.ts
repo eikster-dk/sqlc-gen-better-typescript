@@ -1,7 +1,7 @@
 import { describe, beforeAll, afterAll, expect, it } from "@effect/vitest"
 import { Effect, Layer, Option } from "effect"
 import type { StartedPostgreSqlContainer } from "@testcontainers/postgresql"
-import { SqlError } from "effect/unstable/sql"
+import { SqlError } from "effect/sql"
 import { startPostgres, stopPostgres, makeTestLayer } from "../setup/testcontainers.js"
 import { seedDatabase } from "../setup/seed.js"
 import {
@@ -37,18 +37,18 @@ describe("EmbedRepository", () => {
         expect(Option.isSome(result)).toBe(true)
         const row = Option.getOrNull(result)!
 
-        expect(row.order.id).toBe(1)
-        expect(row.order.customer_id).toBe(1)
-        expect(row.order.status).toBe("delivered")
-        expect(row.order.total_cents).toBe(19998)
-        expect(Option.getOrNull(row.order.shipping_address)).toBe("123 Main St, New York, NY 10001")
+        expect(row.orderDetail.id).toBe(1)
+        expect(row.orderDetail.customer_id).toBe(1)
+        expect(row.orderDetail.status).toBe("delivered")
+        expect(row.orderDetail.total_cents).toBe(19998)
+        expect(Option.getOrNull(row.orderDetail.shipping_address)).toBe("123 Main St, New York, NY 10001")
 
         expect(row.customer.id).toBe(1)
         expect(row.customer.email).toBe("alice@example.com")
         expect(row.customer.name).toBe("Alice Johnson")
         expect(Option.getOrNull(row.customer.phone)).toBe("+1-555-0101")
 
-        expect((row as Record<string, unknown>)["orders_id"]).toBeUndefined()
+        expect((row as Record<string, unknown>)["order_details_id"]).toBeUndefined()
         expect((row as Record<string, unknown>)["customers_id"]).toBeUndefined()
         expect(row).toMatchSnapshot()
       }).pipe(Effect.provide(testLayer))
@@ -71,11 +71,11 @@ describe("EmbedRepository", () => {
         const result = yield* repo.listOrdersWithCustomerEmbed()
 
         expect(result.length).toBe(15)
-        expect(result[0]!.order.id).toBe(15)
+        expect(result[0]!.orderDetail.id).toBe(15)
         expect(result[0]!.customer.id).toBe(10)
-        expect(result.every((row) => row.order.customer_id === row.customer.id)).toBe(true)
+        expect(result.every((row) => row.orderDetail.customer_id === row.customer.id)).toBe(true)
 
-        const orderOne = result.find((row) => row.order.id === 1)
+        const orderOne = result.find((row) => row.orderDetail.id === 1)
         expect(orderOne).toBeDefined()
         expect(orderOne!.customer.email).toBe("alice@example.com")
         expect(orderOne!.customer.name).toBe("Alice Johnson")

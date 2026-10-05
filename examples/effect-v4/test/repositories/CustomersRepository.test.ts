@@ -1,7 +1,7 @@
 import { describe, beforeAll, afterAll, expect, it } from "@effect/vitest"
 import { Effect, Layer, Option } from "effect"
 import type { StartedPostgreSqlContainer } from "@testcontainers/postgresql"
-import { SqlError } from "effect/unstable/sql"
+import { SqlError } from "effect/sql"
 import { startPostgres, stopPostgres, makeTestLayer } from "../setup/testcontainers.js"
 import { seedDatabase } from "../setup/seed.js"
 import {

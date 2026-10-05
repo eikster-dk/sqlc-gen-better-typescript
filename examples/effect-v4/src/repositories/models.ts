@@ -50,8 +50,8 @@ export const CustomersRow = Schema.Struct({
   updated_at: Schema.Date,
 })
 
-// Orders table row schema
-export const OrdersRow = Schema.Struct({
+// OrderDetails table row schema
+export const OrderDetailsRow = Schema.Struct({
   id: Schema.Int,
   customer_id: Schema.Int,
   status: OrderStatusSchema,
@@ -61,5 +61,5 @@ export const OrdersRow = Schema.Struct({
   notes: Schema.OptionFromNullOr(Schema.String),
   created_at: Schema.Date,
   updated_at: Schema.Date,
-  search_vector: Schema.OptionFromNullOr(Schema.String),
+  search_vector: Schema.String,
 })

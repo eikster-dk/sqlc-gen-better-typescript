@@ -164,8 +164,8 @@ func TestEffect4_Build_UsesBuiltInBigIntSchema(t *testing.T) {
 			t.Fatalf("expected %s in output", name)
 		}
 		content := string(file.Content)
-		if !strings.Contains(content, "Schema.BigIntFromString") {
-			t.Errorf("expected %s to use Schema.BigIntFromString", name)
+		if !strings.Contains(content, "total: Schema.BigInt,") {
+			t.Errorf("expected %s to use Schema.BigInt", name)
 		}
 		if strings.Contains(content, `from "./models"`) {
 			t.Errorf("expected %s not to import bigint schema from models", name)

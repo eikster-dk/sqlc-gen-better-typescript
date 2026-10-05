@@ -102,7 +102,7 @@ export const PatchCustomerResult = Schema.Struct({
 export type PatchCustomerResult = typeof PatchCustomerResult.Type
 // CountCustomers - Result Schema
 export const CountCustomersResult = Schema.Struct({
-  total: Schema.BigIntFromString,
+  total: Schema.BigInt,
 })
 
 export type CountCustomersResult = typeof CountCustomersResult.Type

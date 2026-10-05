@@ -3,7 +3,7 @@ import { CreateOrderLineParams, CreateOrderParams, DeleteOrderLineParams, Delete
 import { CountOrdersByStatusResult, CreateOrderLineResult, CreateOrderResult, GetCustomerOrderStatsResult, GetFullOrderDetailsResult, GetOrderLineResult, GetOrderLineTotalResult, GetOrderResult, GetOrderWithCustomerResult, GetOrdersByProductIdsResult, GetOrdersWithLineCountResult, GetProductSalesStatsResult, GetTopSellingProductsResult, ListOrderLinesResult, ListOrderLinesWithProductResult, ListOrdersByCustomerResult, ListOrdersByDateRangeNamedResult, ListOrdersByDateRangeResult, ListOrdersByStatusResult, ListOrdersPaginatedResult, ListOrdersResult, ListRecentOrdersWithCustomerResult, SearchOrdersResult } from "./OrdersRepositoryResponse.js"
 import { execRows } from "./models.js"
 import { Context, Effect, Layer, Schema } from "effect"
-import { SqlClient, SqlSchema } from "effect/unstable/sql"
+import { SqlClient, SqlSchema } from "effect/sql"
 
 // Implementation
 const ordersRepositoryMake = Effect.gen(function* () {
@@ -234,7 +234,7 @@ ORDER BY order_count DESC`
   // GetCustomerOrderStats
   // SELECT
   //     COUNT(*) AS total_orders,
-  //     COALESCE(SUM(total_cents), 0) AS total_spent,
+  //     COALESCE(SUM(total_cents), 0)::bigint AS total_spent,
   //     COALESCE(AVG(total_cents), 0) AS avg_order_value
   // FROM orders
   // WHERE customer_id = $1
@@ -243,7 +243,7 @@ ORDER BY order_count DESC`
     Result: GetCustomerOrderStatsResult,
     execute: (params) => sql`SELECT
     COUNT(*) AS total_orders,
-    COALESCE(SUM(total_cents), 0) AS total_spent,
+    COALESCE(SUM(total_cents), 0)::bigint AS total_spent,
     COALESCE(AVG(total_cents), 0) AS avg_order_value
 FROM orders
 WHERE customer_id = ${params.customerId}`
@@ -390,14 +390,14 @@ WHERE order_id = ${params.orderId}`
 
   // GetOrderLineTotal
   // SELECT
-  //     COALESCE(SUM((unit_price_cents * quantity) - discount_cents), 0) AS total
+  //     COALESCE(SUM((unit_price_cents * quantity) - discount_cents), 0)::bigint AS total
   // FROM order_lines
   // WHERE order_id = $1
   const getOrderLineTotal = SqlSchema.findOneOption({
     Request: GetOrderLineTotalParams,
     Result: GetOrderLineTotalResult,
     execute: (params) => sql`SELECT
-    COALESCE(SUM((unit_price_cents * quantity) - discount_cents), 0) AS total
+    COALESCE(SUM((unit_price_cents * quantity) - discount_cents), 0)::bigint AS total
 FROM order_lines
 WHERE order_id = ${params.orderId}`
   })
@@ -405,8 +405,8 @@ WHERE order_id = ${params.orderId}`
   // GetProductSalesStats
   // SELECT
   //     p.id, p.sku, p.name,
-  //     COALESCE(SUM(ol.quantity), 0) AS total_sold,
-  //     COALESCE(SUM(ol.quantity * ol.unit_price_cents), 0) AS total_revenue
+  //     COALESCE(SUM(ol.quantity), 0)::bigint AS total_sold,
+  //     COALESCE(SUM(ol.quantity * ol.unit_price_cents), 0)::bigint AS total_revenue
   // FROM products p
   // LEFT JOIN order_lines ol ON p.id = ol.product_id
   // WHERE p.id = $1
@@ -416,8 +416,8 @@ WHERE order_id = ${params.orderId}`
     Result: GetProductSalesStatsResult,
     execute: (params) => sql`SELECT
     p.id, p.sku, p.name,
-    COALESCE(SUM(ol.quantity), 0) AS total_sold,
-    COALESCE(SUM(ol.quantity * ol.unit_price_cents), 0) AS total_revenue
+    COALESCE(SUM(ol.quantity), 0)::bigint AS total_sold,
+    COALESCE(SUM(ol.quantity * ol.unit_price_cents), 0)::bigint AS total_revenue
 FROM products p
 LEFT JOIN order_lines ol ON p.id = ol.product_id
 WHERE p.id = ${params.id}

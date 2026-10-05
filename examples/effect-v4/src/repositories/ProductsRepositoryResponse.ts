@@ -201,7 +201,7 @@ export type GetProductsByIdsResult = typeof GetProductsByIdsResult.Type
 // CountProductsByCategory - Result Schema
 export const CountProductsByCategoryResult = Schema.Struct({
   category: Schema.OptionFromNullOr(Schema.String),
-  product_count: Schema.BigIntFromString,
+  product_count: Schema.BigInt,
 })
 
 export type CountProductsByCategoryResult = typeof CountProductsByCategoryResult.Type

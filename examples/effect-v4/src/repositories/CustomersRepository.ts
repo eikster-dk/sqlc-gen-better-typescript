@@ -3,7 +3,7 @@ import { CreateCustomerParams, DeleteCustomerParams, DeleteCustomerResultParams,
 import { CountCustomersResult, CreateCustomerResult, GetCustomerByEmailResult, GetCustomerResult, GetCustomersByIdsResult, GetCustomersByIdsSliceResult, ListCustomersPaginatedResult, ListCustomersResult, PatchCustomerResult, SearchCustomersByEmailDomainResult, SearchCustomersByNameResult, UpdateCustomerResult } from "./CustomersRepositoryResponse.js"
 import { execResult } from "./models.js"
 import { Context, Effect, Layer, Schema } from "effect"
-import { SqlClient, SqlSchema } from "effect/unstable/sql"
+import { SqlClient, SqlSchema } from "effect/sql"
 
 // Implementation
 const customersRepositoryMake = Effect.gen(function* () {

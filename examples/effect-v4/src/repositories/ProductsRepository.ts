@@ -3,7 +3,7 @@ import { CreateProductParams, DeactivateProductParams, DeleteProductParams, GetL
 import { CountProductsByCategoryResult, CreateProductResult, GetLowStockProductsResult, GetProductBySkuResult, GetProductResult, GetProductsByIdsResult, ListActiveProductsResult, ListProductsByCategoryResult, ListProductsCursorResult, ListProductsPaginatedResult, ListProductsResult, SearchProductsRankedResult, SearchProductsResult, SearchProductsWebStyleResult, SearchProductsWithHighlightResult, UpdateProductResult } from "./ProductsRepositoryResponse.js"
 import { execRows } from "./models.js"
 import { Context, Effect, Layer, Schema } from "effect"
-import { SqlClient, SqlSchema } from "effect/unstable/sql"
+import { SqlClient, SqlSchema } from "effect/sql"
 
 // Implementation
 const productsRepositoryMake = Effect.gen(function* () {

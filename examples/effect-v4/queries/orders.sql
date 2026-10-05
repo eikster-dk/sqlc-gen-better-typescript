@@ -98,9 +98,10 @@ GROUP BY status
 ORDER BY order_count DESC;
 
 -- name: GetCustomerOrderStats :one
+-- Explicit casts let sqlc resolve COALESCE aggregate results to their wire types.
 SELECT 
     COUNT(*) AS total_orders,
-    COALESCE(SUM(total_cents), 0) AS total_spent,
+    COALESCE(SUM(total_cents), 0)::bigint AS total_spent,
     COALESCE(AVG(total_cents), 0) AS avg_order_value
 FROM orders
 WHERE customer_id = $1;
@@ -172,15 +173,15 @@ WHERE order_id = $1;
 
 -- name: GetOrderLineTotal :one
 SELECT 
-    COALESCE(SUM((unit_price_cents * quantity) - discount_cents), 0) AS total
+    COALESCE(SUM((unit_price_cents * quantity) - discount_cents), 0)::bigint AS total
 FROM order_lines
 WHERE order_id = $1;
 
 -- name: GetProductSalesStats :one
 SELECT 
     p.id, p.sku, p.name,
-    COALESCE(SUM(ol.quantity), 0) AS total_sold,
-    COALESCE(SUM(ol.quantity * ol.unit_price_cents), 0) AS total_revenue
+    COALESCE(SUM(ol.quantity), 0)::bigint AS total_sold,
+    COALESCE(SUM(ol.quantity * ol.unit_price_cents), 0)::bigint AS total_revenue
 FROM products p
 LEFT JOIN order_lines ol ON p.id = ol.product_id
 WHERE p.id = $1

@@ -11,15 +11,15 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@testcontainers/postgresql": "12.1.0",
+    "@testcontainers/postgresql": "12.2.0",
     "@types/pg": "8.23.1",
-    "testcontainers": "12.1.0",
+    "testcontainers": "12.2.0",
     "typescript": "7.0.2",
-    "vitest": "5.0.0"
+    "vitest": "5.0.3"
   },
   "dependencies": {
-    "pg": "8.23.0",
-    "zod": "4.6.2"
+    "pg": "8.23.1",
+    "zod": "4.6.5"
   },
   "packageManager": "pnpm@10.30.3"
 }
